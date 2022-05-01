@@ -1,0 +1,59 @@
+const express = require("express");
+const dotenv = require("dotenv");
+const logger = require("./middlewares/Logger");
+const cors = require("cors");
+const connectDB = require("./config/db");
+
+dotenv.config({ path: "./config/config.env" });
+
+// connect DB
+connectDB();
+
+// Routes Files
+const bet = require("./routes/Bet");
+const auth = require("./routes/auth");
+const agent = require("./routes/Agent");
+const error = require("./middlewares/error");
+
+const app = express();
+
+app.use(cors());
+
+// Body Parser
+app.use(express.json());
+
+// middleware
+app.use(logger);
+
+// routers
+app.use(
+  "/api/v1/auth",
+  // () => res.header("Access-Control-Allow-Origin", "*"),
+  auth
+);
+app.use(
+  "/api/v1/agents",
+  // () => res.header("Access-Control-Allow-Origin"),
+  agent
+);
+app.use(
+  "/api/v1/betting",
+  // () => res.header("Access-Control-Allow-Origin"),
+  bet
+);
+
+app.use(error);
+
+const PORT = process.env.PORT;
+
+const server = app.listen(
+  PORT,
+  console.log(`Server is running on port : ${PORT}`)
+);
+
+// Handle unhandled promise rejections
+process.on("unhandledRejection", (err, promise) => {
+  console.log(`Error: ${err.message}`);
+  // Close server and exit
+  server.close(() => process.exit(1));
+});

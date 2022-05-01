@@ -1,0 +1,12 @@
+{
+  "name": "Admin",
+  "username": "admin",
+  "password": "admin123",
+  "phone": "0963939233",
+  "role": "Admin",
+  "twoDCommission": 10,
+  "betCommissions": {
+    "betCommission": true,
+    "winCommission": true
+  }
+}

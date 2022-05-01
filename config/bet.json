@@ -1,0 +1,10 @@
+{
+  "agent": "6235e59727392a37a7b3f45d",
+  "code": "A-1",
+  "betCommission": "10",
+  "betNumbers": [
+    { "number": 56, "amount": 1000 },
+    { "number": 65, "amount": 1000 }
+  ],
+  "totalAmount": 2000
+}

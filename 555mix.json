@@ -1,0 +1,32 @@
+{
+  "name": "277",
+  "username": "277",
+  "password": "Asdfg277",
+  "mobile": "093834678372",
+  "twoDCommission": 0,
+  "threeDCommission": 0,
+  "betLimitation": { "maxForSingleBet": 500000, "maxForMixBet": 100000 },
+  "singleBetCommission": {
+    "betCommission": 0,
+    "highBetCommission": 0,
+    "winCommission": 5,
+    "highWinCommission": 8
+  },
+  "commissions": [
+    { "id": 1217366, "matchCount": 2, "betCommission": 0, "winCommission": 15 },
+    { "id": 1217367, "matchCount": 3, "betCommission": 0, "winCommission": 20 },
+    { "id": 1217368, "matchCount": 4, "betCommission": 0, "winCommission": 20 },
+    { "id": 1217369, "matchCount": 5, "betCommission": 0, "winCommission": 20 },
+    { "id": 1217370, "matchCount": 6, "betCommission": 0, "winCommission": 20 },
+    { "id": 1217371, "matchCount": 7, "betCommission": 0, "winCommission": 20 },
+    { "id": 1217372, "matchCount": 8, "betCommission": 0, "winCommission": 20 },
+    { "id": 1217373, "matchCount": 9, "betCommission": 0, "winCommission": 25 },
+    {
+      "id": 1217374,
+      "matchCount": 10,
+      "betCommission": 0,
+      "winCommission": 25
+    },
+    { "id": 1217375, "matchCount": 11, "betCommission": 0, "winCommission": 25 }
+  ]
+}

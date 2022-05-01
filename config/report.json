@@ -1,0 +1,13 @@
+{
+  "agent": "6235e59727392a37a7b3f45d",
+  "betId": "12334214345654654",
+  "betamount": 2000,
+  "win_lose": {
+    "win": {
+      "win": true,
+      "number": 56,
+      "winAmount": 80000
+    }
+  },
+  "commission": 8000
+}
