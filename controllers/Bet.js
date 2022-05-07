@@ -34,17 +34,17 @@ exports.getBet = asyncHandler(async (req, res, next) => {
 // Route   POST api/v1/user
 exports.createBet = asyncHandler(async (req, res, next) => {
   // Add user to req.body
-  req.body.user = req.user.id;
+  req.body.user = req.user;
   console.log(req.body);
 
-  if (req.user.role !== "Agent") {
-    return next(
-      new ErrorResponse(
-        `This user ${req.user.id} role is not authorize to access this route`,
-        400
-      )
-    );
-  }
+  // if (req.user.role !== "Agent") {
+  //   return next(
+  //     new ErrorResponse(
+  //       `This user ${req.user.id} role is not authorize to access this route`,
+  //       400
+  //     )
+  //   );
+  // }
 
   const bet = await Betting.create(req.body);
   console.log(bet);

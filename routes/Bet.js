@@ -12,7 +12,7 @@ const { protect, authorize } = require("../middlewares/auth");
 
 const router = express.Router();
 
-router.route("/").get(getBets).post(protect, authorize("Agent"), createBet);
+router.route("/").get(getBets).post(createBet);
 router
   .route("/:id")
   .get(protect, authorize("Agent"), getBet)

@@ -46,9 +46,9 @@ const importData = async () => {
 // Delete data
 const deleteData = async () => {
   try {
-    //await Agent.deleteMany();
+    await Agent.deleteMany();
     await Bet.deleteMany();
-    //await Report.deleteMany();
+    await Report.deleteMany();
 
     console.log(color.bgRed("Data Destroyed ..."));
     process.exit();

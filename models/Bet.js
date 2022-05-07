@@ -3,14 +3,15 @@ const mongoose = require("mongoose");
 const Bet = new mongoose.Schema({
   code: {
     type: String,
-    required: [true, "Please add a username"],
+    required: [true, "Please add a chalan id"],
   },
   agent: {
-    type: mongoose.Schema.ObjectId,
+    type: String,
     ref: "agent",
     required: true,
   },
   betNumbers: [{ number: Number, amount: Number }],
+  totalAmount: Number,
   betTime: {
     type: Date,
     default: Date.now,
