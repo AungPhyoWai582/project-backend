@@ -1,13 +1,13 @@
 const ErrorResponse = require("../utils/ErrorResponse");
 const asyncHandler = require("../middlewares/async");
-const Betting = require("../models/Bet");
+const Call = require("../models/Call");
 const Report = require("../models/Report");
 const BetDetail = require("../models/BetDetail");
 
 // Desc    GET USERS
 // Route   GET api/v1/users
 exports.getBets = asyncHandler(async (req, res, next) => {
-  const betLists = await Betting.find();
+  const betLists = await Call.find();
 
   if (!betLists) {
     return next(new ErrorResponse("Here no have bet lists", 404));
@@ -19,7 +19,7 @@ exports.getBets = asyncHandler(async (req, res, next) => {
 // Desc    GET USER
 // Route   GET api/v1/user/:id
 exports.getBet = asyncHandler(async (req, res, next) => {
-  const bet = await Betting.findById(req.params.id);
+  const bet = await Call.findById(req.params.id);
 
   if (!bet) {
     return next(
@@ -32,9 +32,9 @@ exports.getBet = asyncHandler(async (req, res, next) => {
 
 // Desc    CREATE USERS
 // Route   POST api/v1/user
-exports.createBet = asyncHandler(async (req, res, next) => {
+exports.createCall = asyncHandler(async (req, res, next) => {
   // Add user to req.body
-  req.body.user = req.user;
+  // req.body.user = req.user;
   console.log(req.body);
 
   // if (req.user.role !== "Agent") {
@@ -46,28 +46,29 @@ exports.createBet = asyncHandler(async (req, res, next) => {
   //   );
   // }
 
-  const bet = await Betting.create(req.body);
-  console.log(bet);
-  let betArr = [...bet.betNumbers.map((bet) => bet.amount)];
-  console.log(betArr);
-  let betamount = betArr.reduce((prev, next) => prev + next, 0);
+  const call = await Call.create(req.body);
 
-  console.log(betamount, "bet-amount");
+  // if (!call) {
+  //   return next(new ErrorResponse(''))
+  // }
 
-  const betdetails = {
-    betId: bet._id,
-    betamount: betamount,
-    betTime: bet.betTime,
-  };
+  // let callArr = [...call.betNumbers.map((cal) => cal.amount)];
 
-  const betDetail = await BetDetail.create(betdetails);
+  // let betamount = callArr.reduce((prev, next) => prev + next, 0);
+
+  // console.log(betamount, "bet-amount");
+
+  // const betdetails = {
+  //   betId: bet._id,
+  //   betamount: betamount,
+  //   betTime: bet.betTime,
+  // };
+
+  // const betDetail = await BetDetail.create(betdetails);
 
   res.status(201).json({
     success: true,
-    data: {
-      bet: bet,
-      details: betDetail,
-    },
+    data: call,
   });
 });
 
@@ -80,7 +81,7 @@ exports.updateBet = asyncHandler(async (req, res, next) => {
     );
   }
 
-  const bet = await Betting.findByIdAndUpdate(req.params.id, req.body, {
+  const bet = await Call.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
   });
@@ -103,7 +104,7 @@ exports.deleteBet = asyncHandler(async (req, res, next) => {
     );
   }
 
-  const bet = await Betting.findByIdAndDelete(req.params.id);
+  const bet = await Call.findByIdAndDelete(req.params.id);
 
   if (!bet) {
     return next(

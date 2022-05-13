@@ -9,10 +9,7 @@ const { protect, authorize } = require("../middlewares/auth");
 
 const router = express.Router();
 
-router
-  .route("/")
-  .get(protect, authorize("Admin"), getAgents)
-  .post(protect, authorize("Admin"), createAgent);
+router.route("/").get(getAgents).post(createAgent);
 router
   .route("/:id")
   .get(protect, authorize("Admin"), getAgent)

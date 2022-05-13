@@ -17,22 +17,27 @@ const Agent = mongoose.Schema({
     type: Number,
     required: [true, "Please add a phone number"],
   },
-  role: {
-    type: String,
-    enum: ["Admin", "Senior", "Master", "Agent"],
-    default: "Agent",
-  },
-  twoDCommission: {
-    type: Number,
-    default: 0,
-  },
+  // role: {
+  //   type: String,
+  //   enum: ["Admin", "Senior", "Master", "Agent"],
+  //   default: "Agent",
+  // },
   twoDZ: {
     type: Number,
     default: 80,
   },
-  betCommissions: {
-    betCommission: { type: Boolean, default: false },
-    winCommission: { type: Boolean, default: false },
+  divider: {
+    type: String,
+    enum: ["Cash", "100", "25"],
+    default: "Cash",
+  },
+  commission: {
+    type: Number,
+    default: 0,
+  },
+  userrelationship: {
+    user: String,
+    commission: String,
   },
   password: {
     type: String,

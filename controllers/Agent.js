@@ -2,7 +2,10 @@ const ErrorResponse = require("../utils/ErrorResponse");
 const asyncHandler = require("../middlewares/async");
 const Agent = require("../models/Agent");
 
+const colors = require("colors");
+
 exports.getAgents = asyncHandler(async (req, res, next) => {
+  console.log(colors.bgBlue("Imcomming request from frontend..."));
   const agents = await Agent.find();
   console.log(req);
   res.status(200).json({
@@ -28,6 +31,7 @@ exports.getAgent = asyncHandler(async (req, res, next) => {
 });
 
 exports.createAgent = asyncHandler(async (req, res, next) => {
+  console.log(req.body);
   const agent = await Agent.create(req.body);
   res.status(201).json({
     success: true,

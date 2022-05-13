@@ -10,7 +10,7 @@ dotenv.config({ path: "./config/config.env" });
 connectDB();
 
 // Routes Files
-const bet = require("./routes/Bet");
+const call = require("./routes/Call");
 const auth = require("./routes/auth");
 const agent = require("./routes/Agent");
 const error = require("./middlewares/error");
@@ -37,9 +37,9 @@ app.use(
   agent
 );
 app.use(
-  "/api/v1/betting",
+  "/api/v1/call",
   // () => res.header("Access-Control-Allow-Origin"),
-  bet
+  call
 );
 
 app.use(error);
