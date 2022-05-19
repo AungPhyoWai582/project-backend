@@ -6,51 +6,56 @@ const colors = require("colors");
 const paginate = require("../utils/paginate");
 
 exports.getAgents = asyncHandler(async (req, res, next) => {
-  console.log(colors.bgBlue("Imcomming request from frontend..."));
-  console.log(req.originalUrl);
+  let query;
 
-  const { filter, sort, page, limit } = req.query;
-  const selfUrl = req.originalUrl;
+  // Copy req.query
+  const reqQuery = { ...query };
 
+  // Fields to execute
+  const removeFields = ["select", "sort", "page", "limit"];
+
+  // Loop over removeFields and delete them from reqQuery
+  removeFields.forEach((param) => delete reqQuery[param]);
+
+  let queryStr = JSON.stringify(reqQuery);
+  console.log(JSON.parse(queryStr));
+
+  query = Agent.find(JSON.parse(queryStr));
+
+  // pagination
+  const total = await Agent.countDocuments();
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || total;
   const startIndex = (page - 1) * limit;
   const endIndex = page * limit;
 
-  for (i in sort) {
-    sort[i] = parseInt(sort[i]);
-  }
+  query = query.skip(startIndex).limit(limit);
 
-  let nextPage, prevPage;
+  const agents = await query;
 
-  if (endIndex < (await Agent.countDocuments().exec())) {
-    nextPage = {
-      page: parseInt(page) + 1,
-      limit: parseInt(limit),
+  // pagination result
+  const pagination = {};
+
+  if (endIndex < total) {
+    pagination.next = {
+      page: page + 1,
+      limit,
     };
   }
 
   if (startIndex > 0) {
-    prevPage = {
-      page: parseInt(page) - 1,
-      limit: parseInt(limit),
+    pagination.prev = {
+      page: page - 1,
+      limit,
     };
   }
-
-  const agents = await Agent.find(filter)
-    .sort(sort)
-    .limit(limit)
-    .skip(startIndex)
-    .exec();
 
   res.status(200).json({
     success: true,
     counts: agents.length,
+    pagination,
     data: agents,
-    pagination: {
-      prev: prevPage,
-      next: nextPage,
-      selfUrl: selfUrl,
-    },
-    // selfUrl: req.selfUrl,
+    selfUrl: req.originalUrl,
   });
 });
 
