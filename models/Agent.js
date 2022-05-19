@@ -37,7 +37,7 @@ const Agent = mongoose.Schema({
   },
   userrelationship: {
     user: String,
-    commission: String,
+    commission: Number,
   },
   password: {
     type: String,

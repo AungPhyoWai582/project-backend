@@ -16,16 +16,26 @@ const Call = new mongoose.Schema({
     required: [true, "Please add a number lists"],
   },
   totalAmount: {
-    type: String,
+    type: Number,
     required: [true, "Please add a total amount"],
   },
-  win_lose: Boolean,
-  win_amount: Number,
-  commission: Number,
+  win_lose: Number,
+  win_amount: {
+    type: Number,
+    default: 100000,
+  },
+  commission: {
+    type: Number,
+    default: 0,
+  },
   betTime: {
     type: Date,
     default: Date.now,
   },
+});
+
+Call.pre("save", async function (next) {
+  this.win_lose = this.totalAmount - (this.commission + this.win_amount);
 });
 
 module.exports = mongoose.model("Call", Call);

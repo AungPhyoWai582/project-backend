@@ -12,7 +12,7 @@ const router = express.Router();
 router.route("/").get(getAgents).post(createAgent);
 router
   .route("/:id")
-  .get(protect, authorize("Admin"), getAgent)
+  .get(getAgent)
   .put(protect, authorize("Admin"), updateAgent);
 
 module.exports = router;
