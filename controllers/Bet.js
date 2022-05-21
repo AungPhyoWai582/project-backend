@@ -7,13 +7,34 @@ const BetDetail = require("../models/BetDetail");
 // Desc    GET USERS
 // Route   GET api/v1/users
 exports.getBets = asyncHandler(async (req, res, next) => {
-  const betLists = await Call.find();
+  let query;
 
-  if (!betLists) {
+  // Copy req.query
+  const reqQuery = { ...query };
+
+  // Fields to execute
+  const removeFields = ["select", "sort", "page", "limit"];
+
+  // Loop over removeFields and delete them from reqQuery
+  removeFields.forEach((param) => delete reqQuery[param]);
+
+  let queryStr = JSON.stringify(reqQuery);
+  console.log(JSON.parse(queryStr));
+
+  query = Call.find(JSON.parse(queryStr));
+  // console.log(req.body.user);
+  const callList = await query;
+
+  if (!callList) {
     return next(new ErrorResponse("Here no have bet lists", 404));
   }
 
-  res.status(200).json({ success: true, data: betLists });
+  res.status(200).json({
+    success: true,
+    count: callList.length,
+    data: callList,
+    selfUrl: req.originalUrl,
+  });
 });
 
 // Desc    GET USER
@@ -34,7 +55,7 @@ exports.getBet = asyncHandler(async (req, res, next) => {
 // Route   POST api/v1/user
 exports.createCall = asyncHandler(async (req, res, next) => {
   // Add user to req.body
-  // req.body.user = req.user;
+  req.body.user = req.user._id;
   console.log(req.body);
 
   // if (req.user.role !== "Agent") {
@@ -68,7 +89,7 @@ exports.createCall = asyncHandler(async (req, res, next) => {
 
   res.status(201).json({
     success: true,
-    data: call,
+    data: req.body,
   });
 });
 

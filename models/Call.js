@@ -6,8 +6,8 @@ const Call = new mongoose.Schema({
     required: [true, "Please add a chalan id"],
   },
   user: {
-    type: String,
-    // ref: "user",
+    type: mongoose.Schema.ObjectId,
+    ref: "userID",
     required: true,
   },
   // betNumbers: [{ number: Number, amount: Number }],
@@ -35,7 +35,8 @@ const Call = new mongoose.Schema({
 });
 
 Call.pre("save", async function (next) {
-  this.win_lose = this.totalAmount - (this.commission + this.win_amount);
+  this.win_lose =
+    (await this.totalAmount) - (this.commission + this.win_amount);
 });
 
 module.exports = mongoose.model("Call", Call);

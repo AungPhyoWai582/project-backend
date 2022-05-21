@@ -12,10 +12,10 @@ const { protect, authorize } = require("../middlewares/auth");
 
 const router = express.Router();
 
-router.route("/").get(getBets).post(createCall);
+router.route("/").get(protect, getBets).post(protect, createCall);
 router
   .route("/:id")
-  .get(protect, authorize("Agent"), getBet)
+  .get(protect, getBet)
   .put(protect, authorize("Agent"), updateBet)
   .delete(protect, authorize("Agent"), deleteBet);
 
