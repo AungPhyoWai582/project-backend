@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
-const Agent = mongoose.Schema({
+const User = mongoose.Schema({
   username: {
     type: String,
     unique: true,
@@ -17,11 +17,11 @@ const Agent = mongoose.Schema({
     type: Number,
     required: [true, "Please add a phone number"],
   },
-  // role: {
-  //   type: String,
-  //   enum: ["Admin", "Senior", "Master", "Agent"],
-  //   default: "Agent",
-  // },
+  role: {
+    type: String,
+    enum: ["Admin", "Senior", "Master", "Agent"],
+    default: "Agent",
+  },
   twoDZ: {
     type: Number,
     default: 80,
@@ -54,25 +54,25 @@ const Agent = mongoose.Schema({
 });
 
 // Encrypt password using bcrypt
-Agent.pre("save", async function (next) {
+User.pre("save", async function (next) {
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
 
 // Sign JWT and return
-Agent.methods.getSignedJwtToken = function () {
+User.methods.getSignedJwtToken = function () {
   return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE,
   });
 };
 
 // Match user entered password to hashed password in database
-Agent.methods.matchPassword = async function (enteredPassword) {
+User.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
 // Generate and hash password token
-Agent.methods.getResetPasswordToken = function () {
+User.methods.getResetPasswordToken = function () {
   // Generate token
   const resetToken = crypto.randomBytes(20).toString("hex");
 
@@ -88,4 +88,4 @@ Agent.methods.getResetPasswordToken = function () {
   return resetToken;
 };
 
-module.exports = mongoose.model("Agent", Agent);
+module.exports = mongoose.model("User", User);

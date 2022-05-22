@@ -1,11 +1,13 @@
 const ErrorResponse = require("../utils/ErrorResponse");
 const asyncHandler = require("../middlewares/async");
-const Agent = require("../models/Agent");
+const User = require("../models/User");
 
 const colors = require("colors");
 const paginate = require("../utils/paginate");
 
-exports.getAgents = asyncHandler(async (req, res, next) => {
+// Desc    GET USERS
+// Route   GET api/v1/users
+exports.getUsers = asyncHandler(async (req, res, next) => {
   let query;
 
   // Copy req.query
@@ -20,10 +22,10 @@ exports.getAgents = asyncHandler(async (req, res, next) => {
   let queryStr = JSON.stringify(reqQuery);
   console.log(JSON.parse(queryStr));
 
-  query = Agent.find(JSON.parse(queryStr));
+  query = User.find(JSON.parse(queryStr));
 
   // pagination
-  const total = await Agent.countDocuments();
+  const total = await User.countDocuments();
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || total;
   const startIndex = (page - 1) * limit;
@@ -31,7 +33,7 @@ exports.getAgents = asyncHandler(async (req, res, next) => {
 
   query = query.skip(startIndex).limit(limit);
 
-  const agents = await query;
+  const users = await query;
 
   // pagination result
   const pagination = {};
@@ -52,17 +54,19 @@ exports.getAgents = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    counts: agents.length,
+    counts: users.length,
     pagination,
-    data: agents,
+    data: users,
     selfUrl: req.originalUrl,
   });
 });
 
-exports.getAgent = asyncHandler(async (req, res, next) => {
-  const agent = await Agent.findById(req.params.id);
+// Desc    GET USER
+// Route   GET api/v1/users/:id
+exports.getUser = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
 
-  if (!agent) {
+  if (!user) {
     return next(
       new ErrorResponse(`Agent not found id with ${req.params.id}`, 404)
     );
@@ -70,26 +74,30 @@ exports.getAgent = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    data: agent,
+    data: user,
   });
 });
 
-exports.createAgent = asyncHandler(async (req, res, next) => {
+// Desc    CREATE USER
+// Route   POST api/v1/users
+exports.createUser = asyncHandler(async (req, res, next) => {
   console.log(req.body);
-  const agent = await Agent.create(req.body);
+  const user = await User.create(req.body);
   res.status(201).json({
     success: true,
-    data: agent,
+    data: user,
   });
 });
 
-exports.updateAgent = asyncHandler(async (req, res, next) => {
-  const agent = await Agent.findByIdAndUpdate(req.params.id, req.body, {
+// Desc    UPDATE USERS
+// Route   PUT api/v1/users/:id
+exports.updateUser = asyncHandler(async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
   });
 
-  if (!agent) {
+  if (!user) {
     return next(
       new ErrorResponse(`Agent not found with id of ${req.params.id}`, 404)
     );
@@ -97,6 +105,18 @@ exports.updateAgent = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    data: agent,
+    data: user,
   });
+});
+
+// Desc    DELETE USER
+// Route   DELETE api/v1/users/:id
+exports.deleteUser = asyncHandler(async (req, res, next) => {
+  const user = await User.findByIdAndDelete(req.params.id);
+  if (!user) {
+    return next(
+      new ErrorResponse(`User not found with id of ${req.params.id}`, 404)
+    );
+  }
+  res.status(200).json({ success: true, data: {} });
 });

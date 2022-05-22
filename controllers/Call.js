@@ -5,25 +5,33 @@ const Report = require("../models/Report");
 const BetDetail = require("../models/BetDetail");
 
 // Desc    GET USERS
-// Route   GET api/v1/users
-exports.getBets = asyncHandler(async (req, res, next) => {
+// Route   GET api/v1/users/:agentId/calls
+exports.getCalls = asyncHandler(async (req, res, next) => {
   let query;
 
-  // Copy req.query
-  const reqQuery = { ...query };
+  if (req.params.agentId) {
+    query = Call.find({ user: req.params.agentId });
+  } else {
+    query = Call.find();
+  }
 
-  // Fields to execute
-  const removeFields = ["select", "sort", "page", "limit"];
-
-  // Loop over removeFields and delete them from reqQuery
-  removeFields.forEach((param) => delete reqQuery[param]);
-
-  let queryStr = JSON.stringify(reqQuery);
-  console.log(JSON.parse(queryStr));
-
-  query = Call.find(JSON.parse(queryStr));
-  // console.log(req.body.user);
   const callList = await query;
+
+  // // Copy req.query
+  // const reqQuery = { ...query };
+
+  // // Fields to execute
+  // const removeFields = ["select", "sort", "page", "limit"];
+
+  // // Loop over removeFields and delete them from reqQuery
+  // removeFields.forEach((param) => delete reqQuery[param]);
+
+  // let queryStr = JSON.stringify(reqQuery);
+  // console.log(JSON.parse(queryStr));
+
+  // query = Call.find(JSON.parse(queryStr));
+  // // console.log(req.body.user);
+  // const callList = await query;
 
   if (!callList) {
     return next(new ErrorResponse("Here no have bet lists", 404));
@@ -38,21 +46,21 @@ exports.getBets = asyncHandler(async (req, res, next) => {
 });
 
 // Desc    GET USER
-// Route   GET api/v1/user/:id
-exports.getBet = asyncHandler(async (req, res, next) => {
-  const bet = await Call.findById(req.params.id);
+// Route   GET api/v1/agents/:agentId/calls
+exports.getCall = asyncHandler(async (req, res, next) => {
+  const call = await Call.findById(req.params.id);
 
-  if (!bet) {
+  if (!call) {
     return next(
       new ErrorResponse(`Bet not found with id of ${req.params.id}`, 404)
     );
   }
 
-  res.status(200).json({ success: true, data: bet });
+  res.status(200).json({ success: true, data: call });
 });
 
 // Desc    CREATE USERS
-// Route   POST api/v1/user
+// Route   POST api/v1/agents/:agentId/calls
 exports.createCall = asyncHandler(async (req, res, next) => {
   // Add user to req.body
   req.body.user = req.user._id;
@@ -89,45 +97,45 @@ exports.createCall = asyncHandler(async (req, res, next) => {
 
   res.status(201).json({
     success: true,
-    data: req.body,
+    data: call,
   });
 });
 
 // Desc    UPDATE USERS
 // Route   PUT api/v1/user/:id
-exports.updateBet = asyncHandler(async (req, res, next) => {
+exports.updateCall = asyncHandler(async (req, res, next) => {
   if (req.user.role !== "Agent") {
     return next(
       new ErrorResponse(`User ${req.user.id} is not authorized to get bet`, 401)
     );
   }
 
-  const bet = await Call.findByIdAndUpdate(req.params.id, req.body, {
+  const call = await Call.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
   });
 
-  if (!bet) {
+  if (!call) {
     return next(
       new ErrorResponse(`Bet not found with id of ${req.params.id}`, 404)
     );
   }
 
-  res.status(200).json({ success: true, data: bet });
+  res.status(200).json({ success: true, data: call });
 });
 
 // Desc    DELETE USER
 // Route   DELETE api/v1/user/:id
-exports.deleteBet = asyncHandler(async (req, res, next) => {
+exports.deleteCall = asyncHandler(async (req, res, next) => {
   if (req.user.role !== "Agent") {
     return next(
       new ErrorResponse(`User ${req.user.id} is not authorized to get bet`, 401)
     );
   }
 
-  const bet = await Call.findByIdAndDelete(req.params.id);
+  const call = await Call.findByIdAndDelete(req.params.id);
 
-  if (!bet) {
+  if (!call) {
     return next(
       new ErrorResponse(`Bet not found with id of ${req.params.id}`, 404)
     );

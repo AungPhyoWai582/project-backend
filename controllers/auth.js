@@ -1,36 +1,36 @@
 const ErrorResponse = require("../utils/ErrorResponse");
 const asyncHandler = require("../middlewares/async");
-const Agent = require("../models/Agent");
+const User = require("../models/User");
 
 // Get Users
-exports.getUsers = asyncHandler(async (req, res, next) => {
-  const userLists = await Agent.find();
+// exports.getUsers = asyncHandler(async (req, res, next) => {
+//   const userLists = await User.find();
 
-  if (!userLists) {
-    return next(new ErrorResponse("There is no user", 404));
-  }
+//   if (!userLists) {
+//     return next(new ErrorResponse("There is no user", 404));
+//   }
 
-  res.status(200).json({ success: true, data: userLists });
-});
+//   res.status(200).json({ success: true, data: userLists });
+// });
 
 // Create Agent
-exports.createUser = asyncHandler(async (req, res, next) => {
-  const { username, name, phone, password, role } = req.body;
+// exports.createUser = asyncHandler(async (req, res, next) => {
+//   const { username, name, phone, password, role } = req.body;
 
-  // Create Agent
-  const agent = await Agent.create({
-    username,
-    name,
-    phone,
-    password,
-    role,
-  });
+//   // Create Agent
+//   const agent = await Agent.create({
+//     username,
+//     name,
+//     phone,
+//     password,
+//     role,
+//   });
 
-  // Create token
-  const token = agent.getSignedJwtToken();
+//   // Create token
+//   const token = agent.getSignedJwtToken();
 
-  res.status(201).json({ success: true, data: agent, token });
-});
+//   res.status(201).json({ success: true, data: agent, token });
+// });
 
 // Agent Login
 exports.loginUser = asyncHandler(async (req, res, next) => {
@@ -42,31 +42,31 @@ exports.loginUser = asyncHandler(async (req, res, next) => {
   }
 
   // Check for user
-  const agent = await Agent.findOne({ username }).select("+password");
-  if (!agent) {
+  const user = await User.findOne({ username }).select("+password");
+  if (!user) {
     return next(new ErrorResponse("Invilad Credentials", 401));
   }
 
   // Check for password
-  const isMatch = await agent.matchPassword(password);
+  const isMatch = await user.matchPassword(password);
   console.log(isMatch);
   if (!isMatch) {
     return next(new ErrorResponse("Invilad Credentials", 401));
   }
 
   // Create token
-  const token = agent.getSignedJwtToken();
+  const token = user.getSignedJwtToken();
 
   res.status(200).json({
     success: true,
-    data: agent,
+    data: user,
     token,
   });
 });
 
 // Get current login user
 exports.getMe = asyncHandler(async (req, res, next) => {
-  const user = await Agent.findById(req.user.id);
+  const user = await User.findById(req.user.id);
 
   res.status(200).json({
     success: true,
@@ -76,7 +76,7 @@ exports.getMe = asyncHandler(async (req, res, next) => {
 
 // Reset password
 exports.resetPassword = asyncHandler(async (req, res, next) => {
-  const user = await Agent.findById(req.params.id);
+  const user = await User.findById(req.params.id);
 
   if (!user) {
     return next(new ErrorResponse("There is no user with that username", 400));

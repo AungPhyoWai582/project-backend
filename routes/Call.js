@@ -1,22 +1,22 @@
 const express = require("express");
 
 const {
-  getBets,
+  getCalls,
   createCall,
-  getBet,
-  updateBet,
-  deleteBet,
-} = require("../controllers/Bet");
+  getCall,
+  updateCall,
+  deleteCall,
+} = require("../controllers/Call");
 
 const { protect, authorize } = require("../middlewares/auth");
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
-router.route("/").get(protect, getBets).post(protect, createCall);
+router.route("/").get(getCalls).post(protect, authorize("Agent"), createCall);
 router
   .route("/:id")
-  .get(protect, getBet)
-  .put(protect, authorize("Agent"), updateBet)
-  .delete(protect, authorize("Agent"), deleteBet);
+  .get(getCall)
+  .put(protect, authorize("Agent"), updateCall)
+  .delete(protect, authorize("Agent"), deleteCall);
 
 module.exports = router;
