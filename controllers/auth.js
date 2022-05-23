@@ -3,34 +3,34 @@ const asyncHandler = require("../middlewares/async");
 const User = require("../models/User");
 
 // Get Users
-// exports.getUsers = asyncHandler(async (req, res, next) => {
-//   const userLists = await User.find();
+exports.getUsers = asyncHandler(async (req, res, next) => {
+  const userLists = await User.find();
 
-//   if (!userLists) {
-//     return next(new ErrorResponse("There is no user", 404));
-//   }
+  if (!userLists) {
+    return next(new ErrorResponse("There is no user", 404));
+  }
 
-//   res.status(200).json({ success: true, data: userLists });
-// });
+  res.status(200).json({ success: true, data: userLists });
+});
 
-// Create Agent
-// exports.createUser = asyncHandler(async (req, res, next) => {
-//   const { username, name, phone, password, role } = req.body;
+//Create User
+exports.createUser = asyncHandler(async (req, res, next) => {
+  const { username, name, phone, password, role } = req.body;
 
-//   // Create Agent
-//   const agent = await Agent.create({
-//     username,
-//     name,
-//     phone,
-//     password,
-//     role,
-//   });
+  // Create Agent
+  const agent = await Agent.create({
+    username,
+    name,
+    phone,
+    password,
+    role,
+  });
 
-//   // Create token
-//   const token = agent.getSignedJwtToken();
+  // Create token
+  const token = agent.getSignedJwtToken();
 
-//   res.status(201).json({ success: true, data: agent, token });
-// });
+  res.status(201).json({ success: true, data: agent, token });
+});
 
 // Agent Login
 exports.loginUser = asyncHandler(async (req, res, next) => {

@@ -19,7 +19,7 @@ const User = mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["Admin", "Senior", "Master", "Agent"],
+    enum: ["Admin", "Master", "Agent"],
     default: "Agent",
   },
   twoDZ: {
@@ -38,6 +38,16 @@ const User = mongoose.Schema({
   userrelationship: {
     user: String,
     commission: Number,
+  },
+  createByUser: {
+    type: mongoose.Schema.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  createToUser: {
+    id: mongoose.Schema.ObjectId,
+    username: String,
+    role: String,
   },
   password: {
     type: String,

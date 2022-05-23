@@ -7,7 +7,7 @@ const Call = new mongoose.Schema({
   },
   user: {
     type: mongoose.Schema.ObjectId,
-    ref: "userID",
+    ref: "User",
     required: true,
   },
   // betNumbers: [{ number: Number, amount: Number }],
@@ -17,12 +17,15 @@ const Call = new mongoose.Schema({
   },
   totalAmount: {
     type: Number,
-    required: [true, "Please add a total amount"],
+    // required: [true, "Please add a total amount"],
   },
-  win_lose: Number,
-  win_amount: {
+  status: {
+    type: String,
+    default: null,
+  },
+  win: {
     type: Number,
-    default: 100000,
+    default: 0,
   },
   commission: {
     type: Number,
@@ -35,8 +38,10 @@ const Call = new mongoose.Schema({
 });
 
 Call.pre("save", async function (next) {
-  this.win_lose =
-    (await this.totalAmount) - (this.commission + this.win_amount);
+  let total = this.numbers.map((item) => Number(item.amount));
+  this.totalAmount = total.reduce((pre, next) => pre + next, 0);
+
+  // (await this.totalAmount) - (this.commission + this.win_amount);
 });
 
 module.exports = mongoose.model("Call", Call);

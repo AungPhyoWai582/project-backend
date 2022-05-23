@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const Report = mongoose.Schema({
   agentID: {
     type: mongoose.Schema.ObjectId,
-    ref: "agent",
+    ref: "User",
     require: true,
   },
   callID: {

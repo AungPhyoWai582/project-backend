@@ -10,7 +10,7 @@ const router = express.Router();
 
 // router.route("/agents").get(getAgents);
 
-// router.route("/createuser").post(createUser);
+router.route("/register").post(createUser);
 router.route("/login").post(loginUser);
 router.route("/me").get(getMe);
 router.route("/resetpassword/:id").put(resetPassword);

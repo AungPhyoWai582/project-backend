@@ -10,9 +10,12 @@ exports.getCalls = asyncHandler(async (req, res, next) => {
   let query;
 
   if (req.params.agentId) {
-    query = Call.find({ user: req.params.agentId });
+    query = Call.find({ user: req.params.agentId }).populate({
+      path: "user",
+      select: "name role",
+    });
   } else {
-    query = Call.find();
+    query = Call.find().populate({ path: "user", select: "name role" });
   }
 
   const callList = await query;
