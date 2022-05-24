@@ -37,9 +37,14 @@ const Call = new mongoose.Schema({
   },
 });
 
+// Call.methods.computeCallInfo = async function (numbers,totalAmount,commission) {
+//   return await bcrypt.compare(enteredPassword, this.password);
+// };
+
 Call.pre("save", async function (next) {
   let total = this.numbers.map((item) => Number(item.amount));
   this.totalAmount = total.reduce((pre, next) => pre + next, 0);
+  // this.commission = this.
 
   // (await this.totalAmount) - (this.commission + this.win_amount);
 });
