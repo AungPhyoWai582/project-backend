@@ -19,18 +19,18 @@ const Call = new mongoose.Schema({
     type: Number,
     // required: [true, "Please add a total amount"],
   },
-  status: {
-    type: String,
-    default: null,
-  },
-  win: {
-    type: Number,
-    default: 0,
-  },
-  commission: {
-    type: Number,
-    default: 0,
-  },
+  // status: {
+  //   type: String,
+  //   default: null,
+  // },
+  // win: {
+  //   type: Number,
+  //   default: 0,
+  // },
+  // commission: {
+  //   type: Number,
+  //   default: 0,
+  // },
   betTime: {
     type: Date,
     default: Date.now,
@@ -41,7 +41,7 @@ const Call = new mongoose.Schema({
 //   return await bcrypt.compare(enteredPassword, this.password);
 // };
 
-Call.pre("save", async function (next) {
+Call.pre("save", async function () {
   let total = this.numbers.map((item) => Number(item.amount));
   this.totalAmount = total.reduce((pre, next) => pre + next, 0);
   // this.commission = this.

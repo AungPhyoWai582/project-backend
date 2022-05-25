@@ -15,6 +15,7 @@ const auth = require("./routes/auth");
 const master = require("./routes/Master");
 const agent = require("./routes/Agent");
 const result = require("./routes/Result");
+const report = require("./routes/Report");
 const error = require("./middlewares/error");
 
 const app = express();
@@ -44,6 +45,7 @@ app.use(
   // () => res.header("Access-Control-Allow-Origin"),
   call
 );
+app.use("/api/v1/reports", report);
 app.use("/api/v1/result", result);
 
 app.use(error);

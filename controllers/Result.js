@@ -3,6 +3,7 @@ const asyncHandler = require("../middlewares/async");
 const Call = require("../models/Call");
 const User = require("../models/User");
 const { updateAgent } = require("./Agent");
+const Report = require("../models/Report");
 
 exports.result = asyncHandler(async (req, res, next) => {
   let { number } = req.body;
@@ -23,22 +24,27 @@ exports.result = asyncHandler(async (req, res, next) => {
     // console.log(c.numbers[index]);
     if (plusIndex) {
       obj = {
-        status: "WIN",
+        callID: c._id,
+        agentID: c.user,
         commission: c.totalAmount / user.commission,
+        amount: c.totalAmount,
+        status: "WIN",
         win: c.numbers[plusIndex].amount * user.twoDZ - c.totalAmount,
+        betTime: c.betTime,
       };
     } else {
       obj = {
-        status: "LOSE",
+        callID: c._id,
+        agentID: c.user,
         commission: c.totalAmount / user.commission,
+        amount: c.totalAmount,
+        status: "LOSE",
         win: 0,
+        betTime: c.betTime,
       };
     }
     console.log(obj);
-    await Call.findByIdAndUpdate(call[index]._id, obj, {
-      new: true,
-      runValidators: true,
-    });
+    await Report.create(obj);
   });
 
   res.status(200).json({ number: number, success: true });

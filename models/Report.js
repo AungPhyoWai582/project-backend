@@ -11,16 +11,22 @@ const Report = mongoose.Schema({
     ref: "betId",
     require: true,
   },
-  bet: {
-    type: Number,
-    require: true,
-  },
   commission: {
     type: Number,
     default: 0,
   },
-  winlose: Number,
-  status: Boolean,
+  amount: Number,
+  status: {
+    type: String,
+    default: null,
+  },
+  win: {
+    type: Number,
+    default: 0,
+  },
+  betTime: {
+    type: Date,
+  },
 });
 
 module.exports = mongoose.model("Report", Report);
