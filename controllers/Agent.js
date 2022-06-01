@@ -21,10 +21,11 @@ exports.getAgents = asyncHandler(async (req, res, next) => {
 
   let queryStr = JSON.stringify(reqQuery);
   console.log(JSON.parse(queryStr));
-  if (req.params.masterId) {
-    query = await User.find({ createByUser: req.params.masterId }).populate(
-      "createByUser"
-    );
+  if (req.user._id) {
+    query = await User.find({ createByUser: req.user._id }).populate({
+      path: "createByUser",
+      select: "name role",
+    });
   } else {
     query = await User.find(JSON.parse(queryStr)).populate({
       path: "createByUser",

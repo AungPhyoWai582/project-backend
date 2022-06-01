@@ -9,9 +9,11 @@ dotenv.config({ path: "./config/config.env" });
 // Load models
 // const Bet = require("./models/Bet");
 const User = require("./models/User");
-const Report = require("./models/Report");
+// const Report = require("./models/Report");
 const BetDetail = require("./models/BetDetail");
 const Call = require("./models/Call");
+// const AgentReport = require("./models/Reports/AgentsReport");
+const AgentsReport = require("./models/Reports/AgentsReport");
 
 // Connect DB
 mongoose.connect(process.env.MONGO_URI, {
@@ -51,7 +53,8 @@ const deleteData = async () => {
     // await User.deleteMany();
     // await Report.deleteMany();
     // await BetDetail.deleteMany();
-    await Call.deleteMany();
+    // await Call.deleteMany();
+    await AgentsReport.deleteMany();
 
     console.log(color.bgRed("Data Destroyed ..."));
     process.exit();

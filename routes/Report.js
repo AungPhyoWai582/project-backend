@@ -1,14 +1,27 @@
 const express = require("express");
 
-const { getReports } = require("../controllers/Report");
+const {
+  getCalls,
+  getAgents,
+  getMasters,
+  getAdmins,
+  agentReports,
+  getMaster_select_agents,
+} = require("../controllers/Report");
+const callRouter = require("./Call");
+const agentRouter = require("./Agent");
 
 const { protect, authorize } = require("../middlewares/auth");
 
 const router = express.Router();
 
-router.route("/calls").get(getReports);
-router.route("/agent").get(getReports);
-router.route("/master").get(getReports);
-router.route("/admin").get(getReports);
+router.use("/agent/calls", protect, callRouter);
+router.use("/master/agents", protect, getMaster_select_agents);
+
+router.route("/calls").get(getCalls);
+router.route("/agent").get(protect, agentReports);
+// router.route("/:agentId", getAgents);
+router.route("/master").get(protect, getMasters);
+router.route("/admin").get(getAdmins);
 
 module.exports = router;

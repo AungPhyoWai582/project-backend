@@ -19,18 +19,15 @@ const Call = new mongoose.Schema({
     type: Number,
     // required: [true, "Please add a total amount"],
   },
-  // status: {
-  //   type: String,
-  //   default: null,
-  // },
-  // win: {
-  //   type: Number,
-  //   default: 0,
-  // },
-  // commission: {
-  //   type: Number,
-  //   default: 0,
-  // },
+  status: String,
+  win: {
+    type: Number,
+    default: 0,
+  },
+  commission: {
+    type: Number,
+    default: 0,
+  },
   betTime: {
     type: Date,
     default: Date.now,

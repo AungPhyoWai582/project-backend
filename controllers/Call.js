@@ -1,7 +1,7 @@
 const ErrorResponse = require("../utils/ErrorResponse");
 const asyncHandler = require("../middlewares/async");
 const Call = require("../models/Call");
-const Report = require("../models/Report");
+// const Report = require("../models/Report");
 const BetDetail = require("../models/BetDetail");
 
 // Desc    GET USERS
@@ -9,8 +9,8 @@ const BetDetail = require("../models/BetDetail");
 exports.getCalls = asyncHandler(async (req, res, next) => {
   let query;
 
-  if (req.params.agentId) {
-    query = Call.find({ user: req.params.agentId }).populate({
+  if (req.user._id) {
+    query = Call.find({ user: req.user._id }).populate({
       path: "user",
       select: "name role",
     });
@@ -51,7 +51,10 @@ exports.getCalls = asyncHandler(async (req, res, next) => {
 // Desc    GET USER
 // Route   GET api/v1/agents/:agentId/calls
 exports.getCall = asyncHandler(async (req, res, next) => {
-  const call = await Call.findById(req.params.id);
+  const call = await Call.findById(req.params.id).populate({
+    path: "user",
+    select: "name role",
+  });
 
   if (!call) {
     return next(

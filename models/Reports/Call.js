@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const Report = mongoose.Schema({
+const CallsReport = mongoose.Schema({
   agentID: {
     type: mongoose.Schema.ObjectId,
     ref: "User",
@@ -8,12 +8,8 @@ const Report = mongoose.Schema({
   },
   callID: {
     type: mongoose.Schema.ObjectId,
-    ref: "betId",
+    ref: "Call",
     require: true,
-  },
-  commission: {
-    type: Number,
-    default: 0,
   },
   amount: Number,
   status: {
@@ -29,4 +25,4 @@ const Report = mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("Report", Report);
+module.exports = mongoose.model("Calls-Report", CallsReport);
