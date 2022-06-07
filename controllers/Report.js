@@ -9,20 +9,37 @@ const Call = require("../models/Call");
 // Desc    GET USERS
 // Route   GET api/v1/reports/calls
 exports.agentReports = asyncHandler(async (req, res, next) => {
-  const call = await Call.find({ user: req.user._id });
-  const master = await User.findById(req.user.createByUser);
-  // console.log(call);
+  let { agentId } = req.params;
+  console.log(colors.bgRed(req.params.agentId));
+  const call = await Call.find({
+    user: agentId ? agentId : req.user._id,
+  });
+
+  const agent = await User.findById(agentId ? agentId : req.user._id);
+  const master = await User.findById(agent.createByUser);
+  console.log(colors.bgBlue(agent, master));
   let bet = call
     .map((cal) => Number(cal.totalAmount))
     .reduce((pre, next) => pre + next, 0);
   // if (!bet) {
   //   return next(new ErrorResponse("There is no bet", 404));
   // }
-  let com = bet * (req.user.commission / 100);
-  let win_lose =
+  let ag_com = bet * (agent.commission / 100);
+  let ms_com = bet * (master.commission / 100);
+  let ag_win_lose =
     bet -
+    ag_com -
     call.map((cal) => Number(cal.win)).reduce((pre, next) => pre + next, 0);
-  let obj = { bet, com, win_lose };
+
+  let ms_win_lose =
+    bet -
+    ms_com -
+    call.map((cal) => Number(cal.win)).reduce((pre, next) => pre + next, 0);
+
+  let obj = {
+    master: { bet: bet, com: ms_com, win_lose: ms_win_lose },
+    agent: { bet: bet, com: ag_com, win_lose: ag_win_lose },
+  };
   console.log(obj);
   console.log(req.user);
   res.status(200).json({ success: true, data: obj });
@@ -54,6 +71,8 @@ exports.getMasters = asyncHandler(async (req, res, next) => {
   res.status(200).json({ success: true, data: "Masters-Report", obj });
 });
 
+// Desc GET agents of one master
+// Route GET api/v1/reports/master/agents
 exports.getMaster_select_agents = asyncHandler(async (req, res, next) => {
   const agents = await User.find({ createByUser: req.user._id });
   const call = await Call.find();
@@ -75,16 +94,12 @@ exports.getMaster_select_agents = asyncHandler(async (req, res, next) => {
 
     // let com = bet * (ag.commission / 100);
     let ag_win_lose =
-      calls
-        .map((cal) => Number(cal.totalAmount))
-        .reduce((pre, next) => pre + next, 0) -
+      bet -
       ag_com -
       calls.map((cal) => Number(cal.win)).reduce((pre, next) => pre + next, 0);
 
     let ms_win_lose =
-      calls
-        .map((cal) => Number(cal.totalAmount))
-        .reduce((pre, next) => pre + next, 0) -
+      bet -
       ms_com -
       calls.map((cal) => Number(cal.win)).reduce((pre, next) => pre + next, 0);
     // console.log({ agent: ag.username, bet, com, win_lose });
@@ -108,6 +123,14 @@ exports.getMaster_select_agents = asyncHandler(async (req, res, next) => {
   console.log(colors.bgGreen(arr));
   res.status(200).json({ success: true, data: arr });
 });
+
+// Desc GET agent of one master
+// Route GET api/v1/reports/master/agents/:agentId
+exports.getMaster_select_agents_select_agentId = asyncHandler(
+  async (req, res, next) => {
+    res.status(200).json({ success: true, message: req.originalUrl });
+  }
+);
 
 exports.getCalls = asyncHandler(async (req, res, next) => {
   // const reports = await Report.find();
