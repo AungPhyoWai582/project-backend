@@ -51,9 +51,7 @@ exports.getMasters = asyncHandler(async (req, res, next) => {
 
   let obj = { bet, com, win_lose };
 
-  res
-    .status(200)
-    .json({ success: true, data: "Masters-Report", agents, call, obj });
+  res.status(200).json({ success: true, data: "Masters-Report", obj });
 });
 
 exports.getMaster_select_agents = asyncHandler(async (req, res, next) => {
@@ -71,14 +69,40 @@ exports.getMaster_select_agents = asyncHandler(async (req, res, next) => {
     let bet = calls
       .map((cal) => Number(cal.totalAmount))
       .reduce((pre, next) => pre + next, 0);
-    let com = bet * (req.user.commission / 100);
-    let win_lose =
+
+    let ms_com = bet * (req.user.commission / 100);
+    let ag_com = bet * (ag.commission / 100);
+
+    // let com = bet * (ag.commission / 100);
+    let ag_win_lose =
       calls
         .map((cal) => Number(cal.totalAmount))
         .reduce((pre, next) => pre + next, 0) -
+      ag_com -
       calls.map((cal) => Number(cal.win)).reduce((pre, next) => pre + next, 0);
-    console.log({ agent: ag.username, bet, com, win_lose });
-    arr.push({ agents: ag.username, bet: bet, com: com, win_lose: win_lose });
+
+    let ms_win_lose =
+      calls
+        .map((cal) => Number(cal.totalAmount))
+        .reduce((pre, next) => pre + next, 0) -
+      ms_com -
+      calls.map((cal) => Number(cal.win)).reduce((pre, next) => pre + next, 0);
+    // console.log({ agent: ag.username, bet, com, win_lose });
+
+    let obj = {
+      agents: ag.username,
+      master: {
+        bet: bet,
+        com: ms_com,
+        win_lose: ms_win_lose,
+      },
+      agent: {
+        bet: bet,
+        com: ag_com,
+        win_lose: ag_win_lose,
+      },
+    };
+    arr.push(obj);
   });
   // const data = await rep;
   console.log(colors.bgGreen(arr));
