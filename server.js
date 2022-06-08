@@ -39,7 +39,7 @@ app.use(
   // () => res.header("Access-Control-Allow-Origin"),
   master
 );
-app.use("/api/v1/agent", agent);
+app.use("/api/v1/agents", agent);
 app.use(
   "/api/v1/call",
   // () => res.header("Access-Control-Allow-Origin"),

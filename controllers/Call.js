@@ -10,8 +10,13 @@ exports.getCalls = asyncHandler(async (req, res, next) => {
   console.log(req.user);
   let query;
 
-  if (req.user._id) {
-    query = Call.find({ user: req.user._id }).populate({
+  console.log("ads;flkasdjf;");
+
+  if (req.user) {
+    console.log("blah blah");
+    query = Call.find({
+      user: req.user.role === "Agent" ? req.user._id : req.params.agentId,
+    }).populate({
       path: "user",
       select: "name role",
     });
@@ -20,6 +25,8 @@ exports.getCalls = asyncHandler(async (req, res, next) => {
   }
 
   const callList = await query;
+
+  console.log(callList);
 
   // // Copy req.query
   // const reqQuery = { ...query };

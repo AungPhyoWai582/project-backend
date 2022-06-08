@@ -8,11 +8,23 @@ const colors = require("colors");
 
 exports.result = asyncHandler(async (req, res, next) => {
   let { number } = req.body;
-  let call = await Call.find();
+  let startDate = new Date(2021, 5, 30);
+  let endDate = new Date(2022, 6, 1);
+  let users = await User.find();
+  console.log(users);
+  let call = await Call.find({
+    betTime: {
+      $gte: new Date(2021, 5, 1).toISOString(),
+      $lte: new Date(2022, 6, 1).toISOString(),
+    },
+  });
+  console.log(colors.bgYellow(call));
+  console.log(colors.bgYellow(startDate, endDate));
+
   // let users = await User.find();
 
   call.map(async (c, key) => {
-    // console.log(c.user);
+    console.log(c.betTime);
     const user = await User.findById(c.user.toString());
     let obj;
     let plusIndex;
@@ -31,7 +43,7 @@ exports.result = asyncHandler(async (req, res, next) => {
       obj = {
         status: "WIN",
         commission: 0,
-        win: c.numbers[plusIndex].amount * user.twoDZ - c.totalAmount,
+        win: c.numbers[plusIndex].amount * user.twoDZ,
       };
     } else {
       obj = {
@@ -41,42 +53,15 @@ exports.result = asyncHandler(async (req, res, next) => {
       };
     }
     console.log(obj);
-    try {
-      await Call.findByIdAndUpdate(c._id, obj, {
-        new: true,
-        runValidators: true,
-      });
-    } catch (error) {
-      return next(new ErrorResponse(509, "Something went wrong"));
-    }
+    // try {
+    //   await Call.findByIdAndUpdate(c._id, obj, {
+    //     new: true,
+    //     runValidators: true,
+    //   });
+    // } catch (error) {
+    //   return next(new ErrorResponse(509, "Something went wrong"));
+    // }
   });
-  // users.map(async (usr, index) => {
-  //   let body;
-  //   if (usr.role === "Agent") {
-  //     console.log("Agent");
-  //     //   const agCalls = call.filter(
-  //     //     (cal) => cal.user.toString() === usr._id.toString()
-  //     //   );
-  //     const agCalls = await Call.find({ user: usr._id });
-  //     //   const total = agCalls.map((item) => item.totalAmount);
-  //     //   const totalAmount = total.reduce((pre, next) => pre + next, 0);
 
-  //     body = {
-  //       masterID: usr.createByUser,
-  //       agentID: usr._id,
-  //       // commission: totalAmount / usr.twoDZ,
-  //       // amount: totalAmount,
-  //       calls: agCalls,
-  //     };
-
-  //     //   req.body = body;
-  //     console.log(colors.bgGreen(body));
-  //     //   await AgentReport.create(body);
-  //     //   next();
-  //   } else if (usr.role === "Master") {
-  //     console.log("Master");
-  //   }
-  //   await AgentReport.create(body);
-  // });
   res.status(200).json({ number: number, success: true });
 });
