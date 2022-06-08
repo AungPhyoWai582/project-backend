@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const Report = mongoose.Schema({
-  userID: {
+  userId: {
     type: mongoose.Schema.ObjectId,
     ref: "User",
     require: true,
@@ -22,7 +22,20 @@ const Report = mongoose.Schema({
     type: Number,
     require: true,
   },
-  data: Array,
+  data: {
+    lager: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "Lager",
+      },
+    ],
+    calls: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "Call",
+      },
+    ],
+  },
   _date: {
     type: Date,
     require: true,
