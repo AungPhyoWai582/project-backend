@@ -30,7 +30,7 @@ exports.agentReports = asyncHandler(async (req, res, next) => {
 
 // Desc GET Masters
 // Route GET api/v1/reports/master
-exports.getMasters = asyncHandler(async (req, res, next) => {
+exports.masterReports = asyncHandler(async (req, res, next) => {
   console.log(req.user);
   const agents = await User.find({ createByUser: req.user._id });
   const call = await Call.find({ user: agents.map((ag) => ag._id) }).populate({
