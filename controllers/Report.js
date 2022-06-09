@@ -27,12 +27,14 @@ exports.agentReports = asyncHandler(async (req, res, next) => {
 // Desc GET Masters
 // Route GET api/v1/reports/master
 exports.masterReports = asyncHandler(async (req, res, next) => {
-  console.log(req.user);
+  console.log(colors.bgRed(req.user));
   const report = await Report.find({ userId: req.user._id }).populate({
     path: "data.users",
     select: "username role",
+    path: "userId",
+    select: "username role",
   });
-
+  console.log(report);
   res.status(200).json({ success: true, data: "Masters-Report", report });
 });
 
