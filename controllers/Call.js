@@ -7,6 +7,7 @@ const BetDetail = require("../models/BetDetail");
 // Desc    GET USERS
 // Route   GET api/v1/users/:agentId/calls
 exports.getCalls = asyncHandler(async (req, res, next) => {
+  console.log(req.user);
   let query;
 
   console.log("ads;flkasdjf;");

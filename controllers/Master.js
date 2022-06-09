@@ -82,11 +82,7 @@ exports.getMaster = asyncHandler(async (req, res, next) => {
 // Route   POST api/v1/masters
 exports.createMaster = asyncHandler(async (req, res, next) => {
   console.log(req.body);
-  req.body.createByUser = {
-    id: req.user._id,
-    username: req.user.username,
-    role: req.user.role,
-  };
+  req.body.createByUser = req.user.id;
 
   if (req.user.role !== "Admin") {
     return next(

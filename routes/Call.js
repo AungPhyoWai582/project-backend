@@ -12,7 +12,10 @@ const { protect, authorize } = require("../middlewares/auth");
 
 const router = express.Router({ mergeParams: true });
 
-router.route("/").get(getCalls).post(protect, authorize("Agent"), createCall);
+router
+  .route("/")
+  .get(protect, getCalls)
+  .post(protect, authorize("Agent"), createCall);
 router
   .route("/:id")
   .get(getCall)

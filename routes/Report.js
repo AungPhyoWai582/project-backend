@@ -1,13 +1,10 @@
 const express = require("express");
 
 const {
-  getCalls,
-  getAgents,
-  getMasters,
+  masterReports,
   getAdmins,
   agentReports,
   getMaster_select_agents,
-  getMaster_select_agents_select_agentId,
 } = require("../controllers/Report");
 const callRouter = require("./Call");
 const agentRouter = require("./Agent");
@@ -24,7 +21,7 @@ router.use("/master/agents/:agentId/calls", protect, callRouter);
 // router.route("/calls").get(getCalls);
 router.route("/agent").get(protect, agentReports);
 // router.route("/:agentId", getAgents);
-router.route("/master").get(protect, getMasters);
+router.route("/master").get(protect, masterReports);
 router.route("/admin").get(getAdmins);
 
 module.exports = router;
