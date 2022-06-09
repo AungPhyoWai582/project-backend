@@ -1,13 +1,10 @@
 const express = require("express");
 
 const {
-  getCalls,
-  getAgents,
   masterReports,
   getAdmins,
   agentReports,
   getMaster_select_agents,
-  getMaster_select_agents_select_agentId,
 } = require("../controllers/Report");
 const callRouter = require("./Call");
 const agentRouter = require("./Agent");

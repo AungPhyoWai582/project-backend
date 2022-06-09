@@ -6,6 +6,10 @@ const Report = mongoose.Schema({
     ref: "User",
     require: true,
   },
+  createByUser: {
+    type: mongoose.Schema.ObjectId,
+    ref: "User",
+  },
   type: {
     type: String,
     require: true,
@@ -14,7 +18,7 @@ const Report = mongoose.Schema({
     type: Number,
     require: true,
   },
-  bet_amount: {
+  bet: {
     type: Number,
     require: true,
   },
@@ -35,11 +39,17 @@ const Report = mongoose.Schema({
         ref: "Call",
       },
     ],
+    users: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "User",
+      },
+    ],
   },
-  _date: {
-    type: Date,
-    require: true,
-  },
+  // _date: {
+  //   type: Date,
+  //   require: true,
+  // },
 });
 
 module.exports = mongoose.model("Report", Report);
