@@ -18,10 +18,12 @@ exports.agentReports = asyncHandler(async (req, res, next) => {
   }).populate({
     path: "data.calls",
     select: "callname totalAmount win status",
+    path: "userId",
+    select: "username role",
   });
 
   console.log(req.user);
-  res.status(200).json({ success: true, data: report });
+  res.status(200).json({ success: true, report });
 });
 
 // Desc GET Masters
@@ -31,6 +33,8 @@ exports.masterReports = asyncHandler(async (req, res, next) => {
   const report = await Report.find({ userId: req.user._id }).populate({
     path: "data.users",
     select: "username role",
+    path: "userId",
+    select: "username role",
   });
 
   res.status(200).json({ success: true, data: "Masters-Report", report });
@@ -39,10 +43,15 @@ exports.masterReports = asyncHandler(async (req, res, next) => {
 // Desc GET agents of one master
 // Route GET api/v1/reports/master/agents
 exports.getMaster_select_agents = asyncHandler(async (req, res, next) => {
-  const report = await Report.find({ createByUser: req.user._id });
+  const report = await Report.find({ createByUser: req.user._id }).populate({
+    path: "data.users",
+    select: "username role",
+    path: "userId",
+    select: "username role",
+  });
 
   console.log(report);
-  res.status(200).json({ success: true, data: report });
+  res.status(200).json({ success: true, report });
 });
 
 // Desc GET agent of one master

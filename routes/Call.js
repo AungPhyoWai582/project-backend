@@ -17,7 +17,7 @@ router
   .get(protect, getCalls)
   .post(protect, authorize("Agent"), createCall);
 router
-  .route("/:id")
+  .route("/:callId")
   .get(getCall)
   .put(protect, authorize("Agent"), updateCall)
   .delete(protect, authorize("Agent"), deleteCall);

@@ -59,14 +59,14 @@ exports.getCalls = asyncHandler(async (req, res, next) => {
 // Desc    GET USER
 // Route   GET api/v1/agents/:agentId/calls
 exports.getCall = asyncHandler(async (req, res, next) => {
-  const call = await Call.findById(req.params.id).populate({
+  const call = await Call.findById(req.params.callId).populate({
     path: "user",
     select: "name role",
   });
 
   if (!call) {
     return next(
-      new ErrorResponse(`Bet not found with id of ${req.params.id}`, 404)
+      new ErrorResponse(`Bet not found with id of ${req.params.callId}`, 404)
     );
   }
 
