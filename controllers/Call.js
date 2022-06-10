@@ -91,24 +91,6 @@ exports.createCall = asyncHandler(async (req, res, next) => {
 
   const call = await Call.create(req.body);
 
-  // if (!call) {
-  //   return next(new ErrorResponse(''))
-  // }
-
-  // let callArr = [...call.betNumbers.map((cal) => cal.amount)];
-
-  // let betamount = callArr.reduce((prev, next) => prev + next, 0);
-
-  // console.log(betamount, "bet-amount");
-
-  // const betdetails = {
-  //   betId: bet._id,
-  //   betamount: betamount,
-  //   betTime: bet.betTime,
-  // };
-
-  // const betDetail = await BetDetail.create(betdetails);
-
   res.status(201).json({
     success: true,
     data: call,
