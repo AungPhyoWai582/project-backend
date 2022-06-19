@@ -16,6 +16,7 @@ const master = require("./routes/Master");
 const agent = require("./routes/Agent");
 const result = require("./routes/Result");
 const report = require("./routes/Report");
+const lager = require("./routes/Lager");
 const error = require("./middlewares/error");
 
 const app = express();
@@ -47,6 +48,7 @@ app.use(
 );
 app.use("/api/v1/reports", report);
 app.use("/api/v1/result", result);
+app.use("/api/v1/lagers", lager);
 
 app.use(error);
 
