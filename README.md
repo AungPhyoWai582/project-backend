@@ -50,6 +50,9 @@ Master
 
 ********************************************************************************
 
+Lager
+[Master Lager]       GET localhost:3000/api/v1/lagers
+
 Result
 @private access Admin
 [Add Pout Tee]	POST 	localhost:3000/api/v1/result
