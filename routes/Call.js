@@ -9,12 +9,16 @@ const {
 } = require("../controllers/Call");
 
 const { protect, authorize } = require("../middlewares/auth");
+const { calculateReport } = require("../utils/calculateReport");
 
 const router = express.Router({ mergeParams: true });
 
-router.route("/").get(getCalls).post(protect, authorize("Agent"), createCall);
 router
-  .route("/:callId")
+  .route("/:lotteryId")
+  .get(getCalls)
+  .post(protect, authorize("Agent"), createCall, calculateReport);
+router
+  .route("/:lotteryId/:callId")
   .get(getCall)
   .put(protect, authorize("Agent"), updateCall)
   .delete(protect, authorize("Agent"), deleteCall);

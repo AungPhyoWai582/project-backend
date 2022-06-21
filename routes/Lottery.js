@@ -8,6 +8,8 @@ const {
 } = require("../controllers/Lottery");
 
 const { protect, authorize } = require("../middlewares/auth");
+const { calculateReport } = require("../utils/calculateReport");
+const { calculatePoutTee } = require("../utils/calculatePoutTee");
 
 const router = express.Router();
 

@@ -43,7 +43,7 @@ app.use(
 );
 app.use("/api/v1/agents", agent);
 app.use(
-  "/api/v1/call",
+  "/api/v1/call/",
   // () => res.header("Access-Control-Allow-Origin"),
   call
 );

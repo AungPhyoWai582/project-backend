@@ -14,6 +14,11 @@ const Report = mongoose.Schema({
     type: String,
     require: true,
   },
+  lottery: {
+    type: mongoose.Schema.ObjectId,
+    ref: "Lottery",
+    require: true,
+  },
   commission: {
     type: Number,
     require: true,

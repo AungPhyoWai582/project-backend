@@ -7,13 +7,16 @@ exports.getLager = asyncHandler(async (req, res, next) => {
   console.log(req.user);
   console.log(req.originalUrl);
 
+  const { lotteryId } = req.params;
+
   const lager = [];
 
   const users = await User.find({ createByUser: req.user._id });
-  const calls = await Call.find({ user: users.map((usr) => usr._id) }).populate(
-    { path: "user", select: "name role" }
-  );
-  console.log(users);
+  const calls = await Call.find({ lottery: lotteryId }).populate({
+    path: "user",
+    select: "name role",
+  });
+  // console.log(users);
   console.log(calls);
 
   const setNumbers = Array.prototype.concat.apply(
