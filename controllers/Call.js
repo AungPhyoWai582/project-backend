@@ -3,9 +3,11 @@ const asyncHandler = require("../middlewares/async");
 const Call = require("../models/Call");
 // const Report = require("../models/Report");
 const BetDetail = require("../models/BetDetail");
+const Lottery = require("../models/Lottery");
 
 const colors = require("colors");
 const Report = require("../models/Report");
+const { calculateReport } = require("../utils/calculateReport");
 
 // Desc    GET USERS
 // Route   GET api/v1/users/:agentId/calls
@@ -70,22 +72,17 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   console.log(req.body);
   console.log(req.params.lotteryId);
 
-  // if (req.user.role !== "Agent") {
-  //   return next(
-  //     new ErrorResponse(
-  //       `This user ${req.user.id} role is not authorize to access this route`,
-  //       400
-  //     )
-  //   );
-  // }
+  const lottery = await Lottery.findById(req.params.lotteryId);
 
   const call = await Call.create(req.body);
 
-  // const report = await Report.find({ lottery: req.params.lotteryId });
-  // console.log(colors.bgRed(report));
+  if (!call) {
+    return next(new ErrorResponse("Something was wrong", 500));
+  }
 
-  // req.lotteryId = req.params.lotteryId;
-  next();
+  // For update real-time Report
+  calculateReport(lottery);
+
   res.status(201).json({
     success: true,
     data: call,

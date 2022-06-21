@@ -16,7 +16,7 @@ const router = express.Router({ mergeParams: true });
 router
   .route("/:lotteryId")
   .get(getCalls)
-  .post(protect, authorize("Agent"), createCall, calculateReport);
+  .post(protect, authorize("Agent"), createCall);
 router
   .route("/:lotteryId/:callId")
   .get(getCall)
