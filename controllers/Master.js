@@ -52,6 +52,7 @@ exports.getMasters = asyncHandler(async (req, res, next) => {
     };
   }
 
+  console.log(users);
   res.status(200).json({
     success: true,
     counts: users.length,
