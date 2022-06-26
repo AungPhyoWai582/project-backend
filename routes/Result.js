@@ -6,6 +6,6 @@ const { protect, authorize } = require("../middlewares/auth");
 const { calculateReport } = require("../utils/calculateReport");
 const router = express.Router({ mergeParams: true });
 
-router.post("/", result, calculateReport);
+router.post("/:lotteryId", result, calculateReport);
 
 module.exports = router;

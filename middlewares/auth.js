@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const asyncHandler = require("./async");
 const ErrorResponse = require("../utils/ErrorResponse");
 const User = require("../models/User");
+const colors = require("colors");
 
 // Protect route
 exports.protect = asyncHandler(async (req, res, next) => {
@@ -13,7 +14,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
   ) {
     token = req.headers.authorization.split(" ")[1];
   }
-  console.log(token);
+  console.log(colors.bgGreen(token));
 
   // Make sure token exists
   if (!token) {

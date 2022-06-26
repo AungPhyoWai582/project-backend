@@ -14,7 +14,7 @@ router.use("/:agentId/call", callRouter);
 
 router
   .route("/")
-  .get(getAgents)
+  .get(protect, getAgents)
   .post(protect, authorize("Master"), createAgent);
 router
   .route("/:id")

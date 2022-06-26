@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 
 const Call = new mongoose.Schema({
+  lottery: {
+    type: mongoose.Schema.ObjectId,
+    ref: "Lottery",
+    required: true,
+  },
   callname: {
     type: String,
     required: [true, "Please add a chalan id"],

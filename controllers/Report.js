@@ -10,7 +10,7 @@ const Report = require("../models/Report");
 // Desc    GET USERS
 // Route   GET api/v1/reports/calls
 exports.agentReports = asyncHandler(async (req, res, next) => {
-  let { agentId } = req.params;
+  let { agentId, lotteryId } = req.params;
   console.log(colors.bgRed(req.params.agentId));
 
   const report = await Report.find({
@@ -22,27 +22,36 @@ exports.agentReports = asyncHandler(async (req, res, next) => {
     select: "username role",
   });
 
+  const resReport = report.filter(
+    (rp) => rp.lottery.toString() === lotteryId.toString()
+  );
+
   console.log(req.user);
-  res.status(200).json({ success: true, report });
+  res.status(200).json({ success: true, resReport });
 });
 
 // Desc GET Masters
 // Route GET api/v1/reports/master
 exports.masterReports = asyncHandler(async (req, res, next) => {
   console.log(colors.bgRed(req.user));
+  const { lotteryId } = req.params;
   const report = await Report.find({ userId: req.user._id }).populate({
     path: "data.users",
     select: "username role",
     path: "userId",
     select: "username role",
   });
-  console.log(report);
-  res.status(200).json({ success: true, data: "Masters-Report", report });
+  const resReport = report.filter(
+    (rp) => rp.lottery.toString() === lotteryId.toString()
+  );
+  console.log(resReport);
+  res.status(200).json({ success: true, data: "Masters-Report", resReport });
 });
 
 // Desc GET agents of one master
 // Route GET api/v1/reports/master/agents
 exports.getMaster_select_agents = asyncHandler(async (req, res, next) => {
+  const { lotteryId } = req.params;
   const report = await Report.find({ createByUser: req.user._id }).populate({
     path: "data.users",
     select: "username role",
@@ -50,8 +59,11 @@ exports.getMaster_select_agents = asyncHandler(async (req, res, next) => {
     select: "username role",
   });
 
-  console.log(report);
-  res.status(200).json({ success: true, report });
+  const resReport = report.filter(
+    (rp) => rp.lottery.toString() === lotteryId.toString()
+  );
+  console.log(resReport);
+  res.status(200).json({ success: true, resReport });
 });
 
 // Desc GET agent of one master

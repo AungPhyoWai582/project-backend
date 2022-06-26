@@ -3,55 +3,46 @@ const asyncHandler = require("../middlewares/async");
 const Call = require("../models/Call");
 // const Report = require("../models/Report");
 const BetDetail = require("../models/BetDetail");
+const Lottery = require("../models/Lottery");
+
+const colors = require("colors");
+const Report = require("../models/Report");
+const { calculateReport } = require("../utils/calculateReport");
 
 // Desc    GET USERS
 // Route   GET api/v1/users/:agentId/calls
 exports.getCalls = asyncHandler(async (req, res, next) => {
   console.log(req.originalUrl);
   let query;
+  let calls;
+  let { agentId, lotteryId } = req.params;
 
-  console.log("ads;flkasdjf;");
+  console.log(colors.bgGreen(agentId, lotteryId));
 
-  if (req.user) {
-    console.log("blah blah");
-    query = Call.find({
-      user: req.user.role === "Agent" ? req.user._id : req.params.agentId,
-    }).populate({
-      path: "user",
-      select: "name role",
-    });
+  query = await Call.find({ lottery: lotteryId }).populate({
+    path: "user",
+    select: "name role",
+  });
+
+  if (agentId) {
+    calls = query.filter(
+      (f, key) => f.user._id.toString() === agentId.toString()
+    );
   } else {
-    query = Call.find().populate({ path: "user", select: "name role" });
+    calls = query;
   }
 
-  const callList = await query;
-
-  console.log(callList);
-
-  // // Copy req.query
-  // const reqQuery = { ...query };
-
-  // // Fields to execute
-  // const removeFields = ["select", "sort", "page", "limit"];
-
-  // // Loop over removeFields and delete them from reqQuery
-  // removeFields.forEach((param) => delete reqQuery[param]);
-
-  // let queryStr = JSON.stringify(reqQuery);
-  // console.log(JSON.parse(queryStr));
-
-  // query = Call.find(JSON.parse(queryStr));
-  // // console.log(req.body.user);
-  // const callList = await query;
-
-  if (!callList) {
+  if (!calls) {
     return next(new ErrorResponse("Here no have bet lists", 404));
   }
 
+  // console.log(calls);
+  console.log(colors.bgBlue(calls));
+
   res.status(200).json({
     success: true,
-    count: callList.length,
-    data: callList,
+    count: calls.length,
+    data: calls,
     selfUrl: req.originalUrl,
   });
 });
@@ -78,18 +69,21 @@ exports.getCall = asyncHandler(async (req, res, next) => {
 exports.createCall = asyncHandler(async (req, res, next) => {
   // Add user to req.body
   req.body.user = req.user._id;
+  req.body.lottery = req.params.lotteryId;
+  console.log(req.user);
   console.log(req.body);
+  console.log(req.params.lotteryId);
 
-  // if (req.user.role !== "Agent") {
-  //   return next(
-  //     new ErrorResponse(
-  //       `This user ${req.user.id} role is not authorize to access this route`,
-  //       400
-  //     )
-  //   );
-  // }
+  const lottery = await Lottery.findById(req.params.lotteryId);
 
   const call = await Call.create(req.body);
+
+  if (!call) {
+    return next(new ErrorResponse("Something was wrong", 500));
+  }
+
+  // For update real-time Report
+  calculateReport(lottery);
 
   res.status(201).json({
     success: true,

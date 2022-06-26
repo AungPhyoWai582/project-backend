@@ -74,6 +74,18 @@ exports.getMe = asyncHandler(async (req, res, next) => {
   });
 });
 
+exports.getUsers = asyncHandler(async (req, res, next) => {
+  console.log("get user with auth");
+  console.log(req.user);
+  const users = await User.find({ createByUser: req.user._id });
+  console.log(users);
+  if (!users) {
+    return next(new ErrorResponse("There is no users", 404));
+  }
+
+  res.status(200).json({ success: true, count: users.length, users: users });
+});
+
 // Reset password
 exports.resetPassword = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.params.id);
