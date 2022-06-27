@@ -8,6 +8,7 @@ const Lottery = require("../models/Lottery");
 const colors = require("colors");
 const Report = require("../models/Report");
 const { calculateReport } = require("../utils/calculateReport");
+const { calculateLager } = require("../utils/calculateLager");
 
 // Desc    GET USERS
 // Route   GET api/v1/users/:agentId/calls
@@ -81,6 +82,9 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   if (!call) {
     return next(new ErrorResponse("Something was wrong", 500));
   }
+
+  // For Lager
+  calculateLager(lottery, req.user._id);
 
   // For update real-time Report
   calculateReport(lottery);
