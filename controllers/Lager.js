@@ -2,8 +2,28 @@ const asyncHandler = require("../middlewares/async");
 const Call = require("../models/Call");
 const User = require("../models/User");
 const colors = require("colors");
+const Lager = require("../models/Lager");
+const ErrorResponse = require("../utils/ErrorResponse");
 
 exports.getLager = asyncHandler(async (req, res, next) => {
+  // const lager = await Lager.findOne({
+  //   lottery: req.params.lotteryId,
+  //   user: req.user._id,
+  // })
+  //   .populate({
+  //     path: "user",
+  //     select: "username name",
+  //   })
+  //   .populate({
+  //     path: "createByUser",
+  //     select: "username role",
+  //   });
+
+  // if (!lager) {
+  //   return next(new ErrorResponse("There is no lager", 404));
+  // }
+
+  // res.status(200).json({ success: true, data: lager });
   console.log(req.user);
   console.log(req.originalUrl);
 
@@ -59,3 +79,5 @@ exports.getLager = asyncHandler(async (req, res, next) => {
     .status(200)
     .json({ success: true, count: lager.length, total: total, data: lager });
 });
+
+// exports.getLager = asyncHandler(async (req, res, next) => {});

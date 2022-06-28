@@ -7,6 +7,7 @@ const Lottery = require("../models/Lottery");
 
 const colors = require("colors");
 const Report = require("../models/Report");
+const Lager = require("../models/Lager");
 const { calculateReport } = require("../utils/calculateReport");
 const { calculateLager } = require("../utils/calculateLager");
 
@@ -84,14 +85,58 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   }
 
   // For Lager
-  calculateLager(lottery, req.user._id);
+
+  const lager = await Lager.findOne({
+    lottery: req.params.lotteryId,
+    user: req.user._id,
+  }).populate({ path: "user", select: "username name role" });
+
+  // console.log(lager.lager);
+  const demolager = lager.lager;
+  console.log(demolager);
+  const callNumbers = call.numbers;
+  callNumbers.map((cn) => {
+    if (demolager.map((l) => l.number).includes(cn.number)) {
+      demolager[demolager.findIndex((obj) => obj.number === cn.number)] = {
+        number: cn.number,
+        amount:
+          Number(
+            demolager[demolager.findIndex((obj) => obj.number === cn.number)]
+              .amount
+          ) + Number(cn.amount).toString(),
+      };
+    } else {
+      demolager.push(cn);
+    }
+  });
+  console.log(colors.bgYellow(demolager));
+
+  const updateLager = await Lager.findByIdAndUpdate(
+    lager._id,
+    {
+      lager: demolager,
+      totalAmount: demolager
+        .map((deml) => Number(deml.amount))
+        .reduce((prev, next) => prev + next, 0),
+    },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  // const lagerReturn = calculateLager(lottery, req.user._id);
+  // // console.log(lagerReturn);
+
+  // const lager = await Lager.create(lagerReturn);
 
   // For update real-time Report
-  calculateReport(lottery);
+  // calculateReport(lottery);
 
   res.status(201).json({
     success: true,
     data: call,
+    lager: updateLager,
   });
 });
 

@@ -55,10 +55,7 @@ exports.calculateLager = asyncHandler(async (lottery, userId) => {
     totalAmount: totalAmount,
     lager: lager,
   };
+  console.log(obj);
 
-  try {
-    await Lager.create(obj);
-  } catch (err) {
-    next(new ErrorResponse(err, 500));
-  }
+  return obj;
 });

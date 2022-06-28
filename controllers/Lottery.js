@@ -5,6 +5,7 @@ const User = require("../models/User");
 const ErrorResponse = require("../utils/ErrorResponse");
 const colors = require("colors");
 const Report = require("../models/Report");
+const Lager = require("../models/Lager");
 const { calculateReport } = require("../utils/calculateReport");
 const { calculatePoutTee } = require("../utils/calculatePoutTee");
 
@@ -55,10 +56,20 @@ exports.createLottery = asyncHandler(async (req, res, next) => {
           users: [...filterUser.map((fusr) => fusr._id)],
         },
       };
-      console.log(colors.bgWhite(obj));
+
+      const lager = {
+        lottery: lottery._id,
+        user: usr._id,
+        createByUser: usr.createByUser,
+        type: usr.role,
+        _date: lottery._date,
+        _time: lottery._time,
+      };
+      console.log(colors.bgWhite(lager));
 
       try {
         await Report.create(obj);
+        await Lager.create(lager);
       } catch (error) {
         return next(new ErrorResponse(error, 500));
       }
@@ -99,9 +110,18 @@ exports.createLottery = asyncHandler(async (req, res, next) => {
           calls: [...filterCall.map((fcal) => fcal._id)],
         },
       };
-      console.log(colors.bgGreen(obj));
+      const lager = {
+        lottery: lottery._id,
+        user: usr._id,
+        createByUser: usr.createByUser,
+        type: usr.role,
+        _date: lottery._date,
+        _time: lottery._time,
+      };
+      console.log(colors.bgGreen(lager));
       try {
         await Report.create(obj);
+        await Lager.create(lager);
       } catch (error) {
         return next(new ErrorResponse("Something was wrong", 500));
       }

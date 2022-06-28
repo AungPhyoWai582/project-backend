@@ -14,7 +14,6 @@ const Lager = new mongoose.Schema({
   createByUser: {
     type: mongoose.Schema.ObjectId,
     ref: "User",
-    required: true,
   },
   type: {
     type: String,
@@ -23,6 +22,20 @@ const Lager = new mongoose.Schema({
   totalAmount: {
     type: Number,
     required: true,
+    default: 0,
   },
-  lager: Array,
+  _date: {
+    type: Date,
+    required: true,
+  },
+  _time: {
+    type: String,
+    required: true,
+  },
+  call: {
+    type: Array,
+    default: null,
+  },
 });
+
+module.exports = mongoose.model("Lager", Lager);

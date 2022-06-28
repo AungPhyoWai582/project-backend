@@ -6,6 +6,6 @@ const { protect, authorize } = require("../middlewares/auth");
 
 const router = express.Router({ mergeParams: true });
 
-router.route("/:lotteryId").get(protect, authorize("Master"), getLager);
+router.route("/:lotteryId").get(protect, getLager);
 
 module.exports = router;
