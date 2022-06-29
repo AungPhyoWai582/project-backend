@@ -92,18 +92,19 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   }).populate({ path: "user", select: "username name role" });
 
   // console.log(lager.lager);
-  const demolager = lager.lager;
+  const demolager = lager.call;
   console.log(demolager);
   const callNumbers = call.numbers;
   callNumbers.map((cn) => {
     if (demolager.map((l) => l.number).includes(cn.number)) {
       demolager[demolager.findIndex((obj) => obj.number === cn.number)] = {
         number: cn.number,
-        amount:
+        amount: (
           Number(
             demolager[demolager.findIndex((obj) => obj.number === cn.number)]
               .amount
-          ) + Number(cn.amount).toString(),
+          ) + Number(cn.amount)
+        ).toString(),
       };
     } else {
       demolager.push(cn);
@@ -114,7 +115,7 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   const updateLager = await Lager.findByIdAndUpdate(
     lager._id,
     {
-      lager: demolager,
+      call: demolager,
       totalAmount: demolager
         .map((deml) => Number(deml.amount))
         .reduce((prev, next) => prev + next, 0),
