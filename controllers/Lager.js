@@ -5,6 +5,26 @@ const colors = require("colors");
 const Lager = require("../models/Lager");
 const ErrorResponse = require("../utils/ErrorResponse");
 
+exports.getLagers = asyncHandler(async (req, res, next) => {
+  const lagers = await Lager.find({ user: req.user._id })
+    .populate({
+      path: "user",
+      select: "username name",
+    })
+    .populate({
+      path: "createByUser",
+      select: "username role",
+    });
+  if (!lagers) {
+    return next(new ErrorResponse("Lagers not found", 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    data: lagers,
+  });
+});
+
 exports.getLager = asyncHandler(async (req, res, next) => {
   const lager = await Lager.findOne({
     lottery: req.params.lotteryId,
