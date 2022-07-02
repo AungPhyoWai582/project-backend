@@ -32,9 +32,17 @@ const Lager = new mongoose.Schema({
     type: String,
     required: true,
   },
+  commission: {
+    type: Number,
+    default: 0,
+  },
   call: {
     type: Array,
-    default: null,
+    default: [],
+  },
+  downline: {
+    type: Array,
+    default: [],
   },
 });
 

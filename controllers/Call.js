@@ -72,11 +72,8 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   // Add user to req.body
   req.body.user = req.user._id;
   req.body.lottery = req.params.lotteryId;
-  console.log(req.user);
-  console.log(req.body);
-  console.log(req.params.lotteryId);
 
-  const lottery = await Lottery.findById(req.params.lotteryId);
+  // const lottery = await Lottery.findById(req.params.lotteryId);
 
   const call = await Call.create(req.body);
 
@@ -89,12 +86,20 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   const lager = await Lager.findOne({
     lottery: req.params.lotteryId,
     user: req.user._id,
-  }).populate({ path: "user", select: "username name role" });
+  }).populate({ path: "user", select: "username name role commission" });
 
   // console.log(lager.lager);
   const demolager = lager.call;
-  console.log(demolager);
+  const downline = lager.downline;
   const callNumbers = call.numbers;
+
+  downline.push({
+    lottery: call.lottery,
+    callname: call.callname,
+    user: call.user,
+  });
+
+  // for lager call
   callNumbers.map((cn) => {
     if (demolager.map((l) => l.number).includes(cn.number)) {
       demolager[demolager.findIndex((obj) => obj.number === cn.number)] = {
@@ -110,15 +115,20 @@ exports.createCall = asyncHandler(async (req, res, next) => {
       demolager.push(cn);
     }
   });
-  console.log(colors.bgYellow(demolager));
+
+  // for lager bet
+  const bet = Number(lager.totalAmount) + Number(call.totalAmount);
+
+  // for lager commission
+  const com = bet * (req.user.commission / 100);
 
   const updateLager = await Lager.findByIdAndUpdate(
     lager._id,
     {
       call: demolager,
-      totalAmount: demolager
-        .map((deml) => Number(deml.amount))
-        .reduce((prev, next) => prev + next, 0),
+      totalAmount: bet,
+      downline: downline,
+      commission: com,
     },
     {
       new: true,

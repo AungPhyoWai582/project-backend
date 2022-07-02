@@ -47,20 +47,72 @@ exports.getLager = asyncHandler(async (req, res, next) => {
 });
 
 exports.sendLager = asyncHandler(async (req, res, next) => {
-  // const { data } = req.body;
+  const data = req.body;
+  let updateLager;
 
-  // const send = await Lager.find({
-  //   user: req.user.createByUser,
-  //   lottery: data.id,
-  // })
-  //   .populate({
-  //     path: "user",
-  //     select: "username name",
-  //   })
-  //   .populate({
-  //     path: "createByUser",
-  //     select: "username role",
-  //   });
+  data.map(async (d, key) => {
+    console.log(d);
+    const lager = await Lager.findOne({
+      user: req.user.createByUser,
+      lottery: d.lottery,
+    }).populate({ path: "user", select: "username name role commission" });
+    console.log(colors.bgGreen(lager));
+
+    const demolager = lager.call;
+    const downline = lager.downline;
+    const callNumbers = d.call;
+
+    console.log(typeof downline, typeof demolager, typeof callNumbers);
+
+    // // for downline
+    downline.push(d);
+
+    // for lager call
+    callNumbers.map((cn) => {
+      if (demolager.map((l) => l.number).includes(cn.number)) {
+        demolager[demolager.findIndex((obj) => obj.number === cn.number)] = {
+          number: cn.number,
+          amount: (
+            Number(
+              demolager[demolager.findIndex((obj) => obj.number === cn.number)]
+                .amount
+            ) + Number(cn.amount)
+          ).toString(),
+        };
+      } else {
+        demolager.push(cn);
+      }
+    });
+
+    // for lager bet
+    const bet = Number(lager.totalAmount) + Number(d.totalAmount);
+
+    // for lager commission
+    const com = bet * (lager.user.commission / 100);
+
+    let obj = {
+      call: demolager,
+      totalAmount: bet,
+      downline: downline,
+      commission: com,
+    };
+
+    console.log(colors.bgYellow(obj));
+
+    await Lager.findByIdAndUpdate(
+      lager._id,
+      {
+        call: demolager,
+        totalAmount: bet,
+        downline: downline,
+        commission: com,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+  });
   res.status(200).json({
     success: true,
     msg: "Sended OK",
