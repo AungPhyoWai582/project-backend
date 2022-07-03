@@ -9,10 +9,7 @@ const Lottery = new mongoose.Schema({
     type: Array,
     default: null,
   },
-  pate: {
-    type: Array,
-    default: null,
-  },
+
   play: {
     type: Boolean,
     required: true,
