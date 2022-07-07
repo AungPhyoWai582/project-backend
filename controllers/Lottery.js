@@ -68,7 +68,7 @@ exports.createLottery = asyncHandler(async (req, res, next) => {
       console.log(colors.bgWhite(lager));
 
       try {
-        await Report.create(obj);
+        // await Report.create(obj);
         await Lager.create(lager);
       } catch (error) {
         return next(new ErrorResponse(error, 500));
@@ -120,7 +120,7 @@ exports.createLottery = asyncHandler(async (req, res, next) => {
       };
       console.log(colors.bgGreen(lager));
       try {
-        await Report.create(obj);
+        // await Report.create(obj);
         await Lager.create(lager);
       } catch (error) {
         return next(new ErrorResponse("Something was wrong", 500));

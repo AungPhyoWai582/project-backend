@@ -17,19 +17,18 @@ exports.getCalls = asyncHandler(async (req, res, next) => {
   console.log(req.originalUrl);
   let query;
   let calls;
-  let { agentId, lotteryId } = req.params;
+  const { _id } = req.user;
+  const { lotteryId } = req.params;
 
-  console.log(colors.bgGreen(agentId, lotteryId));
+  console.log(colors.bgGreen(_id, lotteryId));
 
   query = await Call.find({ lottery: lotteryId }).populate({
     path: "user",
     select: "name role",
   });
 
-  if (agentId) {
-    calls = query.filter(
-      (f, key) => f.user._id.toString() === agentId.toString()
-    );
+  if (_id) {
+    calls = query.filter((f, key) => f.user._id.toString() === _id.toString());
   } else {
     calls = query;
   }
@@ -66,7 +65,7 @@ exports.getCall = asyncHandler(async (req, res, next) => {
   res.status(200).json({ success: true, data: call });
 });
 
-// Desc    CREATE USERS
+// Desc    CREATE CALL
 // Route   POST api/v1/agents/:agentId/calls
 exports.createCall = asyncHandler(async (req, res, next) => {
   // Add user to req.body

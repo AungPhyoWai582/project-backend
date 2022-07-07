@@ -42,7 +42,7 @@ const User = mongoose.Schema({
   createByUser: {
     type: mongoose.Schema.ObjectId,
     ref: "User",
-    required: true,
+    // required: true,
   },
   createToUser: {
     id: mongoose.Schema.ObjectId,

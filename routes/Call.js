@@ -13,7 +13,7 @@ const { calculateReport } = require("../utils/calculateReport");
 
 const router = express.Router({ mergeParams: true });
 
-router.route("/:lotteryId").get(getCalls).post(protect, createCall);
+router.route("/:lotteryId").get(protect, getCalls).post(protect, createCall);
 router
   .route("/:lotteryId/:callId")
   .get(getCall)
