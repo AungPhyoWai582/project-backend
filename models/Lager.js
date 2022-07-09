@@ -40,6 +40,10 @@ const Lager = new mongoose.Schema({
     type: Array,
     default: [],
   },
+  sell: {
+    type: Array,
+    default: [],
+  },
   downline: {
     type: Array,
     default: [],

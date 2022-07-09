@@ -46,6 +46,15 @@ exports.getLager = asyncHandler(async (req, res, next) => {
   res.status(200).json({ success: true, data: lager });
 });
 
+exports.sell = asyncHandler(async (req, res, next) => {
+  const sell = await Lager.findByIdAndUpdate(req.params.lotteryId, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({ success: true, data: sell });
+});
+
 exports.sendLager = asyncHandler(async (req, res, next) => {
   const data = req.body;
   let updateLager;
