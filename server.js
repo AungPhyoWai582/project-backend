@@ -18,6 +18,7 @@ const result = require("./routes/Result");
 const report = require("./routes/Report");
 const lager = require("./routes/Lager");
 const lottery = require("./routes/Lottery");
+const customer = require("./routes/Customer");
 const error = require("./middlewares/error");
 
 const app = express();
@@ -52,6 +53,8 @@ app.use("/api/v1/result", result);
 app.use("/api/v1/lagers", lager);
 
 app.use("/api/v1/lottery", lottery);
+
+app.use("/api/v1/customer", customer);
 
 app.use(error);
 

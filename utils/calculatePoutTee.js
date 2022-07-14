@@ -61,5 +61,5 @@ exports.calculatePoutTee = asyncHandler(async (lottery) => {
   });
 
   console.log(colors.bgGreen("Successfully pout tee update ..."));
-  calculateReport(lottery);
+  // calculateReport(lottery);
 });

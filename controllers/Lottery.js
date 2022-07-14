@@ -8,6 +8,7 @@ const Report = require("../models/Report");
 const Lager = require("../models/Lager");
 const { calculateReport } = require("../utils/calculateReport");
 const { calculatePoutTee } = require("../utils/calculatePoutTee");
+const { calculateLager } = require("../utils/calculateLager");
 
 exports.getLotteries = asyncHandler(async (req, res, next) => {
   const lotteries = await Lottery.find();
@@ -146,6 +147,7 @@ exports.updateLottery = asyncHandler(async (req, res, next) => {
   if (lottery.pout_tee !== null) {
     console.log("pouttee");
     calculatePoutTee(lottery);
+    calculateLager(lottery);
   }
   res.status(200).json({ success: true, lottery: lottery });
 });

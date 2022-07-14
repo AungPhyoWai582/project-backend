@@ -80,7 +80,7 @@ exports.calculateReport = asyncHandler(async (lottery) => {
         },
       };
     }
-    console.log(colors.yellow(obj));
+    // console.log(colors.yellow(obj));
     await Report.findByIdAndUpdate(rp._id, obj, {
       new: true,
       runValidators: true,
