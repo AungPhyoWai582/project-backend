@@ -25,6 +25,8 @@ exports.getCalls = asyncHandler(async (req, res, next) => {
   query = await Call.find({ lottery: lotteryId }).populate({
     path: "user",
     select: "name role",
+    path: "customer",
+    select: "name",
   });
 
   if (_id) {
@@ -70,6 +72,7 @@ exports.getCall = asyncHandler(async (req, res, next) => {
 exports.createCall = asyncHandler(async (req, res, next) => {
   // Add user to req.body
   req.body.user = req.user._id;
+  req.body.user_role = req.user.role;
   req.body.lottery = req.params.lotteryId;
 
   // const lottery = await Lottery.findById(req.params.lotteryId);
@@ -82,58 +85,58 @@ exports.createCall = asyncHandler(async (req, res, next) => {
 
   // For Lager
 
-  const lager = await Lager.findOne({
-    lottery: req.params.lotteryId,
-    user: req.user._id,
-  }).populate({ path: "user", select: "username name role commission" });
+  // const lager = await Lager.findOne({
+  //   lottery: req.params.lotteryId,
+  //   user: req.user._id,
+  // }).populate({ path: "user", select: "username name role commission" });
 
-  // console.log(lager.lager);
-  const demolager = lager.call;
-  const downline = lager.downline;
-  const callNumbers = call.numbers;
+  // // console.log(lager.lager);
+  // const demolager = lager.call;
+  // const downline = lager.downline;
+  // const callNumbers = call.numbers;
 
-  downline.push({
-    lottery: call.lottery,
-    callname: call.callname,
-    user: call.user,
-  });
+  // // downline.push({
+  // //   lottery: call.lottery,
+  // //   callname: call.callname,
+  // //   user: call.user,
+  // // });
 
-  // for lager call
-  callNumbers.map((cn) => {
-    if (demolager.map((l) => l.number).includes(cn.number)) {
-      demolager[demolager.findIndex((obj) => obj.number === cn.number)] = {
-        number: cn.number,
-        amount: (
-          Number(
-            demolager[demolager.findIndex((obj) => obj.number === cn.number)]
-              .amount
-          ) + Number(cn.amount)
-        ).toString(),
-      };
-    } else {
-      demolager.push(cn);
-    }
-  });
+  // // for lager call
+  // callNumbers.map((cn) => {
+  //   if (demolager.map((l) => l.number).includes(cn.number)) {
+  //     demolager[demolager.findIndex((obj) => obj.number === cn.number)] = {
+  //       number: cn.number,
+  //       amount: (
+  //         Number(
+  //           demolager[demolager.findIndex((obj) => obj.number === cn.number)]
+  //             .amount
+  //         ) + Number(cn.amount)
+  //       ).toString(),
+  //     };
+  //   } else {
+  //     demolager.push(cn);
+  //   }
+  // });
 
-  // for lager bet
-  const bet = Number(lager.totalAmount) + Number(call.totalAmount);
+  // // for lager bet
+  // const bet = Number(lager.totalAmount) + Number(call.totalAmount);
 
-  // for lager commission
-  const com = bet * (req.user.commission / 100);
+  // // for lager commission
+  // const com = bet * (req.user.commission / 100);
 
-  const updateLager = await Lager.findByIdAndUpdate(
-    lager._id,
-    {
-      call: demolager,
-      totalAmount: bet,
-      downline: downline,
-      commission: com,
-    },
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
+  // const updateLager = await Lager.findByIdAndUpdate(
+  //   lager._id,
+  //   {
+  //     call: demolager,
+  //     totalAmount: bet,
+  //     // downline: downline,
+  //     commission: com,
+  //   },
+  //   {
+  //     new: true,
+  //     runValidators: true,
+  //   }
+  // );
 
   // const lagerReturn = calculateLager(lottery, req.user._id);
   // // console.log(lagerReturn);
@@ -146,7 +149,7 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   res.status(201).json({
     success: true,
     data: call,
-    lager: updateLager,
+    // lager: updateLager,
   });
 });
 

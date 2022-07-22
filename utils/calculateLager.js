@@ -7,8 +7,43 @@ const Lager = require("../models/Lager");
 const colors = require("colors");
 const { populate } = require("../models/Call");
 
-exports.calculateLager = asyncHandler(async (lottery) => {
-  console.log(colors.bgGreen(lottery.poutTee));
-  const lagers = await Lager.find({ lottery: lottery._id });
-  console.log(colors.bgBlue(lagers));
+exports.calculateLager = asyncHandler(async (req, res, next) => {
+  console.log(req.user);
+  const { _id, commission } = req.user;
+  const { lotteryId } = req.params;
+  const calls = await Call.find({ lottery: lotteryId, user: _id });
+
+  console.log(colors.bgGreen(calls));
+
+  const lager = [];
+
+  const obj = {};
+
+  const numbers = Array.prototype.concat.apply(
+    [],
+    calls.map((cal) => cal.numbers)
+  );
+
+  console.log(numbers);
+
+  numbers.forEach((num) => {
+    if (obj.hasOwnProperty(num.number)) {
+      obj[num.number] = obj[num.number] + Number(num.amount);
+    } else {
+      obj[num.number] = Number(num.amount);
+    }
+  });
+
+  console.log(obj);
+
+  for (var prop in obj) {
+    lager.push({ number: prop, amount: obj[prop] });
+  }
+
+  const totalAmount = lager
+    .map((lag) => Number(lag.amount))
+    .reduce((pre, next) => pre + next, 0);
+
+  console.log(lager);
+  res.status(200).json({ success: true, lager, totalAmount });
 });

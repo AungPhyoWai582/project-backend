@@ -38,10 +38,7 @@ exports.getCustomer = asyncHandler(async (req, res, next) => {
 
 exports.createCustomer = asyncHandler(async (req, res, next) => {
   req.body.createByUser = req.user._id;
-  const customer = await Customer.create(req.body).populate({
-    path: "createByUser",
-    select: "username name role",
-  });
+  const customer = await Customer.create(req.body);
 
   res.status(201).json({ success: true, customer });
 });

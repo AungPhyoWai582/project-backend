@@ -6,14 +6,26 @@ const Call = new mongoose.Schema({
     ref: "Lottery",
     required: true,
   },
-  callname: {
-    type: String,
-    required: [true, "Please add a chalan id"],
-  },
   user: {
     type: mongoose.Schema.ObjectId,
     ref: "User",
     required: true,
+  },
+  user_role: {
+    type: String,
+    required: true,
+  },
+  customer: {
+    type: mongoose.Schema.ObjectId,
+    ref: "Customer",
+  },
+  agent: {
+    type: mongoose.Schema.ObjectId,
+    ref: "User",
+  },
+  master: {
+    type: mongoose.Schema.ObjectId,
+    ref: "User",
   },
   // betNumbers: [{ number: Number, amount: Number }],
   numbers: {
