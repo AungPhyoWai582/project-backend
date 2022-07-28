@@ -36,6 +36,8 @@ exports.createUser = asyncHandler(async (req, res, next) => {
 exports.loginUser = asyncHandler(async (req, res, next) => {
   const { username, password } = req.body;
 
+  console.log(req.body);
+
   // Validate username and password
   if (!username || !password) {
     return next(new ErrorResponse("Please provide username and password", 400));
