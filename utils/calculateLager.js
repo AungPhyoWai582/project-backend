@@ -8,10 +8,21 @@ const colors = require("colors");
 const { populate } = require("../models/Call");
 
 exports.calculateLager = asyncHandler(async (req, res, next) => {
+  let query;
+  let calls;
+
   console.log(req.user);
   const { _id, commission } = req.user;
   const { lotteryId } = req.params;
-  const calls = await Call.find({ lottery: lotteryId, user: _id });
+  query = await Call.find({ lottery: lotteryId });
+
+  console.log(query);
+
+  if (_id) {
+    calls = query.filter((f, key) => f.user._id.toString() === _id.toString());
+  } else {
+    calls = query;
+  }
 
   console.log(colors.bgGreen(calls));
 
@@ -24,17 +35,17 @@ exports.calculateLager = asyncHandler(async (req, res, next) => {
     calls.map((cal) => cal.numbers)
   );
 
-  console.log(numbers);
+  console.log(colors.bgBlue(numbers));
 
   numbers.forEach((num) => {
     if (obj.hasOwnProperty(num.number)) {
-      obj[num.number] = obj[num.number] + Number(num.amount);
+      obj[num.number] = Number(obj[num.number]) + Number(num.amount);
     } else {
       obj[num.number] = Number(num.amount);
     }
   });
 
-  console.log(obj);
+  console.log(colors.bgRed(obj));
 
   for (var prop in obj) {
     lager.push({ number: prop, amount: obj[prop] });

@@ -22,12 +22,19 @@ exports.getCalls = asyncHandler(async (req, res, next) => {
 
   console.log(colors.bgGreen(_id, lotteryId));
 
-  query = await Call.find({ lottery: lotteryId }).populate({
-    path: "user",
-    select: "name role",
-    path: "customer",
-    select: "name",
-  });
+  query = await Call.find({ lottery: lotteryId })
+    .populate({
+      path: "user",
+      select: "name role",
+    })
+    .populate({
+      path: "customer",
+      select: "name",
+    })
+    .populate({
+      path: "agent",
+      select: "name role",
+    });
 
   if (_id) {
     calls = query.filter((f, key) => f.user._id.toString() === _id.toString());
