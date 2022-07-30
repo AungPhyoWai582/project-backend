@@ -52,7 +52,7 @@ app.use("/api/v1/reports", report);
 app.use("/api/v1/result", result);
 app.use("/api/v1/lagers", lager);
 
-app.use("/api/v1/lottery", lottery);
+app.use("/api/v1/lotterys", lottery);
 
 app.use("/api/v1/customer", customer);
 
