@@ -4,6 +4,7 @@ const User = require("../models/User");
 const colors = require("colors");
 const Lager = require("../models/Lager");
 const ErrorResponse = require("../utils/ErrorResponse");
+const { inout } = require("../utils/InOut");
 
 exports.getLagers = asyncHandler(async (req, res, next) => {
   const lagers = await Lager.find({ user: req.user._id })
@@ -42,89 +43,108 @@ exports.getLager = asyncHandler(async (req, res, next) => {
   if (!lager) {
     return next(new ErrorResponse("There is no lager", 404));
   }
+  console.log(lager);
 
   res.status(200).json({ success: true, data: lager });
 });
 
-exports.sell = asyncHandler(async (req, res, next) => {
-  const sell = await Lager.findByIdAndUpdate(req.params.lotteryId, req.body, {
+exports.InOut = asyncHandler(async (req, res, next) => {
+  const selfUrl = req.originalUrl.split("/").slice(-1).toString();
+
+  const { lotteryId } = req.params;
+  const { _id, commission } = req.user;
+  const { customer, numbers } = req.body;
+
+  const demolager = [];
+  let totalAmount;
+  const lager = await Lager.findOne({
+    lottery: lotteryId,
+    user: _id,
+  }).populate({ path: "user", select: "username name role commission" });
+
+  /******* FOR LAGER *******/
+  numbers.map((cn) => {
+    if (demolager.map((l) => l.number).includes(cn.number)) {
+      demolager[demolager.findIndex((obj) => obj.number === cn.number)] = {
+        number: cn.number,
+        amount: (
+          Number(
+            demolager[demolager.findIndex((obj) => obj.number === cn.number)]
+              .amount
+          ) + Number(cn.amount)
+        ).toString(),
+      };
+    } else {
+      demolager.push(cn);
+    }
+  });
+  /******************************** */
+
+  /***  FOR TOTAL AMOUNT  */
+  if (selfUrl === "in") {
+    totalAmount =
+      Number(lager.in.totalAmount) +
+      Number(
+        numbers
+          .map((num) => Number(num.amount))
+          .reduce((pre, next) => pre + next, 0)
+      );
+  }
+
+  if (selfUrl === "out") {
+    totalAmount =
+      Number(lager.out.totalAmount) +
+      Number(
+        numbers
+          .map((num) => Number(num.amount))
+          .reduce((pre, next) => pre + next, 0)
+      );
+  }
+
+  /****************************************************** */
+
+  /***********FOR COMMISSION*************** */
+  const com = totalAmount * (commission / 100);
+
+  /**************************************** */
+
+  /*********FOR UPDATE LAGER ********** */
+  const obj = {};
+  const read = [...lager.in.read];
+  const send = [...lager.out.send];
+
+  if (selfUrl === "in") {
+    console.log("in");
+    read.push(req.body);
+    obj.in = {
+      numbers: demolager,
+      totalAmount: totalAmount,
+      commission: com,
+      read: read,
+    };
+    console.log(read);
+  }
+
+  if (selfUrl === "out") {
+    console.log("out");
+    send.push(req.body);
+    obj.out = {
+      numbers: demolager,
+      totalAmount: totalAmount,
+      commission: com,
+      send: send,
+    };
+    console.log(send);
+  }
+
+  console.log(obj);
+
+  const updateLager = await Lager.findByIdAndUpdate(lager._id, obj, {
     new: true,
     runValidators: true,
   });
 
-  res.status(200).json({ success: true, data: sell });
-});
+  // const updateLager = inout(numbers, lotteryId, selfUrl);
 
-exports.sendLager = asyncHandler(async (req, res, next) => {
-  const data = req.body;
-  let updateLager;
-
-  data.map(async (d, key) => {
-    console.log(d);
-    const lager = await Lager.findOne({
-      user: req.user.createByUser,
-      lottery: d.lottery,
-    }).populate({ path: "user", select: "username name role commission" });
-    console.log(colors.bgGreen(lager));
-
-    const demolager = lager.call;
-    const downline = lager.downline;
-    const callNumbers = d.call;
-
-    console.log(typeof downline, typeof demolager, typeof callNumbers);
-
-    // // for downline
-    downline.push(d);
-
-    // for lager call
-    callNumbers.map((cn) => {
-      if (demolager.map((l) => l.number).includes(cn.number)) {
-        demolager[demolager.findIndex((obj) => obj.number === cn.number)] = {
-          number: cn.number,
-          amount: (
-            Number(
-              demolager[demolager.findIndex((obj) => obj.number === cn.number)]
-                .amount
-            ) + Number(cn.amount)
-          ).toString(),
-        };
-      } else {
-        demolager.push(cn);
-      }
-    });
-
-    // for lager bet
-    const bet = Number(lager.totalAmount) + Number(d.totalAmount);
-
-    // for lager commission
-    const com = bet * (lager.user.commission / 100);
-
-    let obj = {
-      call: demolager,
-      totalAmount: bet,
-      downline: downline,
-      commission: com,
-    };
-
-    console.log(colors.bgYellow(obj));
-
-    await Lager.findByIdAndUpdate(
-      lager._id,
-      {
-        call: demolager,
-        totalAmount: bet,
-        downline: downline,
-        commission: com,
-      },
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
-  });
-  res.status(200).json({
-    success: true,
-    msg: "Sended OK",
-    data: { user: req.user._id, data: req.body },
-  });
+  res.status(200).json({ success: true, updateLager });
 });

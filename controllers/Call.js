@@ -92,15 +92,18 @@ exports.createCall = asyncHandler(async (req, res, next) => {
 
   // For Lager
 
-  // const lager = await Lager.findOne({
-  //   lottery: req.params.lotteryId,
-  //   user: req.user._id,
-  // }).populate({ path: "user", select: "username name role commission" });
+  const lager = await Lager.findOne({
+    lottery: req.params.lotteryId,
+    user: req.user._id,
+  }).populate({ path: "user", select: "username name role commission" });
 
-  // // console.log(lager.lager);
-  // const demolager = lager.call;
-  // const downline = lager.downline;
-  // const callNumbers = call.numbers;
+  console.log(lager);
+  const demolager = lager.in.numbers;
+
+  const callNumbers = call.numbers;
+  // const demolager = [...In.numbers];
+
+  console.log(demolager, callNumbers);
 
   // // downline.push({
   // //   lottery: call.lottery,
@@ -109,54 +112,55 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   // // });
 
   // // for lager call
-  // callNumbers.map((cn) => {
-  //   if (demolager.map((l) => l.number).includes(cn.number)) {
-  //     demolager[demolager.findIndex((obj) => obj.number === cn.number)] = {
-  //       number: cn.number,
-  //       amount: (
-  //         Number(
-  //           demolager[demolager.findIndex((obj) => obj.number === cn.number)]
-  //             .amount
-  //         ) + Number(cn.amount)
-  //       ).toString(),
-  //     };
-  //   } else {
-  //     demolager.push(cn);
-  //   }
-  // });
+  callNumbers.map((cn) => {
+    if (demolager.map((l) => l.number).includes(cn.number)) {
+      demolager[demolager.findIndex((obj) => obj.number === cn.number)] = {
+        number: cn.number,
+        amount: (
+          Number(
+            demolager[demolager.findIndex((obj) => obj.number === cn.number)]
+              .amount
+          ) + Number(cn.amount)
+        ).toString(),
+      };
+    } else {
+      demolager.push(cn);
+    }
+  });
 
-  // // for lager bet
-  // const bet = Number(lager.totalAmount) + Number(call.totalAmount);
+  // for lager bet
+  const totalAmount = Number(lager.in.totalAmount) + Number(call.totalAmount);
 
-  // // for lager commission
-  // const com = bet * (req.user.commission / 100);
+  // for lager commission
+  const com = totalAmount * (req.user.commission / 100);
 
-  // const updateLager = await Lager.findByIdAndUpdate(
-  //   lager._id,
-  //   {
-  //     call: demolager,
-  //     totalAmount: bet,
-  //     // downline: downline,
-  //     commission: com,
-  //   },
-  //   {
-  //     new: true,
-  //     runValidators: true,
-  //   }
-  // );
+  // for in data read
+  const read = await lager.in.read;
+  read.push(call);
 
-  // const lagerReturn = calculateLager(lottery, req.user._id);
-  // // console.log(lagerReturn);
+  // for win/lose
+  // const win = console.log(colors.bgGreen(demolager));
 
-  // const lager = await Lager.create(lagerReturn);
-
-  // For update real-time Report
-  // calculateReport(lottery);
+  const updateLager = await Lager.findByIdAndUpdate(
+    lager._id,
+    {
+      in: {
+        numbers: demolager,
+        totalAmount: totalAmount,
+        commission: com,
+        read: read,
+      },
+    },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
 
   res.status(201).json({
     success: true,
     data: call,
-    // lager: updateLager,
+    lager: updateLager,
   });
 });
 

@@ -17,7 +17,7 @@ router.route("/:lotteryId").get(protect, getCalls).post(protect, createCall);
 router
   .route("/:lotteryId/:callId")
   .get(getCall)
-  .put(protect, authorize("Agent"), updateCall)
-  .delete(protect, authorize("Agent"), deleteCall);
+  .put(protect, updateCall)
+  .delete(protect, deleteCall);
 
 module.exports = router;

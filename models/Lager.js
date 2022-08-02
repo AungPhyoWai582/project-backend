@@ -19,11 +19,7 @@ const Lager = new mongoose.Schema({
     type: String,
     required: true,
   },
-  totalAmount: {
-    type: Number,
-    required: true,
-    default: 0,
-  },
+
   _date: {
     type: Date,
     required: true,
@@ -32,21 +28,43 @@ const Lager = new mongoose.Schema({
     type: String,
     required: true,
   },
-  commission: {
-    type: Number,
-    default: 0,
+  // commission: {
+  //   type: Number,
+  //   default: 0,
+  // },
+  in: {
+    totalAmount: {
+      type: Number,
+      default: 0,
+    },
+    status: String,
+    win: {
+      type: Number,
+      default: 0,
+    },
+    commission: {
+      type: Number,
+      default: 0,
+    },
+    numbers: Array,
+    read: Array,
   },
-  call: {
-    type: Array,
-    default: [],
-  },
-  sell: {
-    type: Array,
-    default: [],
-  },
-  downline: {
-    type: Array,
-    default: [],
+  out: {
+    totalAmount: {
+      type: Number,
+      default: 0,
+    },
+    status: String,
+    win: {
+      type: Number,
+      default: 0,
+    },
+    commission: {
+      type: Number,
+      default: 0,
+    },
+    numbers: Array,
+    send: Array,
   },
 });
 
