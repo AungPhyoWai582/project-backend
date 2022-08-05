@@ -5,6 +5,7 @@ const ErrorResponse = require("./ErrorResponse");
 
 const colors = require("colors");
 const { calculateReport } = require("./calculateReport");
+const Lager = require("../models/Lager");
 
 exports.calculatePoutTee = asyncHandler(async (lottery) => {
   //   console.log(colors.bgCyan("CalculatePoutTee", lottery.pout_tee));
@@ -60,6 +61,9 @@ exports.calculatePoutTee = asyncHandler(async (lottery) => {
     }
   });
 
+  let lager = await Lager.find({ lottery: lottery._id });
+
   console.log(colors.bgGreen("Successfully pout tee update ..."));
+  console.log(lager);
   // calculateReport(lottery);
 });

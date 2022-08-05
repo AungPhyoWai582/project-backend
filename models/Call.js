@@ -15,6 +15,14 @@ const Call = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: "Customer",
   },
+  agent: {
+    type: mongoose.Schema.ObjectId,
+    ref: "User",
+  },
+  master: {
+    type: mongoose.Schema.ObjectId,
+    ref: "User",
+  },
   // betNumbers: [{ number: Number, amount: Number }],
   numbers: {
     type: Array,

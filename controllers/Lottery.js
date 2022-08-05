@@ -54,7 +54,7 @@ exports.updateLottery = asyncHandler(async (req, res, next) => {
   if (lottery.pout_tee !== null) {
     console.log("pouttee");
     calculatePoutTee(lottery);
-    calculateLager(lottery);
+    // calculateLager(lottery);
   }
   res.status(200).json({ success: true, lottery: lottery });
 });

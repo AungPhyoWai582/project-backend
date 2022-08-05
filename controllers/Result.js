@@ -7,6 +7,7 @@ const AgentReport = require("../models/Reports/AgentsReport");
 const colors = require("colors");
 const { calculateReport } = require("../utils/calculateReport");
 const Lottery = require("../models/Lottery");
+const Lager = require("../models/Lager");
 
 exports.result = asyncHandler(async (req, res, next) => {
   let { lotteryId } = req.params;
@@ -65,9 +66,15 @@ exports.result = asyncHandler(async (req, res, next) => {
       }
     });
 
+    let lager = await Lager.find({
+      lottery: lotteryId,
+    });
+
+    console.log(lager);
+
     req.lotteryId = lotteryId;
 
-    next();
+    // next();
   } else {
     res
       .status(402)
