@@ -55,7 +55,6 @@ exports.InOut = asyncHandler(async (req, res, next) => {
   const { _id, commission } = req.user;
   const { customer, numbers } = req.body;
 
-  const demolager = [];
   let totalAmount;
   const lager = await Lager.findOne({
     lottery: lotteryId,
@@ -63,8 +62,12 @@ exports.InOut = asyncHandler(async (req, res, next) => {
   }).populate({ path: "user", select: "username name role commission" });
 
   /******* FOR LAGER *******/
+  const demolager = [...lager.in.numbers];
+  console.log(lager);
+
   numbers.map((cn) => {
     if (demolager.map((l) => l.number).includes(cn.number)) {
+      // console.log(l);
       demolager[demolager.findIndex((obj) => obj.number === cn.number)] = {
         number: cn.number,
         amount: (
