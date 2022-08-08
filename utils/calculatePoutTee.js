@@ -47,7 +47,7 @@ exports.calculatePoutTee = asyncHandler(async (lottery) => {
       obj = {
         status: "WIN",
         commission: 0,
-        win: c.numbers[plusIndex].amount * user.twoDZ,
+        win: Number(c.totalAmount) - c.numbers[plusIndex].amount * user.twoDZ,
       };
     }
     console.log(colors.green(obj));
