@@ -23,7 +23,7 @@ exports.result = asyncHandler(async (req, res, next) => {
       lottery: lotteryId,
     });
 
-    console.log(call);
+    // console.log(call);
 
     call.map(async (c, key) => {
       console.log(c.betTime);
@@ -70,7 +70,12 @@ exports.result = asyncHandler(async (req, res, next) => {
       lottery: lotteryId,
     });
 
-    console.log(lager);
+    lager.map(async (lgr, key) => {
+      const user = await User.findById(lgr.user.toString());
+      console.log(colors.bgBlue(user));
+    });
+
+    // console.log(lager);
 
     req.lotteryId = lotteryId;
 

@@ -136,7 +136,7 @@ exports.createCall = asyncHandler(async (req, res, next) => {
 
   // for in data read
   const read = await lager.in.read;
-  read.push(call);
+  read.push(call.id);
 
   // for win/lose
   // const win = console.log(colors.bgGreen(demolager));

@@ -50,7 +50,7 @@ exports.calculatePoutTee = asyncHandler(async (lottery) => {
         win: Number(c.totalAmount) - c.numbers[plusIndex].amount * user.twoDZ,
       };
     }
-    console.log(colors.green(obj));
+    // console.log(colors.green(obj));
     try {
       await Call.findByIdAndUpdate(c._id, obj, {
         new: true,
@@ -63,7 +63,60 @@ exports.calculatePoutTee = asyncHandler(async (lottery) => {
 
   let lager = await Lager.find({ lottery: lottery._id });
 
-  console.log(colors.bgGreen("Successfully pout tee update ..."));
   console.log(lager);
+
+  lager.map(async (lgr, key) => {
+    // console.log(colors.bgBlue(lgr));
+
+    let obj;
+    let plusIndex;
+
+    const user = await User.findById(lgr.user.toString());
+
+    // console.log(user);
+
+    lgr.in.numbers.map((cal, index) => {
+      if (cal.number == lottery.pout_tee) {
+        console.log("same", lgr.in.numbers[index]);
+        plusIndex = index;
+      }
+    });
+
+    // console.log(plusIndex);
+
+    if (plusIndex === undefined) {
+      console.log(colors.bgYellow(lgr._id, lgr.in.numbers[plusIndex]));
+      obj = {
+        status: "LOSE",
+        commission: lgr.in.totalAmount * (user.commission / 100),
+        win: 0,
+      };
+    } else {
+      console.log(lgr._id, colors.bgYellow(lgr.in.numbers[plusIndex]));
+      obj = {
+        status: "WIN",
+        commission: lgr.in.totalAmount * (user.commission / 100),
+        win:
+          Number(lgr.in.totalAmount) -
+          lgr.in.numbers[plusIndex].amount * user.twoDZ,
+      };
+    }
+    console.log(colors.green(obj));
+    try {
+      await Call.findByIdAndUpdate(
+        lgr._id,
+        { in: { obj } },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+    } catch (error) {
+      return next(new ErrorResponse(509, "Something went wrong"));
+    }
+  });
+
+  console.log(colors.bgGreen("Successfully pout tee update ..."));
+  // console.log(lager);
   // calculateReport(lottery);
 });
