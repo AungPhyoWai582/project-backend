@@ -14,6 +14,6 @@ const router = express.Router({ mergeParams: true });
 router.route("/:lotteryId").get(protect, getLager);
 router.route("/:lotteryId/in").post(protect, InOut);
 router.route("/:lotteryId/out").post(protect, InOut);
-// router.route("/").get(protect, getLagers).post(protect, sendLager);
+router.route("/").get(protect, getLagers).post(protect, sendLager);
 
 module.exports = router;
