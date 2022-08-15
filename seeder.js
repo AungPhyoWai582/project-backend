@@ -12,6 +12,8 @@ const User = require("./models/User");
 // const Report = require("./models/Report");
 const BetDetail = require("./models/BetDetail");
 const Call = require("./models/Call");
+const Lottery = require("./models/Lottery");
+const Lager = require("./models/Lager");
 // const AgentReport = require("./models/Reports/AgentsReport");
 const AgentsReport = require("./models/Reports/AgentsReport");
 
@@ -53,8 +55,10 @@ const deleteData = async () => {
     // await User.deleteMany();
     // await Report.deleteMany();
     // await BetDetail.deleteMany();
-    // await Call.deleteMany();
-    await AgentsReport.deleteMany();
+    await Call.deleteMany();
+    await Lottery.deleteMany();
+    await Lager.deleteMany();
+    // await AgentsReport.deleteMany();
 
     console.log(color.bgRed("Data Destroyed ..."));
     process.exit();
