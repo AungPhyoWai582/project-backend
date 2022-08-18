@@ -7,7 +7,13 @@ const User = require("../models/User");
 
 exports.membersCollections = asyncHandler(async (req, res, next) => {
   // const start = new Date();
-  console.log(req.originalUrl);
+
+  let { start_date, end_date } = req.query;
+
+  console.log(start_date);
+
+  // console.log(JSON.parse(queryStr));
+
   var memberReport = [];
 
   // const lager = await Lager.find({ user: req.user._id });
@@ -17,14 +23,17 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
   const calls = await Call.find({
     user: req.user._id,
     agent: members.map((m) => m._id),
-    _date: {
-      $gte: "2022-08-11T05:59:04.654+00:00",
-      $lte: "2022-08-30T05:59:04.654+00:00",
+    betTime: {
+      $gte: start_date,
+      $lte: end_date,
     },
   });
+
   // .populate({ path: "user", select: "username name role" })
   // .populate({ path: "agent", select: "username name role" });
-
+  if (!calls.length) {
+    return next(new ErrorResponse(`Reports not found`, 404));
+  }
   members.map((m) => {
     let obj = {};
 
