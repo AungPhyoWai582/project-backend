@@ -105,12 +105,6 @@ exports.createCall = asyncHandler(async (req, res, next) => {
 
   console.log(demolager, callNumbers);
 
-  // // downline.push({
-  // //   lottery: call.lottery,
-  // //   callname: call.callname,
-  // //   user: call.user,
-  // // });
-
   // // for lager call
   callNumbers.map((cn) => {
     if (demolager.map((l) => l.number).includes(cn.number)) {
@@ -156,6 +150,65 @@ exports.createCall = asyncHandler(async (req, res, next) => {
       runValidators: true,
     }
   );
+
+  // For out
+
+  if (req.user.role === "Master") {
+    const downLineLager = await Lager.findOne({
+      lottery: req.params.lotteryId,
+      user: req.body.agent,
+    });
+
+    const demolager = downLineLager.out.numbers;
+
+    const callNumbers = call.numbers;
+    // const demolager = [...In.numbers];
+
+    console.log(demolager, callNumbers);
+
+    // // for lager call
+    callNumbers.map((cn) => {
+      if (demolager.map((l) => l.number).includes(cn.number)) {
+        demolager[demolager.findIndex((obj) => obj.number === cn.number)] = {
+          number: cn.number,
+          amount: (
+            Number(
+              demolager[demolager.findIndex((obj) => obj.number === cn.number)]
+                .amount
+            ) + Number(cn.amount)
+          ).toString(),
+        };
+      } else {
+        demolager.push(cn);
+      }
+    });
+
+    // for lager bet
+    const totalAmount =
+      Number(downLineLager.out.totalAmount) + Number(call.totalAmount);
+
+    // for lager commission
+    const com = totalAmount * (req.user.commission / 100);
+
+    const send = downLineLager.out.send;
+    send.push(call.id);
+
+    await Lager.findByIdAndUpdate(
+      downLineLager._id,
+      {
+        out: {
+          numbers: demolager,
+          totalAmount: totalAmount,
+          commission: com,
+          send: send,
+        },
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+  }
 
   res.status(201).json({
     success: true,

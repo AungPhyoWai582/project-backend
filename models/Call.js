@@ -33,6 +33,9 @@ const Call = new mongoose.Schema({
     // required: [true, "Please add a total amount"],
   },
   status: String,
+  pout_tee: String,
+  pout_tee_amount: Number,
+  pout_tee_win: Number,
   win: {
     type: Number,
     default: 0,

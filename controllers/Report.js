@@ -42,6 +42,9 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
     let obj = {};
 
     const c = calls.filter((cal) => cal.agent.toString() === m.id.toString());
+    const pout_tee_amount = c
+      .map((cal) => Number(cal.pout_tee_amount))
+      .reduce((pre, next) => pre + next, 0);
     const totalAmount = c
       .map((cal) => Number(cal.totalAmount))
       .reduce((pre, next) => pre + next, 0);
@@ -58,6 +61,7 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
       username: m.username,
       name: m.name,
       role: m.role,
+      pout_tee_amount,
       totalAmount,
       totalCommission,
       totalWin,

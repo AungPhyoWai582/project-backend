@@ -15,15 +15,29 @@ exports.calculatePoutTee = asyncHandler(async (lottery) => {
 
   let call = await Call.find({
     lottery: lottery._id,
+  }).populate({
+    path: "user",
+    select: "username name role twoDZ",
   });
+  // .populate({ path: "agent", select: "username name role twoDZ" });
+  // .populate({ path: "master", select: "username name role twoDZ" })
+  // .populate({ path: "customer", select: "username name role twoDZ" });
 
   console.log(call);
 
   call.map(async (c, key) => {
-    console.log(c.betTime);
-    const user = await User.findById(c.user.toString());
+    console.log(c.user);
     let obj;
     let plusIndex;
+    let user;
+    // if (c.user.role === "Agent") za = c.customer.twoDZ;
+    if (c.user.role === "Master") {
+      user = await User.findById(c.agent.toString());
+      // za = user.twoDZ;
+    }
+
+    // if (c.user.role === "Admin") za = c.master.twoDZ;
+
     // console.log(user);
 
     c.numbers.map((cal, index) => {
@@ -39,6 +53,9 @@ exports.calculatePoutTee = asyncHandler(async (lottery) => {
       console.log(colors.bgYellow(c._id, c.numbers[plusIndex]));
       obj = {
         status: "LOSE",
+        pout_tee: null,
+        pout_tee_amount: 0,
+        pout_tee_win: 0,
         commission: Number(c.totalAmount) * (user.commission / 100),
         win: Number(c.totalAmount),
       };
@@ -46,11 +63,14 @@ exports.calculatePoutTee = asyncHandler(async (lottery) => {
       console.log(c._id, colors.bgYellow(c.numbers[plusIndex]));
       obj = {
         status: "WIN",
+        pout_tee: c.numbers[plusIndex].number,
+        pout_tee_amount: c.numbers[plusIndex].amount,
+        pout_tee_win: c.numbers[plusIndex].amount * user.twoDZ,
         commission: Number(c.totalAmount) * (user.commission / 100),
         win: Number(c.totalAmount) - c.numbers[plusIndex].amount * user.twoDZ,
       };
     }
-    // console.log(colors.green(obj));
+    console.log(colors.green(obj));
     try {
       await Call.findByIdAndUpdate(c._id, obj, {
         new: true,
@@ -63,7 +83,7 @@ exports.calculatePoutTee = asyncHandler(async (lottery) => {
 
   let lager = await Lager.find({ lottery: lottery._id });
 
-  console.log(lager);
+  // console.log(lager);
 
   lager.map(async (lgr, key) => {
     // console.log(colors.bgBlue(lgr));
@@ -101,7 +121,7 @@ exports.calculatePoutTee = asyncHandler(async (lottery) => {
           lgr.in.numbers[plusIndex].amount * user.twoDZ,
       };
     }
-    console.log(colors.green(obj));
+    // console.log(colors.green(obj));
     try {
       await Call.findByIdAndUpdate(
         lgr._id,
