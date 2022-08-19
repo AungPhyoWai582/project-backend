@@ -8,9 +8,13 @@ const User = require("../models/User");
 exports.membersCollections = asyncHandler(async (req, res, next) => {
   // const start = new Date();
 
-  let { start_date, end_date } = req.query;
+  let { start_date, end_date } = await req.query;
+  const start = new Date(start_date);
+  const end = new Date(end_date);
 
-  console.log(start_date);
+  // const start = "Fri Aug 19 2022 12:42:18 GMT+0630";
+
+  console.log(start.toISOString(), end.toISOString());
 
   // console.log(JSON.parse(queryStr));
 
@@ -24,8 +28,8 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
     user: req.user._id,
     agent: members.map((m) => m._id),
     betTime: {
-      $gte: start_date,
-      $lte: end_date,
+      $gte: start.toISOString(),
+      $lte: end.toISOString(),
     },
   });
 
