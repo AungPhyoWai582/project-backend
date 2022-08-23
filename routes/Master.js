@@ -14,11 +14,11 @@ router.use("/agents", agentRouter);
 
 router
   .route("/")
-  .get(getMasters)
+  .get(protect, getMasters)
   .post(protect, authorize("Admin"), createMaster);
 router
   .route("/:id")
-  .get(getMaster)
+  .get(protect, getMaster)
   .put(protect, authorize("Admin"), updateMaster)
   .delete(protect, authorize("Admin"), deleteMaster);
 

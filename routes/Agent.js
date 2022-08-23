@@ -18,7 +18,7 @@ router
   .post(protect, authorize("Master"), createAgent);
 router
   .route("/:id")
-  .get(getAgent)
+  .get(protect, getAgent)
   .put(protect, authorize("Master"), updateAgent)
   .delete(protect, authorize("Master"), deleteAgent);
 
