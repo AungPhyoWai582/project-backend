@@ -57,7 +57,9 @@ exports.calculatePoutTee = asyncHandler(async (lottery) => {
         pout_tee_amount: 0,
         pout_tee_win: 0,
         commission: Number(c.totalAmount) * (user.commission / 100),
-        win: Number(c.totalAmount),
+        win:
+          Number(c.totalAmount) -
+          Number(c.totalAmount) * (user.commission / 100),
       };
     } else {
       console.log(c._id, colors.bgYellow(c.numbers[plusIndex]));
@@ -67,7 +69,10 @@ exports.calculatePoutTee = asyncHandler(async (lottery) => {
         pout_tee_amount: c.numbers[plusIndex].amount,
         pout_tee_win: c.numbers[plusIndex].amount * user.twoDZ,
         commission: Number(c.totalAmount) * (user.commission / 100),
-        win: Number(c.totalAmount) - c.numbers[plusIndex].amount * user.twoDZ,
+        win:
+          Number(c.totalAmount) -
+          Number(c.totalAmount) * (user.commission / 100) -
+          c.numbers[plusIndex].amount * user.twoDZ,
       };
     }
     console.log(colors.green(obj));

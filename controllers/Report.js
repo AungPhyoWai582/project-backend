@@ -71,6 +71,8 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
     memberReport.push(obj);
   });
 
+  memberReport.map((mr) => console.log(mr));
+
   const report = {
     me: {
       totalAmount: memberReport
@@ -81,6 +83,9 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
         .reduce((pre, next) => pre + next, 0),
       totalWin: memberReport
         .map((mr) => Number(mr.totalWin))
+        .reduce((pre, next) => pre + next, 0),
+      pout_tee_amount: memberReport
+        .map((mr) => Number(mr.pout_tee_amount))
         .reduce((pre, next) => pre + next, 0),
     },
     memberReport,
