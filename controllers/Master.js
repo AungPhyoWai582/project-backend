@@ -26,11 +26,11 @@ exports.getMasters = asyncHandler(async (req, res, next) => {
       path: "createByUser",
       select: "name role",
     });
-    // } else {
-    //   query = await User.find(JSON.parse(queryStr)).populate({
-    //     path: "createByUser",
-    //     select: "name role",
-    //   });
+  } else {
+    query = await User.find(JSON.parse(queryStr)).populate({
+      path: "createByUser",
+      select: "name role",
+    });
   }
 
   // pagination
