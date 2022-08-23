@@ -21,8 +21,17 @@ exports.getMasters = asyncHandler(async (req, res, next) => {
 
   let queryStr = JSON.stringify(reqQuery);
   console.log(JSON.parse(queryStr));
-
-  query = User.find(JSON.parse(queryStr));
+  if (req.user._id) {
+    query = await User.find({ createByUser: req.user._id }).populate({
+      path: "createByUser",
+      select: "name role",
+    });
+    // } else {
+    //   query = await User.find(JSON.parse(queryStr)).populate({
+    //     path: "createByUser",
+    //     select: "name role",
+    //   });
+  }
 
   // pagination
   const total = await User.countDocuments();
@@ -31,9 +40,9 @@ exports.getMasters = asyncHandler(async (req, res, next) => {
   const startIndex = (page - 1) * limit;
   const endIndex = page * limit;
 
-  query = query.skip(startIndex).limit(limit);
+  // query = query.skip(startIndex).limit(limit);
 
-  const users = await query;
+  const users = query;
 
   // pagination result
   const pagination = {};
