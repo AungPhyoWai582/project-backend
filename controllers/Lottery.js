@@ -62,9 +62,17 @@ exports.updateLottery = asyncHandler(async (req, res, next) => {
 exports.deleteLottery = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const lottery = await Lottery.findByIdAndDelete(id);
+  const lagers = await Lager.deleteMany({ lottery: id });
+  const calls = await Call.deleteMany({ lottery: id });
 
   if (!lottery) {
     return next(new ErrorResponse(`Lottery not found with id of ${id}`, 404));
+  }
+  if (!lagers) {
+    return next(new ErrorResponse(`Lagers not found with id of ${id}`, 404));
+  }
+  if (!calls) {
+    return next(new ErrorResponse(`Calls not found with id of ${id}`, 404));
   }
   res.status(200).json({ success: true, data: {} });
 });
