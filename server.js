@@ -38,7 +38,7 @@ app.use(
   auth
 );
 app.use(
-  "/api/v1/master",
+  "/api/v1/masters",
   // () => res.header("Access-Control-Allow-Origin"),
   master
 );
