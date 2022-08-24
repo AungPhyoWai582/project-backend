@@ -34,6 +34,10 @@ exports.getCalls = asyncHandler(async (req, res, next) => {
     .populate({
       path: "agent",
       select: "name role",
+    })
+    .populate({
+      path: "master",
+      select: "name role",
     });
 
   if (_id) {
