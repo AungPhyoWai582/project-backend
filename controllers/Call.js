@@ -224,20 +224,20 @@ exports.createCall = asyncHandler(async (req, res, next) => {
 // Desc    UPDATE USERS
 // Route   PUT api/v1/user/:id
 exports.updateCall = asyncHandler(async (req, res, next) => {
-  if (req.user.role !== "Agent") {
-    return next(
-      new ErrorResponse(`User ${req.user.id} is not authorized to get bet`, 401)
-    );
-  }
+  // if (req.user.role !== "Agent") {
+  //   return next(
+  //     new ErrorResponse(`User ${req.user.id} is not authorized to get bet`, 401)
+  //   );
+  // }
 
-  const call = await Call.findByIdAndUpdate(req.params.id, req.body, {
+  const call = await Call.findByIdAndUpdate(req.params.callId, req.body, {
     new: true,
     runValidators: true,
   });
 
   if (!call) {
     return next(
-      new ErrorResponse(`Bet not found with id of ${req.params.id}`, 404)
+      new ErrorResponse(`Bet not found with id of ${req.params.callId}`, 404)
     );
   }
 
