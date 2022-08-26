@@ -21,17 +21,40 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
   var memberReport = [];
 
   // const lager = await Lager.find({ user: req.user._id });
+  let calls;
 
   const members = await User.find({ createByUser: req.user._id });
 
-  const calls = await Call.find({
-    user: req.user._id,
-    agent: members.map((m) => m._id),
-    betTime: {
-      $gte: start.toISOString(),
-      $lte: end.toISOString(),
-    },
-  });
+  if (req.user.role === "Admin") {
+    calls = await Call.find({
+      user: req.user._id,
+      master: members.map((m) => m._id),
+      betTime: {
+        $gte: start.toISOString(),
+        $lte: end.toISOString(),
+      },
+    });
+  }
+  if (req.user.role === "Master") {
+    calls = await Call.find({
+      user: req.user._id,
+      agent: members.map((m) => m._id),
+      betTime: {
+        $gte: start.toISOString(),
+        $lte: end.toISOString(),
+      },
+    });
+  }
+  if (req.user.role === "Agent") {
+    calls = await Call.find({
+      user: req.user._id,
+      customer: members.map((m) => m._id),
+      betTime: {
+        $gte: start.toISOString(),
+        $lte: end.toISOString(),
+      },
+    });
+  }
 
   // .populate({ path: "user", select: "username name role" })
   // .populate({ path: "agent", select: "username name role" });
@@ -40,8 +63,16 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
   }
   members.map((m) => {
     let obj = {};
-
-    const c = calls.filter((cal) => cal.agent.toString() === m.id.toString());
+    let c;
+    if (req.user.role === "Admin") {
+      c = calls.filter((cal) => cal.master.toString() === m.id.toString());
+    }
+    if (req.user.role === "Master") {
+      c = calls.filter((cal) => cal.agent.toString() === m.id.toString());
+    }
+    if (req.user.role === "Agent") {
+      c = calls.filter((cal) => cal.customer.toString() === m.id.toString());
+    }
     const pout_tee_amount = c
       .map((cal) => Number(cal.pout_tee_amount))
       .reduce((pre, next) => pre + next, 0);
@@ -101,4 +132,60 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
 
     url: req.originalUrl,
   });
+});
+
+exports.outCollections = asyncHandler(async (req, res, next) => {
+  let { start_date, end_date } = await req.query;
+  const start = new Date(start_date);
+  const end = new Date(end_date);
+
+  const lagers = await Lager.find({
+    user: req.user._id,
+    _date: {
+      $gte: start.toISOString(),
+      $lte: end.toISOString(),
+    },
+  });
+  const callIDs = Array.prototype.concat.apply(
+    [],
+    lagers.map((lgr) => lgr.out.send)
+  );
+  const calls = await Call.find({ _id: callIDs })
+    .populate({
+      path: "user",
+      select: "username name role",
+    })
+    .populate({
+      path: "master",
+      select: "username name role",
+    })
+    .populate({
+      path: "agent",
+      select: "username name role",
+    });
+
+  const pout_tee_amount = calls
+    .map((cal) => Number(cal.pout_tee_amount))
+    .reduce((pre, next) => pre + next, 0);
+  const totalAmount = calls
+    .map((cal) => Number(cal.totalAmount))
+    .reduce((pre, next) => pre + next, 0);
+
+  const totalCommission = calls
+    .map((cal) => Number(cal.commission))
+    .reduce((pre, next) => pre + next, 0);
+
+  const totalWin = calls
+    .map((cal) => Number(cal.win))
+    .reduce((pre, next) => pre + next, 0);
+
+  const totalOut = {
+    pout_tee_amount,
+    totalAmount,
+    totalCommission,
+    totalWin,
+  };
+  const report = { calls, totalOut };
+
+  res.status(200).json({ success: true, out: "this is out data", report });
 });

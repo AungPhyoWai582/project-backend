@@ -156,63 +156,83 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   );
 
   // For out
+  let downLineLager;
+
+  if (req.user.role === "Admin") {
+    downLineLager = await Lager.findOne({
+      lottery: req.params.lotteryId,
+      user: req.body.master,
+    });
+  }
 
   if (req.user.role === "Master") {
-    const downLineLager = await Lager.findOne({
+    downLineLager = await Lager.findOne({
       lottery: req.params.lotteryId,
       user: req.body.agent,
     });
+  }
 
-    const demolager = downLineLager.out.numbers;
+  if (req.user.role === "Agent") {
+    downLineLager = await Lager.findOne({
+      lottery: req.params.lotteryId,
+      user: req.body.customer,
+    });
+  }
 
-    const callNumbers = call.numbers;
-    // const demolager = [...In.numbers];
+  const demolagerOut = downLineLager.out.numbers;
 
-    console.log(demolager, callNumbers);
+  // const callNumbers = call.numbers;
+  // const demolager = [...In.numbers];
 
-    // // for lager call
-    callNumbers.map((cn) => {
-      if (demolager.map((l) => l.number).includes(cn.number)) {
-        demolager[demolager.findIndex((obj) => obj.number === cn.number)] = {
+  // console.log(demolager, callNumbers);
+
+  // // for lager call
+  callNumbers.map((cn) => {
+    if (demolagerOut.map((l) => l.number).includes(cn.number)) {
+      demolagerOut[demolagerOut.findIndex((obj) => obj.number === cn.number)] =
+        {
           number: cn.number,
           amount: (
             Number(
-              demolager[demolager.findIndex((obj) => obj.number === cn.number)]
-                .amount
+              demolagerOut[
+                demolagerOut.findIndex((obj) => obj.number === cn.number)
+              ].amount
             ) + Number(cn.amount)
           ).toString(),
         };
-      } else {
-        demolager.push(cn);
-      }
-    });
+    } else {
+      demolagerOut.push(cn);
+    }
+  });
 
-    // for lager bet
-    const totalAmount =
-      Number(downLineLager.out.totalAmount) + Number(call.totalAmount);
+  // for lager bet
+  const totalAmountOut =
+    Number(downLineLager.out.totalAmount) + Number(call.totalAmount);
 
-    // for lager commission
-    const com = totalAmount * (req.user.commission / 100);
+  // for lager commission
+  const comOut = totalAmount * (req.user.commission / 100);
 
-    const send = downLineLager.out.send;
-    send.push(call.id);
+  const sendOut = downLineLager.out.send;
+  sendOut.push(call.id);
 
-    await Lager.findByIdAndUpdate(
-      downLineLager._id,
-      {
-        out: {
-          numbers: demolager,
-          totalAmount: totalAmount,
-          commission: com,
-          send: send,
-        },
+  console.log(demolagerOut);
+
+  await Lager.findByIdAndUpdate(
+    downLineLager._id,
+    {
+      out: {
+        numbers: demolagerOut,
+        totalAmount: totalAmountOut,
+        commission: comOut,
+        send: sendOut,
       },
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
-  }
+    },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+  // }
 
   res.status(201).json({
     success: true,
@@ -224,20 +244,14 @@ exports.createCall = asyncHandler(async (req, res, next) => {
 // Desc    UPDATE USERS
 // Route   PUT api/v1/user/:id
 exports.updateCall = asyncHandler(async (req, res, next) => {
-  if (req.user.role !== "Agent") {
-    return next(
-      new ErrorResponse(`User ${req.user.id} is not authorized to get bet`, 401)
-    );
-  }
-
-  const call = await Call.findByIdAndUpdate(req.params.id, req.body, {
+  const call = await Call.findByIdAndUpdate(req.params.callId, req.body, {
     new: true,
     runValidators: true,
   });
 
   if (!call) {
     return next(
-      new ErrorResponse(`Bet not found with id of ${req.params.id}`, 404)
+      new ErrorResponse(`Bet not found with id of ${req.params.callId}`, 404)
     );
   }
 
@@ -247,17 +261,11 @@ exports.updateCall = asyncHandler(async (req, res, next) => {
 // Desc    DELETE USER
 // Route   DELETE api/v1/user/:id
 exports.deleteCall = asyncHandler(async (req, res, next) => {
-  if (req.user.role !== "Agent") {
-    return next(
-      new ErrorResponse(`User ${req.user.id} is not authorized to get bet`, 401)
-    );
-  }
-
-  const call = await Call.findByIdAndDelete(req.params.id);
+  const call = await Call.findByIdAndDelete(req.params.callId);
 
   if (!call) {
     return next(
-      new ErrorResponse(`Bet not found with id of ${req.params.id}`, 404)
+      new ErrorResponse(`Bet not found with id of ${req.params.callId}`, 404)
     );
   }
   res.status(200).json({ success: true, data: {} });

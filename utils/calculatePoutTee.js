@@ -31,8 +31,16 @@ exports.calculatePoutTee = asyncHandler(async (lottery) => {
     let plusIndex;
     let user;
     // if (c.user.role === "Agent") za = c.customer.twoDZ;
+    if (c.user.role === "Admin") {
+      user = await User.findById(c.master.toString());
+      // za = user.twoDZ;
+    }
     if (c.user.role === "Master") {
       user = await User.findById(c.agent.toString());
+      // za = user.twoDZ;
+    }
+    if (c.user.role === "Agent") {
+      user = await User.findById(c.customer.toString());
       // za = user.twoDZ;
     }
 
