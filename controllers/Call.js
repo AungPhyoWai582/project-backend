@@ -270,3 +270,74 @@ exports.deleteCall = asyncHandler(async (req, res, next) => {
   }
   res.status(200).json({ success: true, data: {} });
 });
+
+exports.callNumbersTotal = asyncHandler(async (req, res, next) => {
+  const { lotteryId, customerId } = req.params;
+  const { id, role } = req.user;
+  let calls;
+  if (role === "Admin") {
+    calls = await Call.find({
+      user: id,
+      master: customerId,
+    })
+      .populate({
+        path: "user",
+        select: "name role",
+      })
+      .populate({
+        path: "master",
+        select: "name role",
+      });
+  }
+  if (role === "Master") {
+    calls = await Call.find({ user: id, agent: customerId })
+      .populate({
+        path: "user",
+        select: "name role",
+      })
+      .populate({
+        path: "agent",
+        select: "name role",
+      });
+  }
+  if (role === "Agent") {
+    calls = await Call.find({ user: id, customer: customerId })
+      .populate({
+        path: "user",
+        select: "name role",
+      })
+      .populate({
+        path: "customer",
+        select: "name",
+      });
+  }
+
+  console.log(calls);
+  console.log(colors.bgBlack(id, role));
+
+  const numsData = [];
+  const obj = {};
+
+  const numbers = Array.prototype.concat.apply(
+    [],
+    calls.map((cal) => cal.numbers)
+  );
+
+  numbers.forEach((num) => {
+    if (obj.hasOwnProperty(num.number)) {
+      obj[num.number] = Number(obj[num.number]) + Number(num.amount);
+    } else {
+      obj[num.number] = Number(num.amount);
+    }
+  });
+
+  for (var prop in obj) {
+    numsData.push({ number: prop, amount: obj[prop] });
+  }
+
+  const numsTotal = numsData
+    .map((d) => Number(d.amount))
+    .reduce((pre, next) => pre + next, 0);
+
+  res.status(200).json({ success: true, numsData, numsTotal });
+});
