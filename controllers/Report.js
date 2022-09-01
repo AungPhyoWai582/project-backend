@@ -189,3 +189,97 @@ exports.outCollections = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({ success: true, out: "this is out data", report });
 });
+
+exports.daily = asyncHandler(async (req, res, next) => {
+  let { start_date, end_date } = await req.query;
+  const start = new Date(start_date);
+  const end = new Date(end_date);
+  console.log(start, end);
+  const lagers = await Lager.find({
+    user: req.user._id,
+    _date: {
+      $gte: start.toISOString(),
+      $lte: end.toISOString(),
+    },
+  });
+  console.log(lagers);
+  res.status(200).json({ success: true, report: lagers });
+});
+
+exports.dailyMembers = asyncHandler(async (req, res, next) => {
+  const { lager } = req.query;
+  // const ldate = new Date(date);
+  // console.log(ldate.toISOString());
+  const lagers = await Lager.findById(lager);
+
+  const calls = await Call.find({ _id: lagers.in.read })
+    .populate({
+      path: "user",
+      select: "username name role",
+    })
+    .populate({
+      path: "master",
+      select: "username name role",
+    })
+    .populate({
+      path: "agent",
+      select: "username name role",
+    });
+  // console.log(calls);
+  const result = [];
+
+  let c;
+  if (req.user.role === "Admin") {
+    c = [...new Set(calls.map((cal) => cal.master))];
+  }
+  if (req.user.role === "Master") {
+    c = [...new Set(calls.map((cal) => cal.agent))];
+  }
+  if (req.user.role === "Agent") {
+    c = [...new Set(calls.map((cal) => cal.customer))];
+  }
+  c.map((cl) => result.push({ member: cl }));
+  // const demo = [...result];
+  result.map((rs, key) => {
+    console.log(rs.member._id);
+    let memCalls;
+    if (req.user.role === "Admin") {
+      memCalls = calls.filter((cal) => cal.master._id === rs.member._id);
+    }
+    if (req.user.role === "Master") {
+      memCalls = calls.filter((cal) => cal.agent._id === rs.member._id);
+      console.log(memCalls);
+    }
+    if (req.user.role === "Agent") {
+      memCalls = calls.filter((cal) => cal.customer._id === rs.member._id);
+    }
+
+    const pout_tee_amount = memCalls
+      .map((cal) => Number(cal.pout_tee_amount))
+      .reduce((pre, next) => pre + next, 0);
+    const totalAmount = memCalls
+      .map((cal) => Number(cal.totalAmount))
+      .reduce((pre, next) => pre + next, 0);
+
+    const totalCommission = memCalls
+      .map((cal) => Number(cal.commission))
+      .reduce((pre, next) => pre + next, 0);
+
+    const totalWin = memCalls
+      .map((cal) => Number(cal.win))
+      .reduce((pre, next) => pre + next, 0);
+
+    result[key] = {
+      member: rs.member,
+      totalAmount,
+      pout_tee_amount,
+      totalCommission,
+      totalWin,
+      callLists: memCalls,
+    };
+  });
+
+  console.log(result);
+
+  res.status(200).json({ success: true, report: result });
+});
