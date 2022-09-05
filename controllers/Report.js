@@ -4,17 +4,19 @@ const colors = require("colors");
 const Lager = require("../models/Lager");
 const Call = require("../models/Call");
 const User = require("../models/User");
+const Lottery = require("../models/Lottery");
 
 exports.membersCollections = asyncHandler(async (req, res, next) => {
   // const start = new Date();
 
-  let { start_date, end_date } = await req.query;
+  let { start_date, end_date, In, Out, customer, time } = await req.query;
   const start = new Date(start_date);
   const end = new Date(end_date);
 
   // const start = "Fri Aug 19 2022 12:42:18 GMT+0630";
 
   console.log(start.toISOString(), end.toISOString());
+  console.log(In, customer, time);
 
   // console.log(JSON.parse(queryStr));
 
@@ -22,11 +24,20 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
 
   // const lager = await Lager.find({ user: req.user._id });
   let calls;
+  let members;
 
-  const members = await User.find({ createByUser: req.user._id });
+  const query = await User.find({ createByUser: req.user._id });
+  if (customer === "All") {
+    members = query;
+  } else if (customer !== "All") {
+    members = query.filter((q) => q._id.toString() === customer);
+  }
+  // members = query;
+  // members = query;
+  console.log(members);
 
   if (req.user.role === "Admin") {
-    calls = await Call.find({
+    const query = await Call.find({
       user: req.user._id,
       master: members.map((m) => m._id),
       betTime: {
@@ -34,9 +45,24 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
         $lte: end.toISOString(),
       },
     });
+    console.log(query);
+    if (time === "All") {
+      calls = query;
+    } else if (time !== "All") {
+      console.log(time)
+      const lots = await Lottery.find({
+        _time: time,
+        betTime: {
+          $gte: start.toISOString(),
+          $lte: end.toISOString(),
+        },
+      });
+      console.log(lots);
+      calls = query.filter((q) => lots.map((l) => l._id.toString()).includes(q.lottery.toString()));
+    }
   }
   if (req.user.role === "Master") {
-    calls = await Call.find({
+    const query = await Call.find({
       user: req.user._id,
       agent: members.map((m) => m._id),
       betTime: {
@@ -44,6 +70,21 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
         $lte: end.toISOString(),
       },
     });
+    // console.log(query);
+    if (time === "All") {
+      calls = query;
+    } else if (time !== "All") {
+      console.log(time)
+      const lots = await Lottery.find({
+        _time: time,
+        betTime: {
+          $gte: start.toISOString(),
+          $lte: end.toISOString(),
+        },
+      });
+      console.log(lots);
+      calls = query.filter((q) => lots.map((l) => l._id.toString()).includes(q.lottery.toString()));
+    }
   }
   if (req.user.role === "Agent") {
     calls = await Call.find({
@@ -54,7 +95,23 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
         $lte: end.toISOString(),
       },
     });
+    if (time === "All") {
+      calls = query;
+    } else if (time !== "All") {
+      console.log(time)
+      const lots = await Lottery.find({
+        _time: time,
+        betTime: {
+          $gte: start.toISOString(),
+          $lte: end.toISOString(),
+        },
+      });
+      console.log(lots);
+      calls = query.filter((q) => lots.map((l) => l._id.toString()).includes(q.lottery.toString()));
+    }
   }
+
+  console.log(calls)
 
   // .populate({ path: "user", select: "username name role" })
   // .populate({ path: "agent", select: "username name role" });
@@ -62,6 +119,7 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`Reports not found`, 404));
   }
   members.map((m) => {
+    console.log(m._id);
     let obj = {};
     let c;
     if (req.user.role === "Admin") {
@@ -89,6 +147,7 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
       .reduce((pre, next) => pre + next, 0);
 
     obj = {
+      memId: m._id,
       username: m.username,
       name: m.name,
       role: m.role,
@@ -102,7 +161,14 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
     memberReport.push(obj);
   });
 
-  memberReport.map((mr) => console.log(mr));
+  // if(customer!=='All'){
+  //  const mem = memberReport.filter(mem=>mem.memId.toString()!==customer)
+  //  console.log(mem)
+  // }else{
+  //   const
+  // }
+
+  // console.log(memberReport)
 
   const report = {
     me: {
@@ -122,7 +188,7 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
     memberReport,
   };
 
-  console.log(colors.bgGreen(report));
+  // console.log(colors.bgGreen(report));
 
   res.status(200).json({
     success: true,
@@ -279,7 +345,7 @@ exports.dailyMembers = asyncHandler(async (req, res, next) => {
     };
   });
 
-  console.log(result);
+  // console.log(result);
 
   res.status(200).json({ success: true, report: result });
 });
