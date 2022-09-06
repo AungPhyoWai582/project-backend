@@ -49,7 +49,7 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
     if (time === "All") {
       calls = query;
     } else if (time !== "All") {
-      console.log(time)
+      console.log(time);
       const lots = await Lottery.find({
         _time: time,
         betTime: {
@@ -58,7 +58,9 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
         },
       });
       console.log(lots);
-      calls = query.filter((q) => lots.map((l) => l._id.toString()).includes(q.lottery.toString()));
+      calls = query.filter((q) =>
+        lots.map((l) => l._id.toString()).includes(q.lottery.toString())
+      );
     }
   }
   if (req.user.role === "Master") {
@@ -74,7 +76,7 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
     if (time === "All") {
       calls = query;
     } else if (time !== "All") {
-      console.log(time)
+      console.log(time);
       const lots = await Lottery.find({
         _time: time,
         betTime: {
@@ -83,7 +85,9 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
         },
       });
       console.log(lots);
-      calls = query.filter((q) => lots.map((l) => l._id.toString()).includes(q.lottery.toString()));
+      calls = query.filter((q) =>
+        lots.map((l) => l._id.toString()).includes(q.lottery.toString())
+      );
     }
   }
   if (req.user.role === "Agent") {
@@ -98,7 +102,7 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
     if (time === "All") {
       calls = query;
     } else if (time !== "All") {
-      console.log(time)
+      console.log(time);
       const lots = await Lottery.find({
         _time: time,
         betTime: {
@@ -107,11 +111,13 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
         },
       });
       console.log(lots);
-      calls = query.filter((q) => lots.map((l) => l._id.toString()).includes(q.lottery.toString()));
+      calls = query.filter((q) =>
+        lots.map((l) => l._id.toString()).includes(q.lottery.toString())
+      );
     }
   }
 
-  console.log(calls)
+  console.log(calls);
 
   // .populate({ path: "user", select: "username name role" })
   // .populate({ path: "agent", select: "username name role" });
@@ -201,7 +207,7 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
 });
 
 exports.outCollections = asyncHandler(async (req, res, next) => {
-  let { start_date, end_date } = await req.query;
+  let { start_date, end_date, time } = await req.query;
   const start = new Date(start_date);
   const end = new Date(end_date);
 
@@ -229,6 +235,21 @@ exports.outCollections = asyncHandler(async (req, res, next) => {
       path: "agent",
       select: "username name role",
     });
+  // let calls;
+  // if (time === "All") {
+    // calls = query;
+  // } else if (time !== "All") {
+    // const lots = await Lottery.find({
+    //   _time: time,
+    //   betTime: {
+    //     $gte: start.toISOString(),
+    //     $lte: end.toISOString(),
+    //   },
+    // });
+    // const calls = query.filter((q) =>
+    //   lots.map((l) => l._id.toString()).includes(q.lottery.toString())
+    // );
+  // }
 
   const pout_tee_amount = calls
     .map((cal) => Number(cal.pout_tee_amount))
@@ -245,6 +266,7 @@ exports.outCollections = asyncHandler(async (req, res, next) => {
     .map((cal) => Number(cal.win))
     .reduce((pre, next) => pre + next, 0);
 
+    console.log(time)
   const totalOut = {
     pout_tee_amount,
     totalAmount,
