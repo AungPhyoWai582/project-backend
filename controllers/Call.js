@@ -133,8 +133,8 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   const com = totalAmount * (req.user.commission / 100);
 
   // for in data read
-  const read = await lager.in.read;
-  read.push(call.id);
+  const calls = await lager.calls;
+  calls.push(call.id);
 
   // for win/lose
   // const win = console.log(colors.bgGreen(demolager));
@@ -142,11 +142,12 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   const updateLager = await Lager.findByIdAndUpdate(
     lager._id,
     {
+      calls: calls,
       in: {
         numbers: demolager,
         totalAmount: totalAmount,
         commission: com,
-        read: read,
+        // read: read,
       },
     },
     {
@@ -212,19 +213,20 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   // for lager commission
   const comOut = totalAmount * (req.user.commission / 100);
 
-  const sendOut = downLineLager.out.send;
-  sendOut.push(call.id);
+  const sells = downLineLager.sells;
+  sells.push(call.id);
 
   console.log(demolagerOut);
 
   await Lager.findByIdAndUpdate(
     downLineLager._id,
     {
+      sells: sells,
       out: {
         numbers: demolagerOut,
         totalAmount: totalAmountOut,
         commission: comOut,
-        send: sendOut,
+        // send: sendOut,
       },
     },
     {

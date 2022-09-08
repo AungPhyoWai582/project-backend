@@ -54,7 +54,7 @@ app.use("/api/v1/lagers", lager);
 
 app.use("/api/v1/lotterys", lottery);
 
-app.use("/api/v1/customer", customer);
+app.use("/api/v1/customers", customer);
 
 app.use(error);
 

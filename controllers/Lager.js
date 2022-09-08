@@ -151,3 +151,121 @@ exports.InOut = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({ success: true, updateLager });
 });
+
+exports.lagerOut = asyncHandler(async (req, res, next) => {
+  const { customer, numbers } = req.body;
+  const { lotteryId } = req.params;
+  const { _id, commission } = req.user;
+
+  const lager = await Lager.findOne({
+    lottery: lotteryId,
+    user: _id,
+  }).populate({ path: "user", select: "username name role commission" });
+
+  const inlager = [...lager.in.numbers];
+  numbers.map((cn) => {
+    // if (inlager.map((l) => l.number).includes(cn.number)) {
+    // console.log(l);
+    inlager[inlager.findIndex((obj) => obj.number === cn.number)] = {
+      number: cn.number,
+      amount: (
+        Number(
+          inlager[inlager.findIndex((obj) => obj.number === cn.number)].amount
+        ) - Number(cn.amount)
+      ).toString(),
+    };
+    // }
+  });
+
+  const obj = {};
+  const inTotal = inlager
+    .map((num) => Number(num.amount))
+    .reduce((pre, next) => pre + next, 0);
+  // const incommission =
+  const outTotal = numbers
+    .map((num) => Number(num.amount))
+    .reduce((pre, next) => pre + next, 0);
+
+  obj.in = {
+    numbers: inlager,
+    totalAmount: inTotal,
+  };
+
+  obj.out = {
+    numbers: numbers,
+    totalAmount: outTotal,
+  };
+
+  const updateLager = await Lager.findByIdAndUpdate(lager._id, obj, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({
+    success: true,
+    updateLager,
+  });
+});
+
+exports.lagerOutUpdate = asyncHandler(async (req, res, next) => {
+  const { number, amount } = req.body;
+  console.log(number, amount);
+  const { lotteryId } = req.params;
+  const { _id, commission } = req.user;
+
+  const lager = await Lager.findOne({
+    lottery: lotteryId,
+    user: _id,
+  }).populate({ path: "user", select: "username name role commission" });
+
+  const inlager = [...lager.in.numbers];
+  const outlager = [...lager.out.numbers];
+  // numbers.map((cn) => {
+  if (inlager.map((l) => l.number).includes(number)) {
+    // consol
+    outlager[outlager.findIndex((obj) => obj.number === number)] = {
+      number: number,
+      amount:
+        Number(
+          outlager[outlager.findIndex((obj) => obj.number === number)].amount
+        ) - Number(amount),
+    };
+  }
+  if (inlager.map((l) => l.number).includes(number)) {
+    inlager[inlager.findIndex((obj) => obj.number === number)] = {
+      number: number,
+      amount: (
+        Number(
+          inlager[inlager.findIndex((obj) => obj.number === number)].amount
+        ) + Number(amount)
+      ).toString(),
+    };
+  }
+  // });
+
+  const obj = {};
+  const inTotal = inlager
+    .map((num) => Number(num.amount))
+    .reduce((pre, next) => pre + next, 0);
+  // const incommission =
+  const outTotal = outlager
+    .map((num) => Number(num.amount))
+    .reduce((pre, next) => pre + next, 0);
+
+  obj.in = {
+    numbers: inlager,
+    totalAmount: inTotal,
+  };
+
+  obj.out = {
+    numbers: outlager,
+    totalAmount: outTotal,
+  };
+
+  const updateLager = await Lager.findByIdAndUpdate(lager._id, obj, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({ success: true, updateLager });
+});

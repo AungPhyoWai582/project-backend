@@ -3,16 +3,15 @@ const asyncHandler = require("../middlewares/async");
 const Customer = require("../models/Customer");
 
 exports.getCustomers = asyncHandler(async (req, res, next) => {
-  const customers = await Customer.find({
-    createByUser: req.user._id,
-  }).populate({
+  const customers = await Customer.find().populate({
     path: "createByUser",
     select: "username name role",
   });
   if (!customers) {
     return next(new ErrorResponse("There is no customers", 404));
   }
-  res.status(200).json({ success: true, count: customers.length, customers });
+  console.log(customers);
+  res.status(200).json(customers);
 });
 
 exports.getCustomer = asyncHandler(async (req, res, next) => {
@@ -37,7 +36,7 @@ exports.getCustomer = asyncHandler(async (req, res, next) => {
 });
 
 exports.createCustomer = asyncHandler(async (req, res, next) => {
-  req.body.createByUser = req.user._id;
+  // req.body.createByUser = req.user._id;
   const customer = await Customer.create(req.body);
 
   res.status(201).json({ success: true, customer });

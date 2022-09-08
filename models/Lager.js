@@ -32,6 +32,8 @@ const Lager = new mongoose.Schema({
   //   type: Number,
   //   default: 0,
   // },
+  calls: Array,
+  sells: Array,
   in: {
     totalAmount: {
       type: Number,
@@ -47,7 +49,7 @@ const Lager = new mongoose.Schema({
       default: 0,
     },
     numbers: Array,
-    read: Array,
+    // read: Array,
   },
   out: {
     totalAmount: {
@@ -64,7 +66,7 @@ const Lager = new mongoose.Schema({
       default: 0,
     },
     numbers: Array,
-    send: Array,
+    // send: Array,
   },
 });
 

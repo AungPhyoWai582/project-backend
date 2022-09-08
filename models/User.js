@@ -22,6 +22,15 @@ const User = mongoose.Schema({
     enum: ["Admin", "Master", "Agent"],
     default: "Agent",
   },
+  accLimit: {
+    type: Boolean,
+    default: false,
+  },
+  acc_limit_created: {
+    type: Number,
+    default: 0,
+  },
+  acc_created_count: Number,
   twoDZ: {
     type: Number,
     default: 80,
