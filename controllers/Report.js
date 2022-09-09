@@ -300,7 +300,7 @@ exports.dailyMembers = asyncHandler(async (req, res, next) => {
   // console.log(ldate.toISOString());
   const lagers = await Lager.findById(lager);
 
-  const calls = await Call.find({ _id: lagers.in.read })
+  const calls = await Call.find({ _id: lagers.calls })
     .populate({
       path: "user",
       select: "username name role",
