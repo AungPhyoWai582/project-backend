@@ -36,6 +36,7 @@ exports.getCustomer = asyncHandler(async (req, res, next) => {
 });
 
 exports.createCustomer = asyncHandler(async (req, res, next) => {
+  console.log(req.originalUrl)
   // req.body.createByUser = req.user._id;
   const customer = await Customer.create(req.body);
 

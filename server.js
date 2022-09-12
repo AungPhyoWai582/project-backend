@@ -2,6 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const logger = require("./middlewares/Logger");
 const cors = require("cors");
+const bodyParser = require('body-parser');
 const connectDB = require("./config/db");
 
 dotenv.config({ path: "./config/config.env" });
@@ -24,6 +25,12 @@ const error = require("./middlewares/error");
 const app = express();
 
 app.use(cors());
+
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }))
+
+// parse application/json
+app.use(bodyParser.json())
 
 // Body Parser
 app.use(express.json());
