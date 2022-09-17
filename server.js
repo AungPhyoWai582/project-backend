@@ -2,7 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const logger = require("./middlewares/Logger");
 const cors = require("cors");
-const bodyParser = require('body-parser');
+const bodyParser = require("body-parser");
 const connectDB = require("./config/db");
 
 dotenv.config({ path: "./config/config.env" });
@@ -21,16 +21,17 @@ const lager = require("./routes/Lager");
 const lottery = require("./routes/Lottery");
 const customer = require("./routes/Customer");
 const error = require("./middlewares/error");
+const outcall = require("./routes/OutCall");
 
 const app = express();
 
 app.use(cors());
 
 // parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: false }));
 
 // parse application/json
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 
 // Body Parser
 app.use(express.json());
@@ -44,17 +45,10 @@ app.use(
   // () => res.header("Access-Control-Allow-Origin", "*"),
   auth
 );
-app.use(
-  "/api/v1/masters",
-  // () => res.header("Access-Control-Allow-Origin"),
-  master
-);
+app.use("/api/v1/masters", master);
 app.use("/api/v1/agents", agent);
-app.use(
-  "/api/v1/call/",
-  // () => res.header("Access-Control-Allow-Origin"),
-  call
-);
+app.use("/api/v1/call/", call);
+app.use("/api/v1/outcall/", outcall);
 app.use("/api/v1/reports", report);
 app.use("/api/v1/result", result);
 app.use("/api/v1/lagers", lager);

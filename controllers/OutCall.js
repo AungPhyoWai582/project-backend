@@ -1,6 +1,6 @@
 const ErrorResponse = require("../utils/ErrorResponse");
 const asyncHandler = require("../middlewares/async");
-const Call = require("../models/Call");
+const OutCall = require("../models/OutCall");
 // const Report = require("../models/Report");
 const BetDetail = require("../models/BetDetail");
 const Lottery = require("../models/Lottery");
@@ -22,23 +22,10 @@ exports.getCalls = asyncHandler(async (req, res, next) => {
 
   console.log(colors.bgGreen(_id, lotteryId));
 
-  query = await Call.find({ lottery: lotteryId })
-    .populate({
-      path: "user",
-      select: "name role",
-    })
-    .populate({
-      path: "customer",
-      select: "name",
-    })
-    .populate({
-      path: "agent",
-      select: "name role",
-    })
-    .populate({
-      path: "master",
-      select: "name role",
-    });
+  query = await OutCall.find({ lottery: lotteryId }).populate({
+    path: "user",
+    select: "name role",
+  });
 
   if (_id) {
     calls = query.filter((f, key) => f.user._id.toString() === _id.toString());
@@ -64,7 +51,7 @@ exports.getCalls = asyncHandler(async (req, res, next) => {
 // Desc    GET USER
 // Route   GET api/v1/agents/:agentId/calls
 exports.getCall = asyncHandler(async (req, res, next) => {
-  const call = await Call.findById(req.params.callId).populate({
+  const call = await OutCall.findById(req.params.callId).populate({
     path: "user",
     select: "name role",
   });
@@ -88,7 +75,7 @@ exports.createCall = asyncHandler(async (req, res, next) => {
 
   // const lottery = await Lottery.findById(req.params.lotteryId);
 
-  const call = await Call.create(req.body);
+  const call = await OutCall.create(req.body);
 
   if (!call) {
     return next(new ErrorResponse("Something was wrong", 500));
@@ -101,53 +88,75 @@ exports.createCall = asyncHandler(async (req, res, next) => {
     user: req.user._id,
   }).populate({ path: "user", select: "username name role commission" });
 
-  console.log(lager);
-  const demolager = lager.in.numbers;
+  const inLager = lager.in.numbers;
+  const outLager = lager.out.numbers;
 
   const callNumbers = call.numbers;
+  console.log(colors.bgGreen(outLager));
   // const demolager = [...In.numbers];
 
-  console.log(demolager, callNumbers);
-
-  // // for lager call
+  //   console.log(inLager, callNumbers);
+  // For out
   callNumbers.map((cn) => {
-    if (demolager.map((l) => l.number).includes(cn.number)) {
-      demolager[demolager.findIndex((obj) => obj.number === cn.number)] = {
+    if (outLager.map((l) => l.number).includes(cn.number)) {
+      outLager[outLager.findIndex((obj) => obj.number === cn.number)] = {
         number: cn.number,
         amount: (
           Number(
-            demolager[demolager.findIndex((obj) => obj.number === cn.number)]
+            outLager[outLager.findIndex((obj) => obj.number === cn.number)]
               .amount
           ) + Number(cn.amount)
         ).toString(),
       };
     } else {
-      demolager.push(cn);
+      outLager.push(cn);
+    }
+  });
+  console.log(colors.bgBlue(outLager));
+  // // for lager in
+  callNumbers.map((cn) => {
+    if (inLager.map((l) => l.number).includes(cn.number)) {
+      inLager[inLager.findIndex((obj) => obj.number === cn.number)] = {
+        number: cn.number,
+        amount: (
+          Number(
+            inLager[inLager.findIndex((obj) => obj.number === cn.number)].amount
+          ) - Number(cn.amount)
+        ).toString(),
+      };
     }
   });
 
   // for lager bet
-  const totalAmount = Number(lager.in.totalAmount) + Number(call.totalAmount);
+  const inTotalAmount = Number(lager.in.totalAmount) - Number(call.totalAmount);
 
   // for lager commission
-  const com = totalAmount * (req.user.commission / 100);
+  const incom = inTotalAmount * (req.user.commission / 100);
 
   // for in data read
-  const calls = await lager.calls;
-  calls.push(call.id);
+  const outcalls = await lager.outcalls;
+  outcalls.push(call.id);
 
-  // for win/lose
-  // const win = console.log(colors.bgGreen(demolager));
+  // for lager bet
+  const outTotal = Number(lager.out.totalAmount) + Number(call.totalAmount);
+
+  // for lager commission
+  const comOut = outTotal * (req.user.commission / 100);
 
   const updateLager = await Lager.findByIdAndUpdate(
     lager._id,
     {
-      calls: calls,
       in: {
-        numbers: demolager,
-        totalAmount: totalAmount,
-        commission: com,
-        // read: read,
+        numbers: inLager,
+        totalAmount: inTotalAmount,
+        commission: incom,
+      },
+      outcalls: outcalls,
+      out: {
+        numbers: outLager,
+        totalAmount: outTotal,
+        commission: comOut,
+        // send: sendOut,
       },
     },
     {
@@ -155,6 +164,7 @@ exports.createCall = asyncHandler(async (req, res, next) => {
       runValidators: true,
     }
   );
+  // }
 
   res.status(201).json({
     success: true,

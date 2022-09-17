@@ -34,6 +34,7 @@ const Lager = new mongoose.Schema({
   // },
   calls: Array,
   sells: Array,
+  outcalls: Array,
   in: {
     totalAmount: {
       type: Number,
