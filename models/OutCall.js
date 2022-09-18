@@ -25,6 +25,8 @@ const OutCall = new mongoose.Schema({
     type: Number,
     // required: [true, "Please add a total amount"],
   },
+  breakPercent: Number,
+  mainAmount: Number,
   status: String,
   pout_tee: String,
   pout_tee_amount: Number,

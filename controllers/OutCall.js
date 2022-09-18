@@ -176,7 +176,7 @@ exports.createCall = asyncHandler(async (req, res, next) => {
 // Desc    UPDATE USERS
 // Route   PUT api/v1/user/:id
 exports.updateCall = asyncHandler(async (req, res, next) => {
-  const call = await Call.findByIdAndUpdate(req.params.callId, req.body, {
+  const call = await OutCall.findByIdAndUpdate(req.params.callId, req.body, {
     new: true,
     runValidators: true,
   });
@@ -193,7 +193,7 @@ exports.updateCall = asyncHandler(async (req, res, next) => {
 // Desc    DELETE USER
 // Route   DELETE api/v1/user/:id
 exports.deleteCall = asyncHandler(async (req, res, next) => {
-  const call = await Call.findByIdAndDelete(req.params.callId);
+  const call = await OutCall.findByIdAndDelete(req.params.callId);
 
   if (!call) {
     return next(
@@ -208,7 +208,7 @@ exports.callNumbersTotal = asyncHandler(async (req, res, next) => {
   const { id, role } = req.user;
   let calls;
   if (role === "Admin") {
-    calls = await Call.find({
+    calls = await OutCall.find({
       user: id,
       master: customerId,
     })
@@ -222,7 +222,7 @@ exports.callNumbersTotal = asyncHandler(async (req, res, next) => {
       });
   }
   if (role === "Master") {
-    calls = await Call.find({ user: id, agent: customerId })
+    calls = await OutCall.find({ user: id, agent: customerId })
       .populate({
         path: "user",
         select: "name role",
@@ -233,7 +233,7 @@ exports.callNumbersTotal = asyncHandler(async (req, res, next) => {
       });
   }
   if (role === "Agent") {
-    calls = await Call.find({ user: id, customer: customerId })
+    calls = await OutCall.find({ user: id, customer: customerId })
       .populate({
         path: "user",
         select: "name role",
