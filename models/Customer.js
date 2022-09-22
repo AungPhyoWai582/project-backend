@@ -4,7 +4,7 @@ const Customer = mongoose.Schema({
   createByUser: {
     type: mongoose.Schema.ObjectId,
     ref: "User",
-    // required: true,
+    required: true,
   },
   name: {
     type: String,

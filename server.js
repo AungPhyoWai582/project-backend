@@ -34,7 +34,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // Body Parser
-app.use(express.json());
+// app.use(express.json());
 
 // middleware
 app.use(logger);
