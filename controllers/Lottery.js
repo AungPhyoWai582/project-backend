@@ -9,6 +9,7 @@ const Lager = require("../models/Lager");
 const { calculateReport } = require("../utils/calculateReport");
 const { calculatePoutTee } = require("../utils/calculatePoutTee");
 const { calculateLager } = require("../utils/calculateLager");
+const OutCall = require("../models/OutCall");
 
 exports.getLotteries = asyncHandler(async (req, res, next) => {
   const lotteries = await Lottery.find();
@@ -64,6 +65,7 @@ exports.deleteLottery = asyncHandler(async (req, res, next) => {
   const lottery = await Lottery.findByIdAndDelete(id);
   const lagers = await Lager.deleteMany({ lottery: id });
   const calls = await Call.deleteMany({ lottery: id });
+  const outcalls = await OutCall.deleteMany({ lottery: id });
 
   if (!lottery) {
     return next(new ErrorResponse(`Lottery not found with id of ${id}`, 404));
@@ -73,6 +75,11 @@ exports.deleteLottery = asyncHandler(async (req, res, next) => {
   }
   if (!calls) {
     return next(new ErrorResponse(`Calls not found with id of ${id}`, 404));
+  }
+  if (!outcalls) {
+    return next(
+      new ErrorResponse(`Out calls not found width id of ${id}`, 404)
+    );
   }
   res.status(200).json({ success: true, data: {} });
 });

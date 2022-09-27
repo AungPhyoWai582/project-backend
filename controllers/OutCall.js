@@ -22,10 +22,15 @@ exports.getCalls = asyncHandler(async (req, res, next) => {
 
   console.log(colors.bgGreen(_id, lotteryId));
 
-  query = await OutCall.find({ lottery: lotteryId }).populate({
-    path: "user",
-    select: "name role",
-  });
+  query = await OutCall.find({ lottery: lotteryId })
+    .populate({
+      path: "user",
+      select: "name role",
+    })
+    .populate({
+      path: "customer",
+      select: "name",
+    });
 
   if (_id) {
     calls = query.filter((f, key) => f.user._id.toString() === _id.toString());
@@ -51,10 +56,15 @@ exports.getCalls = asyncHandler(async (req, res, next) => {
 // Desc    GET USER
 // Route   GET api/v1/agents/:agentId/calls
 exports.getCall = asyncHandler(async (req, res, next) => {
-  const call = await OutCall.findById(req.params.callId).populate({
-    path: "user",
-    select: "name role",
-  });
+  const call = await OutCall.findById(req.params.callId)
+    .populate({
+      path: "user",
+      select: "name role",
+    })
+    .populate({
+      path: "customer",
+      select: "name",
+    });
 
   if (!call) {
     return next(
@@ -143,33 +153,46 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   // for lager commission
   const comOut = outTotal * (req.user.commission / 100);
 
-  const updateLager = await Lager.findByIdAndUpdate(
-    lager._id,
-    {
-      in: {
-        numbers: inLager,
-        totalAmount: inTotalAmount,
-        commission: incom,
-      },
-      outcalls: outcalls,
-      out: {
-        numbers: outLager,
-        totalAmount: outTotal,
-        commission: comOut,
-        // send: sendOut,
-      },
-    },
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
+  const updateLager = await Lager.findById(lager._id);
+  updateLager.in.numbers = inLager;
+  updateLager.in.totalAmount = inTotalAmount;
+  updateLager.in.commission = incom;
+
+  updateLager.outcalls = outcalls;
+
+  updateLager.out.numbers = outLager;
+  updateLager.out.totalAmount = outTotal;
+  updateLager.out.commission = comOut;
+
+  const upL = await updateLager.save();
+
+  // const updateLager = await Lager.findByIdAndUpdate(
+  //   lager._id,
+  //   {
+  //     in: {
+  //       numbers: inLager,
+  //       totalAmount: inTotalAmount,
+  //       commission: incom,
+  //     },
+  //     outcalls: outcalls,
+  //     out: {
+  //       numbers: outLager,
+  //       totalAmount: outTotal,
+  //       commission: comOut,
+  //       // send: sendOut,
+  //     },
+  //   },
+  //   {
+  //     new: true,
+  //     runValidators: true,
+  //   }
+  // );
   // }
 
   res.status(201).json({
     success: true,
     data: call,
-    lager: updateLager,
+    lager: upL,
   });
 });
 

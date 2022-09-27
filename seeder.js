@@ -17,6 +17,7 @@ const Lottery = require("./models/Lottery");
 const Lager = require("./models/Lager");
 // const AgentReport = require("./models/Reports/AgentsReport");
 const AgentsReport = require("./models/Reports/AgentsReport");
+const Customer = require("./models/Customer");
 
 // Connect DB
 mongoose.connect(process.env.MONGO_URI, {
@@ -60,6 +61,7 @@ const deleteData = async () => {
     await Lottery.deleteMany();
     await Lager.deleteMany();
     await OutCall.deleteMany();
+    await Customer.deleteMany();
 
     console.log(color.bgRed("Data Destroyed ..."));
     process.exit();

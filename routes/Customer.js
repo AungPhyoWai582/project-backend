@@ -10,11 +10,11 @@ const { protect } = require("../middlewares/auth");
 
 const router = express.Router();
 
-router.route("/").get(getCustomers).post(createCustomer);
+router.route("/").get(protect, getCustomers).post(protect, createCustomer);
 router
   .route("/:customerId")
-  .get(getCustomer)
-  .put(updateCustomer)
-  .delete(deleteCustomer);
+  .get(protect, getCustomer)
+  .put(protect, updateCustomer)
+  .delete(protect, deleteCustomer);
 
 module.exports = router;

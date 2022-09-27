@@ -139,27 +139,36 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   // for win/lose
   // const win = console.log(colors.bgGreen(demolager));
 
-  const updateLager = await Lager.findByIdAndUpdate(
-    lager._id,
-    {
-      calls: calls,
-      in: {
-        numbers: demolager,
-        totalAmount: totalAmount,
-        commission: com,
-        // read: read,
-      },
-    },
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
+  // const updateLager = await Lager.findByIdAndUpdate(
+  //   lager._id,
+  //   {
+  //     calls: calls,
+  //     in: {
+  //       numbers: demolager,
+  //       totalAmount: totalAmount,
+  //       commission: com,
+  //       // read: read,
+  //     },
+  //   },
+  //   {
+  //     new: true,
+  //     runValidators: true,
+  //   }
+  // );
+
+  const updateLager = await Lager.findById(lager._id);
+
+  updateLager.calls = calls;
+  updateLager.in.numbers = demolager;
+  updateLager.in.totalAmount = totalAmount;
+  updateLager.in.commission = com;
+
+  const upL = await updateLager.save();
 
   res.status(201).json({
     success: true,
     data: call,
-    lager: updateLager,
+    lager: upL,
   });
 });
 
