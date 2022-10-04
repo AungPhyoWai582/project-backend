@@ -31,6 +31,9 @@ const User = mongoose.Schema({
     default: 0,
   },
   acc_created_count: Number,
+  lager_break:Number,
+  hot_limit:Number,
+  superhot_limit:Number,
   twoDZ: {
     type: Number,
     default: 80,

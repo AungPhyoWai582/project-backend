@@ -3,7 +3,8 @@ const asyncHandler = require("../middlewares/async");
 const Customer = require("../models/Customer");
 
 exports.getCustomers = asyncHandler(async (req, res, next) => {
-  const customers = await Customer.find().populate({
+  const {id} = req.user;
+  const customers = await Customer.find({createByUser:id}).populate({
     path: "createByUser",
     select: "username name role",
   });

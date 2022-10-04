@@ -166,29 +166,6 @@ exports.createCall = asyncHandler(async (req, res, next) => {
 
   const upL = await updateLager.save();
 
-  // const updateLager = await Lager.findByIdAndUpdate(
-  //   lager._id,
-  //   {
-  //     in: {
-  //       numbers: inLager,
-  //       totalAmount: inTotalAmount,
-  //       commission: incom,
-  //     },
-  //     outcalls: outcalls,
-  //     out: {
-  //       numbers: outLager,
-  //       totalAmount: outTotal,
-  //       commission: comOut,
-  //       // send: sendOut,
-  //     },
-  //   },
-  //   {
-  //     new: true,
-  //     runValidators: true,
-  //   }
-  // );
-  // }
-
   res.status(201).json({
     success: true,
     data: call,
