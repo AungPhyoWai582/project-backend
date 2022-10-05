@@ -54,7 +54,7 @@ const importData = async () => {
 // Delete data
 const deleteData = async () => {
   try {
-    // await User.deleteMany();
+    await User.deleteMany();
     // await Report.deleteMany();
     // await BetDetail.deleteMany();
     await Call.deleteMany();

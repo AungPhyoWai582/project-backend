@@ -13,6 +13,7 @@ connectDB();
 // Routes Files
 const call = require("./routes/Call");
 const auth = require("./routes/auth");
+const admin = require('./routes/Admin')
 const master = require("./routes/Master");
 const agent = require("./routes/Agent");
 const result = require("./routes/Result");
@@ -45,6 +46,7 @@ app.use(
   // () => res.header("Access-Control-Allow-Origin", "*"),
   auth
 );
+app.use("/api/v1/admin",admin)
 app.use("/api/v1/masters", master);
 app.use("/api/v1/agents", agent);
 app.use("/api/v1/call/", call);
