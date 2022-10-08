@@ -208,6 +208,7 @@ exports.callNumbersTotal = asyncHandler(async (req, res, next) => {
   let calls;
   if (role === "Admin") {
     calls = await Call.find({
+      lottery:lotteryId,
       user: id,
       master: customerId,
     })
@@ -221,7 +222,7 @@ exports.callNumbersTotal = asyncHandler(async (req, res, next) => {
       });
   }
   if (role === "Master") {
-    calls = await Call.find({ user: id, agent: customerId })
+    calls = await Call.find({lottery:lotteryId, user: id, agent: customerId })
       .populate({
         path: "user",
         select: "name role",
@@ -232,7 +233,7 @@ exports.callNumbersTotal = asyncHandler(async (req, res, next) => {
       });
   }
   if (role === "Agent") {
-    calls = await Call.find({ user: id, customer: customerId })
+    calls = await Call.find({lottery:lotteryId, user: id, customer: customerId })
       .populate({
         path: "user",
         select: "name role",
