@@ -14,7 +14,6 @@ const OutCall = new mongoose.Schema({
   customer: {
     type: mongoose.Schema.ObjectId,
     ref: "Customer",
-    required: true,
   },
   // betNumbers: [{ number: Number, amount: Number }],
   numbers: {
