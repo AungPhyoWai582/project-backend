@@ -54,12 +54,10 @@ const Call = new mongoose.Schema({
 //   return await bcrypt.compare(enteredPassword, this.password);
 // };
 
-Call.pre("save", async function () {
-  let total = this.numbers.map((item) => Number(item.amount));
-  this.totalAmount = total.reduce((pre, next) => pre + next, 0);
-  // this.commission = this.
-
-  // (await this.totalAmount) - (this.commission + this.win_amount);
-});
+// Call.pre("save", async function () {
+//   let total = this.numbers.map((item) => Number(item.amount));
+//   this.totalAmount = total.reduce((pre, next) => pre + next, 0);
+//   // (await this.totalAmount) - (this.commission + this.win_amount);
+// });
 
 module.exports = mongoose.model("Call", Call);

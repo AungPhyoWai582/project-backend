@@ -22,31 +22,6 @@ const Betdetail = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  hasBreakNumber: {
-    checked: {
-      type: Boolean,
-      default: false,
-    },
-    numbers: { type: [{ number: Number, amount: Number }], default: null },
-    hasWin: {
-      checked: {
-        type: Boolean,
-        default: false,
-      },
-      number: { type: Number, default: null },
-      amount: { type: Number, default: null },
-    },
-  },
-  breakLimitExcess: {
-    checked: {
-      type: Boolean,
-      default: false,
-    },
-    excessNumbers: {
-      type: [{ number: Number, amount: Number }],
-      default: null,
-    },
-  },
   betTime: {
     type: Date,
     required: true,

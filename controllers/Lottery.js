@@ -10,6 +10,7 @@ const { calculateReport } = require("../utils/calculateReport");
 const { calculatePoutTee } = require("../utils/calculatePoutTee");
 const { calculateLager } = require("../utils/calculateLager");
 const OutCall = require("../models/OutCall");
+const { report } = require("../routes/Call");
 
 exports.getLotteries = asyncHandler(async (req, res, next) => {
   const lotteries = await Lottery.find();
@@ -34,7 +35,23 @@ exports.createLottery = asyncHandler(async (req, res, next) => {
       _date: lottery._date,
       _time: lottery._time,
     };
-    await Lager.create(obj);
+    const lager = await Lager.create(obj);
+
+    if (!lager) {
+      return next(
+        new ErrorResponse(`There is no lager,something went wrong`, 404)
+      );
+    }
+    // await Report.create({
+    //   user: usr._id,
+    //   Lottery: lottery._id,
+    //   Role: usr.role,
+    //   Type: "In",
+    //   Divider: usr.divider,
+    //   Lager: lager._id,
+    //   Date: lottery._date,
+    //   Time: lottery._time,
+    // });
   });
   res.status(201).json({ success: true, lottery: lottery });
 });

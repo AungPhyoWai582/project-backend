@@ -10,6 +10,8 @@ const Report = require("../models/Report");
 const Lager = require("../models/Lager");
 const { calculateReport } = require("../utils/calculateReport");
 const { calculateLager } = require("../utils/calculateLager");
+const User = require("../models/User");
+const Customer = require("../models/Customer");
 
 // Desc    GET USERS
 // Route   GET api/v1/users/:agentId/calls
@@ -78,11 +80,18 @@ exports.getCall = asyncHandler(async (req, res, next) => {
 // Desc    CREATE CALL
 // Route   POST api/v1/agents/:agentId/calls
 exports.createCall = asyncHandler(async (req, res, next) => {
-  // Add user to req.body
-  req.body.user = req.user._id;
-  req.body.user_role = req.user.role;
-  req.body.lottery = req.params.lotteryId;
+  const userRoles = ['customer','agent','master'];
+ 
+  const comUser = await Customer.findById(req.body.customer)
+  let tAmt = req.body.numbers.map(item=>Number(item.amount)).reduce((pre,next)=>pre+next,0);
 
+   // Add user to req.body
+   req.body.user = req.user._id;
+   req.body.user_role = req.user.role;
+   req.body.lottery = req.params.lotteryId;
+   req.body.totalAmount = tAmt;
+   req.body.commission = Number(tAmt * (comUser.commission / 100));
+  req.body.win = Number(tAmt * (comUser.commission / 100)) - Number(tAmt);
   // const lottery = await Lottery.findById(req.params.lotteryId);
 
   const call = await OutCall.create(req.body);
@@ -98,71 +107,67 @@ exports.createCall = asyncHandler(async (req, res, next) => {
     user: req.user._id,
   }).populate({ path: "user", select: "username name role commission" });
 
-  const inLager = lager.in.numbers;
-  const outLager = lager.out.numbers;
+  console.log(lager);
+  const demolager = lager.numbers;
 
   const callNumbers = call.numbers;
-  console.log(colors.bgGreen(outLager));
   // const demolager = [...In.numbers];
 
-  //   console.log(inLager, callNumbers);
-  // For out
+  console.log(demolager, callNumbers);
+
+  // // for lager call
   callNumbers.map((cn) => {
-    if (outLager.map((l) => l.number).includes(cn.number)) {
-      outLager[outLager.findIndex((obj) => obj.number === cn.number)] = {
+    if (demolager.map((l) => l.number).includes(cn.number)) {
+      demolager[demolager.findIndex((obj) => obj.number === cn.number)] = {
         number: cn.number,
         amount: (
           Number(
-            outLager[outLager.findIndex((obj) => obj.number === cn.number)]
+            demolager[demolager.findIndex((obj) => obj.number === cn.number)]
               .amount
-          ) + Number(cn.amount)
-        ).toString(),
-      };
-    } else {
-      outLager.push(cn);
-    }
-  });
-  console.log(colors.bgBlue(outLager));
-  // // for lager in
-  callNumbers.map((cn) => {
-    if (inLager.map((l) => l.number).includes(cn.number)) {
-      inLager[inLager.findIndex((obj) => obj.number === cn.number)] = {
-        number: cn.number,
-        amount: (
-          Number(
-            inLager[inLager.findIndex((obj) => obj.number === cn.number)].amount
           ) - Number(cn.amount)
         ).toString(),
       };
+    } else {
+      demolager.push(cn);
     }
   });
 
   // for lager bet
-  const inTotalAmount = Number(lager.in.totalAmount) - Number(call.totalAmount);
+  const totalAmount = Number(lager.totalAmount) - Number(call.totalAmount);
 
   // for lager commission
-  const incom = inTotalAmount * (req.user.commission / 100);
+  // const com = totalAmount * (req.user.commission / 100);
 
   // for in data read
-  const outcalls = await lager.outcalls;
-  outcalls.push(call.id);
+  // const calls = await lager.calls;
+  // calls.push(call.id);
 
-  // for lager bet
-  const outTotal = Number(lager.out.totalAmount) + Number(call.totalAmount);
+  // for win/lose
+  // const win = console.log(colors.bgGreen(demolager));
 
-  // for lager commission
-  const comOut = outTotal * (req.user.commission / 100);
+  // const updateLager = await Lager.findByIdAndUpdate(
+  //   lager._id,
+  //   {
+  //     calls: calls,
+  //     in: {
+  //       numbers: demolager,
+  //       totalAmount: totalAmount,
+  //       commission: com,
+  //       // read: read,
+  //     },
+  //   },
+  //   {
+  //     new: true,
+  //     runValidators: true,
+  //   }
+  // );
 
   const updateLager = await Lager.findById(lager._id);
-  updateLager.in.numbers = inLager;
-  updateLager.in.totalAmount = inTotalAmount;
-  updateLager.in.commission = incom;
 
-  updateLager.outcalls = outcalls;
-
-  updateLager.out.numbers = outLager;
-  updateLager.out.totalAmount = outTotal;
-  updateLager.out.commission = comOut;
+  // updateLager.calls = calls;
+  updateLager.numbers = demolager;
+  updateLager.totalAmount = totalAmount;
+  // updateLager.in.commission = com;
 
   const upL = await updateLager.save();
 

@@ -10,6 +10,7 @@ const Report = require("../models/Report");
 const Lager = require("../models/Lager");
 const { calculateReport } = require("../utils/calculateReport");
 const { calculateLager } = require("../utils/calculateLager");
+const User = require("../models/User");
 
 // Desc    GET USERS
 // Route   GET api/v1/users/:agentId/calls
@@ -81,11 +82,25 @@ exports.getCall = asyncHandler(async (req, res, next) => {
 // Desc    CREATE CALL
 // Route   POST api/v1/agents/:agentId/calls
 exports.createCall = asyncHandler(async (req, res, next) => {
+  const userRoles = ["customer", "agent", "master"];
+
+  let tAmt = req.body.numbers
+    .map((item) => Number(item.amount))
+    .reduce((pre, next) => pre + next, 0);
+  let comUser;
+  if (req.body.agent) {
+    comUser = await User.findById(req.body.agent);
+  } else if (req.body.master) {
+    comUser = await User.findById(req.body.master);
+  }
+
   // Add user to req.body
   req.body.user = req.user._id;
   req.body.user_role = req.user.role;
   req.body.lottery = req.params.lotteryId;
-
+  req.body.totalAmount = tAmt;
+  req.body.commission = tAmt * (comUser.commission / 100);
+  req.body.win = Number(tAmt) - Number(tAmt * (comUser.commission / 100));
   // const lottery = await Lottery.findById(req.params.lotteryId);
 
   const call = await Call.create(req.body);
@@ -102,7 +117,7 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   }).populate({ path: "user", select: "username name role commission" });
 
   console.log(lager);
-  const demolager = lager.in.numbers;
+  const demolager = lager.numbers;
 
   const callNumbers = call.numbers;
   // const demolager = [...In.numbers];
@@ -127,14 +142,14 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   });
 
   // for lager bet
-  const totalAmount = Number(lager.in.totalAmount) + Number(call.totalAmount);
+  const totalAmount = Number(lager.totalAmount) + Number(call.totalAmount);
 
   // for lager commission
-  const com = totalAmount * (req.user.commission / 100);
+  // const com = totalAmount * (req.user.commission / 100);
 
   // for in data read
-  const calls = await lager.calls;
-  calls.push(call.id);
+  // const calls = await lager.calls;
+  // calls.push(call.id);
 
   // for win/lose
   // const win = console.log(colors.bgGreen(demolager));
@@ -158,10 +173,10 @@ exports.createCall = asyncHandler(async (req, res, next) => {
 
   const updateLager = await Lager.findById(lager._id);
 
-  updateLager.calls = calls;
-  updateLager.in.numbers = demolager;
-  updateLager.in.totalAmount = totalAmount;
-  updateLager.in.commission = com;
+  // updateLager.calls = calls;
+  updateLager.numbers = demolager;
+  updateLager.totalAmount = totalAmount;
+  // updateLager.in.commission = com;
 
   const upL = await updateLager.save();
 
@@ -208,7 +223,7 @@ exports.callNumbersTotal = asyncHandler(async (req, res, next) => {
   let calls;
   if (role === "Admin") {
     calls = await Call.find({
-      lottery:lotteryId,
+      lottery: lotteryId,
       user: id,
       master: customerId,
     })
@@ -222,7 +237,7 @@ exports.callNumbersTotal = asyncHandler(async (req, res, next) => {
       });
   }
   if (role === "Master") {
-    calls = await Call.find({lottery:lotteryId, user: id, agent: customerId })
+    calls = await Call.find({ lottery: lotteryId, user: id, agent: customerId })
       .populate({
         path: "user",
         select: "name role",
@@ -233,7 +248,11 @@ exports.callNumbersTotal = asyncHandler(async (req, res, next) => {
       });
   }
   if (role === "Agent") {
-    calls = await Call.find({lottery:lotteryId, user: id, customer: customerId })
+    calls = await Call.find({
+      lottery: lotteryId,
+      user: id,
+      customer: customerId,
+    })
       .populate({
         path: "user",
         select: "name role",

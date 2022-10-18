@@ -1,60 +1,30 @@
 const mongoose = require("mongoose");
 
 const Report = mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.ObjectId,
-    ref: "User",
-    require: true,
-  },
-  createByUser: {
+  user: {
     type: mongoose.Schema.ObjectId,
     ref: "User",
   },
-  type: {
-    type: String,
-    require: true,
-  },
-  lottery: {
+  Lottery: {
     type: mongoose.Schema.ObjectId,
     ref: "Lottery",
-    require: true,
   },
-  commission: {
-    type: Number,
-    require: true,
+  Role:String,
+  Type:String,
+  Divider:String,
+  Total:Number,
+  Commission:Number,
+  Win:Number,
+  Date:Date,
+  Time:String,
+  NumberCount:Number,
+  Calls:Array,
+  OutCalls:Array,
+  Lager:{
+    type:mongoose.Schema.ObjectId,
+    ref:"Lager"
   },
-  bet: {
-    type: Number,
-    require: true,
-  },
-  win: {
-    type: Number,
-    require: true,
-  },
-  data: {
-    lager: [
-      {
-        type: mongoose.Schema.ObjectId,
-        ref: "Lager",
-      },
-    ],
-    calls: [
-      {
-        type: mongoose.Schema.ObjectId,
-        ref: "Call",
-      },
-    ],
-    users: [
-      {
-        type: mongoose.Schema.ObjectId,
-        ref: "User",
-      },
-    ],
-  },
-  // _date: {
-  //   type: Date,
-  //   require: true,
-  // },
+
 });
 
 module.exports = mongoose.model("Report", Report);

@@ -19,7 +19,6 @@ const Lager = new mongoose.Schema({
     type: String,
     required: true,
   },
-
   _date: {
     type: Date,
     required: true,
@@ -28,47 +27,61 @@ const Lager = new mongoose.Schema({
     type: String,
     required: true,
   },
-  // commission: {
-  //   type: Number,
-  //   default: 0,
+  totalAmount: {
+    type: Number,
+    default: 0,
+  },
+  win: {
+    type: Number,
+    default: 0,
+  },
+  originalBreak: {
+    type: Number,
+    default: null,
+  },
+  status: String,
+  numbers: Array,
+  // // commission: {
+  // //   type: Number,
+  // //   default: 0,
+  // // },
+  // calls: Array,
+  // sells: Array,
+  // outcalls: Array,
+  // in: {
+  //   totalAmount: {
+  //     type: Number,
+  //     default: 0,
+  //   },
+  //   status: String,
+  //   win: {
+  //     type: Number,
+  //     default: 0,
+  //   },
+  //   commission: {
+  //     type: Number,
+  //     default: 0,
+  //   },
+  //   numbers: Array,
+  //   // read: Array,
   // },
-  calls: Array,
-  sells: Array,
-  outcalls: Array,
-  in: {
-    totalAmount: {
-      type: Number,
-      default: 0,
-    },
-    status: String,
-    win: {
-      type: Number,
-      default: 0,
-    },
-    commission: {
-      type: Number,
-      default: 0,
-    },
-    numbers: Array,
-    // read: Array,
-  },
-  out: {
-    totalAmount: {
-      type: Number,
-      default: 0,
-    },
-    status: String,
-    win: {
-      type: Number,
-      default: 0,
-    },
-    commission: {
-      type: Number,
-      default: 0,
-    },
-    numbers: Array,
-    // send: Array,
-  },
+  // out: {
+  //   totalAmount: {
+  //     type: Number,
+  //     default: 0,
+  //   },
+  //   status: String,
+  //   win: {
+  //     type: Number,
+  //     default: 0,
+  //   },
+  //   commission: {
+  //     type: Number,
+  //     default: 0,
+  //   },
+  //   numbers: Array,
+  //   // send: Array,
+  // },
 });
 
 module.exports = mongoose.model("Lager", Lager);

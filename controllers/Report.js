@@ -5,6 +5,7 @@ const Lager = require("../models/Lager");
 const Call = require("../models/Call");
 const User = require("../models/User");
 const Lottery = require("../models/Lottery");
+const OutCall = require("../models/OutCall");
 
 exports.membersCollections = asyncHandler(async (req, res, next) => {
   // const start = new Date();
@@ -208,48 +209,40 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
 
 exports.outCollections = asyncHandler(async (req, res, next) => {
   let { start_date, end_date, time } = await req.query;
+  console.log(time)
   const start = new Date(start_date);
   const end = new Date(end_date);
 
-  const lagers = await Lager.find({
+  const query = await OutCall.find({
     user: req.user._id,
-    _date: {
+    betTime: {
       $gte: start.toISOString(),
       $lte: end.toISOString(),
     },
+  }).populate({
+    path: "customer",
+    select: "username name commission",
   });
-  const callIDs = Array.prototype.concat.apply(
-    [],
-    lagers.map((lgr) => lgr.out.send)
-  );
-  const calls = await Call.find({ _id: callIDs })
-    .populate({
-      path: "user",
-      select: "username name role",
-    })
-    .populate({
-      path: "master",
-      select: "username name role",
-    })
-    .populate({
-      path: "agent",
-      select: "username name role",
+  console.log(query);
+  let calls;
+  if (time == "All") {
+    calls = query;
+    console.log("all");
+  } else {
+    const lots = await Lottery.find({
+      _time: time,
+      betTime: {
+        $gte: start.toISOString(),
+        $lte: end.toISOString(),
+      },
     });
-  // let calls;
-  // if (time === "All") {
-    // calls = query;
-  // } else if (time !== "All") {
-    // const lots = await Lottery.find({
-    //   _time: time,
-    //   betTime: {
-    //     $gte: start.toISOString(),
-    //     $lte: end.toISOString(),
-    //   },
-    // });
-    // const calls = query.filter((q) =>
-    //   lots.map((l) => l._id.toString()).includes(q.lottery.toString())
-    // );
-  // }
+    console.log(lots);
+    calls = query.filter((q) =>
+      lots.map((l) => l._id.toString()).includes(q.lottery.toString())
+    );
+  }
+
+  console.log(calls);
 
   const pout_tee_amount = calls
     .map((cal) => Number(cal.pout_tee_amount))
@@ -266,7 +259,7 @@ exports.outCollections = asyncHandler(async (req, res, next) => {
     .map((cal) => Number(cal.win))
     .reduce((pre, next) => pre + next, 0);
 
-    console.log(time)
+  // console.log(time);
   const totalOut = {
     pout_tee_amount,
     totalAmount,
@@ -274,6 +267,7 @@ exports.outCollections = asyncHandler(async (req, res, next) => {
     totalWin,
   };
   const report = { calls, totalOut };
+  console.log(report);
 
   res.status(200).json({ success: true, out: "this is out data", report });
 });

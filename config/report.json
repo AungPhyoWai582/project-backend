@@ -1,13 +1,28 @@
+[{
+  "user": "6235e59727392a37a7b3f45d",
+  "Lottery":"87389q7apif9823a",
+  "Type":"In",
+  "Divider":"Cash",
+  "Total": 2000,
+  "Commission":200,
+  "Win":0,
+  "Date":"date",
+  "Time":"AM",
+  "Lager":"893ruapf984a3r2a",
+  "Calls":[],
+  "NumberCount":33
+},
 {
-  "agent": "6235e59727392a37a7b3f45d",
-  "betId": "12334214345654654",
-  "betamount": 2000,
-  "win_lose": {
-    "win": {
-      "win": true,
-      "number": 56,
-      "winAmount": 80000
-    }
-  },
-  "commission": 8000
-}
+  "user": "6235e59727392a37a7b3f45d",
+  "Lottery":"87389q7apif9823a",
+  "Type":"Out",
+  "Divider":"Cash",
+  "Total": 1800,
+  "Commission":180,
+  "Win":0,
+  "Date":"date",
+  "Time":"AM",
+  "Lager":"893ruapf984a3r2a",
+  "OutCalls":[],
+  "NumberCount":33
+}]
