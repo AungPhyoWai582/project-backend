@@ -135,33 +135,6 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   // for lager bet
   const totalAmount = Number(lager.totalAmount) - Number(call.totalAmount);
 
-  // for lager commission
-  // const com = totalAmount * (req.user.commission / 100);
-
-  // for in data read
-  // const calls = await lager.calls;
-  // calls.push(call.id);
-
-  // for win/lose
-  // const win = console.log(colors.bgGreen(demolager));
-
-  // const updateLager = await Lager.findByIdAndUpdate(
-  //   lager._id,
-  //   {
-  //     calls: calls,
-  //     in: {
-  //       numbers: demolager,
-  //       totalAmount: totalAmount,
-  //       commission: com,
-  //       // read: read,
-  //     },
-  //   },
-  //   {
-  //     new: true,
-  //     runValidators: true,
-  //   }
-  // );
-
   const updateLager = await Lager.findById(lager._id);
 
   // updateLager.calls = calls;
