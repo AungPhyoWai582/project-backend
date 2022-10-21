@@ -80,18 +80,21 @@ exports.getCall = asyncHandler(async (req, res, next) => {
 // Desc    CREATE CALL
 // Route   POST api/v1/agents/:agentId/calls
 exports.createCall = asyncHandler(async (req, res, next) => {
-  const userRoles = ['customer','agent','master'];
- 
-  const comUser = await Customer.findById(req.body.customer)
-  let tAmt = req.body.numbers.map(item=>Number(item.amount)).reduce((pre,next)=>pre+next,0);
+  const userRoles = ["customer", "agent", "master"];
 
-   // Add user to req.body
-   req.body.user = req.user._id;
-   req.body.user_role = req.user.role;
-   req.body.lottery = req.params.lotteryId;
-   req.body.totalAmount = tAmt;
-   req.body.commission = Number(tAmt * (comUser.commission / 100));
+  const comUser = await Customer.findById(req.body.customer);
+  let tAmt = req.body.numbers
+    .map((item) => Number(item.amount))
+    .reduce((pre, next) => pre + next, 0);
+
+  // Add user to req.body
+  req.body.user = req.user._id;
+  req.body.user_role = req.user.role;
+  req.body.lottery = req.params.lotteryId;
+  req.body.totalAmount = tAmt;
+  req.body.commission = Number(tAmt * (comUser.commission / 100));
   req.body.win = Number(tAmt * (comUser.commission / 100)) - Number(tAmt);
+  // req.body.numbers.filter((num) => num.amount.toString() === "0");
   // const lottery = await Lottery.findById(req.params.lotteryId);
 
   const call = await OutCall.create(req.body);
@@ -131,6 +134,7 @@ exports.createCall = asyncHandler(async (req, res, next) => {
       demolager.push(cn);
     }
   });
+  // demolager.filter((dl) => dl.amount.toString() === "0");
 
   // for lager bet
   const totalAmount = Number(lager.totalAmount) - Number(call.totalAmount);
@@ -138,7 +142,7 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   const updateLager = await Lager.findById(lager._id);
 
   // updateLager.calls = calls;
-  updateLager.numbers = demolager;
+  updateLager.numbers = [...demolager].filter(dl=>dl.amount !== '0');
   updateLager.totalAmount = totalAmount;
   // updateLager.in.commission = com;
 

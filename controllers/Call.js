@@ -88,10 +88,10 @@ exports.createCall = asyncHandler(async (req, res, next) => {
     .map((item) => Number(item.amount))
     .reduce((pre, next) => pre + next, 0);
   let comUser;
-  if (req.body.agent) {
-    comUser = await User.findById(req.body.agent);
-  } else if (req.body.master) {
+  if (req.body.master) {
     comUser = await User.findById(req.body.master);
+  } else if (req.body.agent) {
+    comUser = await User.findById(req.body.agent);
   }
 
   // Add user to req.body
