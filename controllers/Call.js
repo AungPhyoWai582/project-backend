@@ -174,7 +174,46 @@ exports.updateCall = asyncHandler(async (req, res, next) => {
     );
   }
 
-  res.status(200).json({ success: true, data: call });
+   // For Lager
+
+   const lager = await Lager.findOne({
+    lottery: req.params.lotteryId,
+    user: req.user._id,
+  }).populate({ path: "user", select: "username name role commission" });
+
+  console.log(lager);
+  const demolager = lager.numbers;
+
+  const callNumbers = call.numbers;
+  // const demolager = [...In.numbers];
+
+  console.log(demolager, callNumbers);
+  
+  // // for lager call
+  callNumbers.map((cn) => {
+    if (demolager.map((l) => l.number).includes(cn.number)) {
+      demolager[demolager.findIndex((obj) => obj.number === cn.number)] = {
+        number: cn.number,
+        amount:cn.amount
+      };
+    } else {
+      demolager.push(cn);
+    }
+  });
+
+  // for lager bet
+  const totalAmount = demolager.map(dml=>Number(dml.amount)).reduce((pre,next)=>pre+next,0);
+
+  const updateLager = await Lager.findById(lager._id);
+
+  // updateLager.calls = calls;
+  updateLager.numbers = demolager;
+  updateLager.totalAmount = totalAmount;
+  // updateLager.in.commission = com;
+
+  const upL = await updateLager.save(); 
+
+  res.status(200).json({ success: true, data: call,lager:upL });
 });
 
 // Desc    DELETE USER
@@ -218,7 +257,7 @@ exports.deleteCall = asyncHandler(async (req, res, next) => {
   });
 
    // for lager bet
-   const totalAmount = Number(lager.totalAmount) + Number(call.totalAmount);
+  const totalAmount = demolager.map(dml=>Number(dml.amount)).reduce((pre,next)=>pre+next,0);
 
    const updateLager = await Lager.findById(lager._id);
  
