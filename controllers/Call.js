@@ -163,6 +163,7 @@ exports.createCall = asyncHandler(async (req, res, next) => {
 // Desc    UPDATE USERS
 // Route   PUT api/v1/user/:id
 exports.updateCall = asyncHandler(async (req, res, next) => {
+  const democall = await Call.findById(req.params.callId);
   const call = await Call.findByIdAndUpdate(req.params.callId, req.body, {
     new: true,
     runValidators: true,
@@ -194,7 +195,12 @@ exports.updateCall = asyncHandler(async (req, res, next) => {
     if (demolager.map((l) => l.number).includes(cn.number)) {
       demolager[demolager.findIndex((obj) => obj.number === cn.number)] = {
         number: cn.number,
-        amount:cn.amount
+        amount: (
+          Number(
+            demolager[demolager.findIndex((obj) => obj.number === cn.number)]
+              .amount
+          ) + (Number(cn.amount)-Number(democall.numbers[democall.numbers.findIndex(obj=>obj.number===cn.number)].amount))
+        ).toString(),
       };
     } else {
       demolager.push(cn);
@@ -254,7 +260,12 @@ exports.deleteCall = asyncHandler(async (req, res, next) => {
         ).toString(),
       };
     }
+    if(Number(demolager[demolager.findIndex((obj) => obj.number === cn.number)].amount)===Number(cn.number)){
+      demolager.filter(obj=>obj.number.toString()===cn.number.toString());
+    }
   });
+
+
 
    // for lager bet
   const totalAmount = demolager.map(dml=>Number(dml.amount)).reduce((pre,next)=>pre+next,0);
