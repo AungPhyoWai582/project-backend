@@ -203,7 +203,7 @@ exports.updateCall = asyncHandler(async (req, res, next) => {
         ).toString(),
       };
     } else {
-      demolager.push(cn);
+      demolager.filter(obj=>obj.number.toString()===cn.number.toString());
     }
   });
 
