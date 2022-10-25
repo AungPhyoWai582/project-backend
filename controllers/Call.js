@@ -149,6 +149,7 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   // updateLager.calls = calls;
   updateLager.numbers = demolager;
   updateLager.totalAmount = totalAmount;
+  updateLager.win=totalAmount;
   // updateLager.in.commission = com;
 
   const upL = await updateLager.save();
@@ -164,6 +165,8 @@ exports.createCall = asyncHandler(async (req, res, next) => {
 // Route   PUT api/v1/user/:id
 exports.updateCall = asyncHandler(async (req, res, next) => {
   const democall = await Call.findById(req.params.callId);
+  const demCallNumbers = democall.numbers.map((dmc) => dmc.number);
+
   const call = await Call.findByIdAndUpdate(req.params.callId, req.body, {
     new: true,
     runValidators: true,
@@ -175,9 +178,9 @@ exports.updateCall = asyncHandler(async (req, res, next) => {
     );
   }
 
-   // For Lager
+  // For Lager
 
-   const lager = await Lager.findOne({
+  const lager = await Lager.findOne({
     lottery: req.params.lotteryId,
     user: req.user._id,
   }).populate({ path: "user", select: "username name role commission" });
@@ -189,7 +192,7 @@ exports.updateCall = asyncHandler(async (req, res, next) => {
   // const demolager = [...In.numbers];
 
   console.log(demolager, callNumbers);
-  
+
   // // for lager call
   callNumbers.map((cn) => {
     if (demolager.map((l) => l.number).includes(cn.number)) {
@@ -199,27 +202,93 @@ exports.updateCall = asyncHandler(async (req, res, next) => {
           Number(
             demolager[demolager.findIndex((obj) => obj.number === cn.number)]
               .amount
-          ) + (Number(cn.amount)-Number(democall.numbers[democall.numbers.findIndex(obj=>obj.number===cn.number)].amount))
+          ) +
+          (Number(cn.amount) -
+            Number(
+              democall.numbers[
+                democall.numbers.findIndex((obj) => obj.number === cn.number)
+              ].amount
+            ))
         ).toString(),
       };
-    } else {
-      demolager.filter(obj=>obj.number.toString()===cn.number.toString());
+    }
+    if (democall.numbers.length > callNumbers.length) {
+      demolager[
+        demolager.findIndex(
+          (obj) =>
+            !demCallNumbers.includes(
+              obj.number ===
+                democall.numbers[
+                  democall.numbers.findIndex((obj) => obj.number !== cn.number)
+                ].number
+            )
+        )
+      ] =
+        Number(
+          demolager[
+            demolager.findIndex(
+              (obj) =>
+                !demCallNumbers.includes(
+                  obj.number ===
+                    democall.numbers[
+                      democall.numbers.findIndex(
+                        (obj) => obj.number !== cn.number
+                      )
+                    ].number
+                )
+            )
+          ].amount
+        ) -
+        Number(
+          democall.numbers[
+            democall.numbers.findIndex((obj) => obj.number !== cn.number)
+          ].amount
+        );
+    }
+    if(demolager[
+      demolager.findIndex(
+        (obj) =>
+          !demCallNumbers.includes(
+            obj.number ===
+              democall.numbers[
+                democall.numbers.findIndex(
+                  (obj) => obj.number !== cn.number
+                )
+              ].number
+          )
+      )
+    ].amount === 0){
+      demolager.filter(obj=>obj.number.toString() === democall.numbers[
+        democall.numbers.findIndex(
+          (obj) => obj.number !== cn.number
+        )
+      ].number.toString())
+    }
+    if (
+      Number(
+        demolager[demolager.findIndex((obj) => obj.number === cn.number)].amount
+      ) === 0
+    ) {
+      demolager.filter((obj) => obj.number.toString() === cn.number.toString());
     }
   });
 
   // for lager bet
-  const totalAmount = demolager.map(dml=>Number(dml.amount)).reduce((pre,next)=>pre+next,0);
+  const totalAmount = demolager
+    .map((dml) => Number(dml.amount))
+    .reduce((pre, next) => pre + next, 0);
 
   const updateLager = await Lager.findById(lager._id);
 
   // updateLager.calls = calls;
   updateLager.numbers = demolager;
   updateLager.totalAmount = totalAmount;
+  updateLager.win=totalAmount;
   // updateLager.in.commission = com;
 
-  const upL = await updateLager.save(); 
+  const upL = await updateLager.save();
 
-  res.status(200).json({ success: true, data: call,lager:upL });
+  res.status(200).json({ success: true, data: call, lager: upL });
 });
 
 // Desc    DELETE USER
@@ -260,25 +329,30 @@ exports.deleteCall = asyncHandler(async (req, res, next) => {
         ).toString(),
       };
     }
-    if(Number(demolager[demolager.findIndex((obj) => obj.number === cn.number)].amount)===Number(cn.number)){
-      demolager.filter(obj=>obj.number.toString()===cn.number.toString());
+    if (
+      Number(
+        demolager[demolager.findIndex((obj) => obj.number === cn.number)].amount
+      ) === Number(cn.number)
+    ) {
+      demolager.filter((obj) => obj.number.toString() === cn.number.toString());
     }
   });
 
+  // for lager bet
+  const totalAmount = demolager
+    .map((dml) => Number(dml.amount))
+    .reduce((pre, next) => pre + next, 0);
 
 
-   // for lager bet
-  const totalAmount = demolager.map(dml=>Number(dml.amount)).reduce((pre,next)=>pre+next,0);
+  const updateLager = await Lager.findById(lager._id);
 
-   const updateLager = await Lager.findById(lager._id);
- 
-   // updateLager.calls = calls;
-   updateLager.numbers = demolager;
-   updateLager.totalAmount = totalAmount;
-   // updateLager.in.commission = com;
- 
-   const upL = await updateLager.save();
-   
+  // updateLager.calls = calls;
+  updateLager.numbers = demolager;
+  updateLager.totalAmount = totalAmount;
+  updateLager.win = totalAmount;
+  // updateLager.in.commission = com;
+
+  const upL = await updateLager.save();
 
   const deletecall = await Call.findByIdAndDelete(req.params.callId);
 
@@ -288,7 +362,7 @@ exports.deleteCall = asyncHandler(async (req, res, next) => {
     );
   }
 
-  res.status(200).json({ success: true, data: {} ,lager:upL});
+  res.status(200).json({ success: true, data: {}, lager: upL });
 });
 
 exports.callNumbersTotal = asyncHandler(async (req, res, next) => {

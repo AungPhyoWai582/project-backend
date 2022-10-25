@@ -40,6 +40,9 @@ const Lager = new mongoose.Schema({
     default: null,
   },
   status: String,
+  pout_tee: String,
+  pout_tee_amount: Number,
+  pout_tee_win: Number,
   numbers: Array,
   // // commission: {
   // //   type: Number,

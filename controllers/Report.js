@@ -209,7 +209,7 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
 
 exports.outCollections = asyncHandler(async (req, res, next) => {
   let { start_date, end_date, time } = await req.query;
-  console.log(time)
+  console.log(time);
   const start = new Date(start_date);
   const end = new Date(end_date);
 
@@ -270,6 +270,61 @@ exports.outCollections = asyncHandler(async (req, res, next) => {
   console.log(report);
 
   res.status(200).json({ success: true, out: "this is out data", report });
+});
+
+exports.mainCollections = asyncHandler(async (req, res, next) => {
+  let { start_date, end_date, time } = await req.query;
+  console.log(time);
+  const start = new Date(start_date);
+  const end = new Date(end_date);
+
+  const query = await Lager.find({
+    user: req.user._id,
+    _date: {
+      $gte: start.toISOString(),
+      $lte: end.toISOString(),
+    },
+  }).populate({
+    path: "user",
+    select: "username name",
+  });
+
+  let main;
+  if (time == "All") {
+    main = query;
+    console.log("all");
+  } else {
+    main = query.filter(q=>q._time.toString()===time.toString())
+  }
+
+  console.log(main);
+
+  const pout_tee_amount = main
+    .map((cal) => Number(cal.pout_tee_amount))
+    .reduce((pre, next) => pre + next, 0);
+  const totalAmount = main
+    .map((cal) => Number(cal.totalAmount))
+    .reduce((pre, next) => pre + next, 0);
+
+  // const totalCommission = main
+  //   .map((cal) => Number(cal.commission))
+  //   .reduce((pre, next) => pre + next, 0);
+
+  const totalWin = main
+    .map((cal) => Number(cal.win))
+    .reduce((pre, next) => pre + next, 0);
+
+  // console.log(time);
+  const totalMain = {
+    pout_tee_amount,
+    totalAmount,
+    totalWin,
+  };
+
+  const report = { main, totalMain };
+  console.log(report);
+
+  res.status(200).json({ success: true, out: "this is main data", report });
 });
 
 exports.daily = asyncHandler(async (req, res, next) => {
