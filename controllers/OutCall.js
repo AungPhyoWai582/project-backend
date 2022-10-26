@@ -144,6 +144,7 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   // updateLager.calls = calls;
   updateLager.numbers = [...demolager].filter(dl=>dl.amount !== '0');
   updateLager.totalAmount = totalAmount;
+  updateLager.win = totalAmount;
   // updateLager.in.commission = com;
 
   const upL = await updateLager.save();
