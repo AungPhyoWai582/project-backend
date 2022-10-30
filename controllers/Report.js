@@ -420,3 +420,8 @@ exports.dailyMembers = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({ success: true, report: result });
 });
+
+
+exports.memberDetails=asyncHandler(async(req,res,next)=>{
+  res.status(200).json({success:true,report:'this is member details'})
+})

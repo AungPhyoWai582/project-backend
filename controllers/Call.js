@@ -245,6 +245,7 @@ exports.updateCall = asyncHandler(async (req, res, next) => {
           ].amount
         );
     }
+
     if(demolager[
       demolager.findIndex(
         (obj) =>
@@ -264,14 +265,16 @@ exports.updateCall = asyncHandler(async (req, res, next) => {
         )
       ].number.toString())
     }
-    if (
-      Number(
-        demolager[demolager.findIndex((obj) => obj.number === cn.number)].amount
-      ) === 0
-    ) {
-      demolager.filter((obj) => obj.number.toString() === cn.number.toString());
-    }
+    // if (
+    //   Number(
+    //     demolager[demolager.findIndex((obj) => obj.number === cn.number)].amount
+    //   ) === 0
+    // ) {
+    //   demolager.filter((obj) => obj.number.toString() === cn.number.toString());
+    // }
   });
+
+  demolager.filter(obj=>obj.number.toString()===0);
 
   // for lager bet
   const totalAmount = demolager

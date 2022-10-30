@@ -130,8 +130,6 @@ exports.createCall = asyncHandler(async (req, res, next) => {
           ) - Number(cn.amount)
         ).toString(),
       };
-    } else {
-      demolager.push(cn);
     }
   });
   // demolager.filter((dl) => dl.amount.toString() === "0");
