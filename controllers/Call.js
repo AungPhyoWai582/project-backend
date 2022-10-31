@@ -11,6 +11,7 @@ const Lager = require("../models/Lager");
 const { calculateReport } = require("../utils/calculateReport");
 const { calculateLager } = require("../utils/calculateLager");
 const User = require("../models/User");
+const { removeListener } = require("../models/Call");
 
 // Desc    GET USERS
 // Route   GET api/v1/users/:agentId/calls
@@ -82,11 +83,11 @@ exports.getCall = asyncHandler(async (req, res, next) => {
 // Desc    CREATE CALL
 // Route   POST api/v1/agents/:agentId/calls
 exports.createCall = asyncHandler(async (req, res, next) => {
-  const userRoles = ["customer", "agent", "master"];
 
   let tAmt = req.body.numbers
     .map((item) => Number(item.amount))
     .reduce((pre, next) => pre + next, 0);
+  console.log(tAmt);
   let comUser;
   if (req.body.master) {
     comUser = await User.findById(req.body.master);
@@ -101,6 +102,7 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   req.body.totalAmount = tAmt;
   req.body.commission = tAmt * (comUser.commission / 100);
   req.body.win = Number(tAmt) - Number(tAmt * (comUser.commission / 100));
+  console.log(req.body);
   // const lottery = await Lottery.findById(req.params.lotteryId);
 
   const call = await Call.create(req.body);
@@ -149,7 +151,7 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   // updateLager.calls = calls;
   updateLager.numbers = demolager;
   updateLager.totalAmount = totalAmount;
-  updateLager.win=totalAmount;
+  updateLager.win = totalAmount;
   // updateLager.in.commission = com;
 
   const upL = await updateLager.save();
@@ -164,13 +166,43 @@ exports.createCall = asyncHandler(async (req, res, next) => {
 // Desc    UPDATE USERS
 // Route   PUT api/v1/user/:id
 exports.updateCall = asyncHandler(async (req, res, next) => {
-  const democall = await Call.findById(req.params.callId);
-  const demCallNumbers = democall.numbers.map((dmc) => dmc.number);
 
-  const call = await Call.findByIdAndUpdate(req.params.callId, req.body, {
-    new: true,
-    runValidators: true,
+  const democall = await Call.findById(req.params.callId);
+
+  let removeNumbers;
+  const updateCallNumbers = req.body.numbers.filter((obj) => {
+    console.log(obj)
+    if(obj.amount == "0"){
+      removeNumbers=democall.numbers[democall.numbers.findIndex(fn=>fn.number.toString()===obj.number.toString())]
+    }else{
+      return obj;
+    }
   });
+
+  let tAmt = updateCallNumbers
+    .map((item) => Number(item.amount))
+    .reduce((pre, next) => pre + next, 0);
+  console.log(tAmt);
+
+  const comUser = await User.findById(democall.master);
+
+  const commission = tAmt * (comUser.commission / 100);
+  const win = Number(tAmt) - Number(tAmt * (comUser.commission / 100));
+  console.log(updateCallNumbers);
+
+  const call = await Call.findByIdAndUpdate(
+    req.params.callId,
+    {
+      numbers: updateCallNumbers,
+      totalAmount: tAmt,
+      commission: commission,
+      win: win,
+    },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
 
   if (!call) {
     return next(
@@ -178,7 +210,7 @@ exports.updateCall = asyncHandler(async (req, res, next) => {
     );
   }
 
-  // For Lager
+  // // For Lager
 
   const lager = await Lager.findOne({
     lottery: req.params.lotteryId,
@@ -191,7 +223,7 @@ exports.updateCall = asyncHandler(async (req, res, next) => {
   const callNumbers = call.numbers;
   // const demolager = [...In.numbers];
 
-  console.log(demolager, callNumbers);
+  // console.log(demolager, callNumbers);
 
   // // for lager call
   callNumbers.map((cn) => {
@@ -212,81 +244,31 @@ exports.updateCall = asyncHandler(async (req, res, next) => {
         ).toString(),
       };
     }
-    if (democall.numbers.length > callNumbers.length) {
-      demolager[
-        demolager.findIndex(
-          (obj) =>
-            !demCallNumbers.includes(
-              obj.number ===
-                democall.numbers[
-                  democall.numbers.findIndex((obj) => obj.number !== cn.number)
-                ].number
-            )
-        )
-      ] =
-        Number(
-          demolager[
-            demolager.findIndex(
-              (obj) =>
-                !demCallNumbers.includes(
-                  obj.number ===
-                    democall.numbers[
-                      democall.numbers.findIndex(
-                        (obj) => obj.number !== cn.number
-                      )
-                    ].number
-                )
-            )
-          ].amount
-        ) -
-        Number(
-          democall.numbers[
-            democall.numbers.findIndex((obj) => obj.number !== cn.number)
-          ].amount
-        );
-    }
-
-    if(demolager[
-      demolager.findIndex(
-        (obj) =>
-          !demCallNumbers.includes(
-            obj.number ===
-              democall.numbers[
-                democall.numbers.findIndex(
-                  (obj) => obj.number !== cn.number
-                )
-              ].number
-          )
-      )
-    ].amount === 0){
-      demolager.filter(obj=>obj.number.toString() === democall.numbers[
-        democall.numbers.findIndex(
-          (obj) => obj.number !== cn.number
-        )
-      ].number.toString())
-    }
-    // if (
-    //   Number(
-    //     demolager[demolager.findIndex((obj) => obj.number === cn.number)].amount
-    //   ) === 0
-    // ) {
-    //   demolager.filter((obj) => obj.number.toString() === cn.number.toString());
-    // }
   });
 
-  demolager.filter(obj=>obj.number.toString()===0);
+
+  if(removeNumbers !== undefined){
+      console.log('remove ma gui')
+      demolager[demolager.findIndex(obj=>obj.number.toString()===removeNumbers.number.toString())] = {
+        number:removeNumbers.number,
+        amount:(Number(demolager[demolager.findIndex(obj=>obj.number.toString()===removeNumbers.number.toString())].amount)-Number(removeNumbers.amount)).toString()
+      }
+  }
+
+  const updatedemoLager =demolager.filter(obj=>obj.amount!=0)
+  console.log(updatedemoLager)
 
   // for lager bet
-  const totalAmount = demolager
+  const totalAmount = updatedemoLager
     .map((dml) => Number(dml.amount))
     .reduce((pre, next) => pre + next, 0);
 
   const updateLager = await Lager.findById(lager._id);
 
   // updateLager.calls = calls;
-  updateLager.numbers = demolager;
+  updateLager.numbers = updatedemoLager;
   updateLager.totalAmount = totalAmount;
-  updateLager.win=totalAmount;
+  updateLager.win = totalAmount;
   // updateLager.in.commission = com;
 
   const upL = await updateLager.save();
@@ -298,13 +280,22 @@ exports.updateCall = asyncHandler(async (req, res, next) => {
 // Route   DELETE api/v1/user/:id
 exports.deleteCall = asyncHandler(async (req, res, next) => {
   // For delete Call
-  const call = await Call.findById(req.params.callId);
 
-  if (!call) {
+  const deletecall = await Call.findByIdAndDelete(req.params.callId);
+
+  if (!deletecall) {
     return next(
       new ErrorResponse(`Bet not found with id of ${req.params.callId}`, 404)
     );
   }
+
+  // const call = await Call.findById(req.params.callId);
+
+  // if (!call) {
+  //   return next(
+  //     new ErrorResponse(`Bet not found with id of ${req.params.callId}`, 404)
+  //   );
+  // }
   // For delete Lager
   const lager = await Lager.findOne({
     lottery: req.params.lotteryId,
@@ -314,7 +305,7 @@ exports.deleteCall = asyncHandler(async (req, res, next) => {
   console.log(lager);
   const demolager = lager.numbers;
 
-  const callNumbers = call.numbers;
+  const callNumbers = deletecall.numbers;
   // const demolager = [...In.numbers];
 
   console.log(demolager, callNumbers);
@@ -322,6 +313,7 @@ exports.deleteCall = asyncHandler(async (req, res, next) => {
   // // for lager call
   callNumbers.map((cn) => {
     if (demolager.map((l) => l.number).includes(cn.number)) {
+
       demolager[demolager.findIndex((obj) => obj.number === cn.number)] = {
         number: cn.number,
         amount: (
@@ -332,39 +324,26 @@ exports.deleteCall = asyncHandler(async (req, res, next) => {
         ).toString(),
       };
     }
-    if (
-      Number(
-        demolager[demolager.findIndex((obj) => obj.number === cn.number)].amount
-      ) === Number(cn.number)
-    ) {
-      demolager.filter((obj) => obj.number.toString() === cn.number.toString());
-    }
+    
   });
 
+  const updatedemoLager =demolager.filter(obj=>obj.amount!=0)
   // for lager bet
-  const totalAmount = demolager
+  const totalAmount = updatedemoLager
     .map((dml) => Number(dml.amount))
     .reduce((pre, next) => pre + next, 0);
-
 
   const updateLager = await Lager.findById(lager._id);
 
   // updateLager.calls = calls;
-  updateLager.numbers = demolager;
+  updateLager.numbers = updatedemoLager;
   updateLager.totalAmount = totalAmount;
   updateLager.win = totalAmount;
   // updateLager.in.commission = com;
 
   const upL = await updateLager.save();
 
-  const deletecall = await Call.findByIdAndDelete(req.params.callId);
-
-  if (!deletecall) {
-    return next(
-      new ErrorResponse(`Bet not found with id of ${req.params.callId}`, 404)
-    );
-  }
-
+  
   res.status(200).json({ success: true, data: {}, lager: upL });
 });
 
