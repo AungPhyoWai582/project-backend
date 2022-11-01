@@ -44,8 +44,22 @@ exports.getLager = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse("There is no lager", 404));
   }
   console.log(lager);
-
   res.status(200).json({ success: true, data: lager });
+});
+
+exports.updateLager = asyncHandler(async (req, res, next) => {
+  const { lagerId } = req.params;
+  // console.log(lagerId)
+  const updatelager = await Lager.findByIdAndUpdate(lagerId, req.body, {
+    new: true,
+    runValidators: true,
+  });
+  
+  if(!updatelager){
+    return next(new ErrorResponse("There is no lager", 404));
+  }
+
+  res.status(200).json({success:true,data:updatelager})
 });
 
 exports.InOut = asyncHandler(async (req, res, next) => {
