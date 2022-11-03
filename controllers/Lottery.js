@@ -26,9 +26,9 @@ exports.getLotteries = asyncHandler(async (req, res, next) => {
 
 
 exports.getLottery = asyncHandler(async (req, res, next) => {
-  const lotteriy = await Lottery.findById(req.params.id);
+  const lottery = await Lottery.findById(req.params.id);
 
-if(!lotteriy){
+if(!lottery){
   return next(
     new ErrorResponse(`There is no lottery,something went wrong`, 404)
   );
