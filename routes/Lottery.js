@@ -5,6 +5,7 @@ const {
   getLotteries,
   updateLottery,
   deleteLottery,
+  getLottery,
 } = require("../controllers/Lottery");
 
 const { protect, authorize } = require("../middlewares/auth");
@@ -14,6 +15,6 @@ const { calculatePoutTee } = require("../utils/calculatePoutTee");
 const router = express.Router();
 
 router.route("/").get(getLotteries).post(createLottery);
-router.route("/:id").put(updateLottery).delete(deleteLottery);
+router.route("/:id").get(getLottery).put(updateLottery).delete(deleteLottery);
 
 module.exports = router;

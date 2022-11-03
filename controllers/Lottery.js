@@ -14,12 +14,29 @@ const { report } = require("../routes/Call");
 
 exports.getLotteries = asyncHandler(async (req, res, next) => {
   const lotteries = await Lottery.find();
-
+  if(!lotteries){
+    return next(
+      new ErrorResponse(`There is no lotteries,something went wrong`, 404)
+    );
+  }
   res
     .status(200)
     .json({ success: true, count: lotteries.length, lotteries: lotteries });
 });
 
+
+exports.getLottery = asyncHandler(async (req, res, next) => {
+  const lotteriy = await Lottery.findById(req.params.id);
+
+if(!lotteriy){
+  return next(
+    new ErrorResponse(`There is no lottery,something went wrong`, 404)
+  );
+}
+  res
+    .status(200)
+    .json({ success: true, lottery:lottery });
+});
 exports.createLottery = asyncHandler(async (req, res, next) => {
   console.log(req.body);
   const lottery = await Lottery.create(req.body);
