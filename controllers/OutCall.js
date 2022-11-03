@@ -140,7 +140,7 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   const updateLager = await Lager.findById(lager._id);
 
   // updateLager.calls = calls;
-  updateLager.numbers = [...demolager].filter(dl=>dl.amount !== '0');
+  updateLager.numbers = [...demolager].filter((dl) => dl.amount !== "0");
   updateLager.totalAmount = totalAmount;
   updateLager.win = totalAmount;
   // updateLager.in.commission = com;
@@ -157,30 +157,172 @@ exports.createCall = asyncHandler(async (req, res, next) => {
 // Desc    UPDATE USERS
 // Route   PUT api/v1/user/:id
 exports.updateCall = asyncHandler(async (req, res, next) => {
-  const call = await OutCall.findByIdAndUpdate(req.params.callId, req.body, {
-    new: true,
-    runValidators: true,
+  const democall = await OutCall.findById(req.params.callId);
+
+  let addNumbers;
+  const updateCallNumbers = req.body.numbers.filter((obj) => {
+    console.log(obj)
+    if(obj.amount == "0"){
+      addNumbers=democall.numbers[democall.numbers.findIndex(fn=>fn.number.toString()===obj.number.toString())]
+    }else{
+      return obj;
+    }
   });
 
-  if (!call) {
+  let tAmt = updateCallNumbers
+    .map((item) => Number(item.amount))
+    .reduce((pre, next) => pre + next, 0);
+  console.log(tAmt);
+
+  const comUser = await Customer.findById(democall.customer);
+
+  const commission = tAmt * (comUser.commission / 100);
+  const win = Number(tAmt) - Number(tAmt * (comUser.commission / 100));
+  console.log(updateCallNumbers);
+
+  const outcall = await OutCall.findByIdAndUpdate(
+    req.params.callId,
+    {
+      numbers: updateCallNumbers,
+      totalAmount: tAmt,
+      commission: commission,
+      win: win,
+    },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  if (!outcall) {
     return next(
       new ErrorResponse(`Bet not found with id of ${req.params.callId}`, 404)
     );
   }
 
-  res.status(200).json({ success: true, data: call });
+  // // For Lager
+
+  const lager = await Lager.findOne({
+    lottery: req.params.lotteryId,
+    user: req.user._id,
+  }).populate({ path: "user", select: "username name role commission" });
+
+  console.log(lager);
+  const demolager = lager.numbers;
+
+  const callNumbers = outcall.numbers;
+  // const demolager = [...In.numbers];
+
+  // console.log(demolager, callNumbers);
+
+  // // for lager call
+  callNumbers.map((cn) => {
+    if (demolager.map((l) => l.number).includes(cn.number)) {
+      demolager[demolager.findIndex((obj) => obj.number === cn.number)] = {
+        number: cn.number,
+        amount: (
+          Number(
+            demolager[demolager.findIndex((obj) => obj.number === cn.number)]
+              .amount
+          ) -
+          (Number(cn.amount) -
+            Number(
+              democall.numbers[
+                democall.numbers.findIndex((obj) => obj.number === cn.number)
+              ].amount
+            ))
+        ).toString(),
+      };
+    }
+  });
+
+
+  if(addNumbers !== undefined){
+      console.log('add ma gui')
+      demolager[demolager.findIndex(obj=>obj.number.toString()===addNumbers.number.toString())] = {
+        number:addNumbers.number,
+        amount:(Number(demolager[demolager.findIndex(obj=>obj.number.toString()===addNumbers.number.toString())].amount)+Number(addNumbers.amount)).toString()
+      }
+  }
+
+  const updatedemoLager =demolager.filter(obj=>obj.amount!=0)
+  console.log(updatedemoLager)
+
+  // for lager bet
+  const totalAmount = updatedemoLager
+    .map((dml) => Number(dml.amount))
+    .reduce((pre, next) => pre + next, 0);
+
+  const updateLager = await Lager.findById(lager._id);
+
+  // updateLager.calls = calls;
+  updateLager.numbers = updatedemoLager;
+  updateLager.totalAmount = totalAmount;
+  updateLager.win = totalAmount;
+  // updateLager.in.commission = com;
+
+  const upL = await updateLager.save();
+
+  res.status(200).json({ success: true, data:outcall, lager: upL });
 });
 
 // Desc    DELETE USER
 // Route   DELETE api/v1/user/:id
 exports.deleteCall = asyncHandler(async (req, res, next) => {
-  const call = await OutCall.findByIdAndDelete(req.params.callId);
+  const deletecall = await OutCall.findByIdAndDelete(req.params.callId);
 
-  if (!call) {
+  if (!deletecall) {
     return next(
       new ErrorResponse(`Bet not found with id of ${req.params.callId}`, 404)
     );
   }
+
+  const lager = await Lager.findOne({
+    lottery: req.params.lotteryId,
+    user: req.user._id,
+  }).populate({ path: "user", select: "username name role commission" });
+
+  console.log(lager);
+  const demolager = lager.numbers;
+
+  const callNumbers = deletecall.numbers;
+  // const demolager = [...In.numbers];
+
+  console.log(demolager, callNumbers);
+
+  // // for lager call
+  callNumbers.map((cn) => {
+    if (demolager.map((l) => l.number).includes(cn.number)) {
+      demolager[demolager.findIndex((obj) => obj.number === cn.number)] = {
+        number: cn.number,
+        amount: (
+          Number(
+            demolager[demolager.findIndex((obj) => obj.number === cn.number)]
+              .amount
+          ) + Number(cn.amount)
+        ).toString(),
+      };
+    } else {
+      demolager.push(cn);
+    }
+  });
+
+  // const updatedemoLager =demolager.filter(obj=>obj.amount!=0)
+  // for lager bet
+  const totalAmount = demolager
+    .map((dml) => Number(dml.amount))
+    .reduce((pre, next) => pre + next, 0);
+
+  const updateLager = await Lager.findById(lager._id);
+
+  // updateLager.calls = calls;
+  updateLager.numbers = demolager;
+  updateLager.totalAmount = totalAmount;
+  updateLager.win = totalAmount;
+  // updateLager.in.commission = com;
+
+  const upL = await updateLager.save();
+
   res.status(200).json({ success: true, data: {} });
 });
 
