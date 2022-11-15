@@ -12,6 +12,7 @@ const { calculateReport } = require("../utils/calculateReport");
 const { calculateLager } = require("../utils/calculateLager");
 const User = require("../models/User");
 const { removeListener } = require("../models/Call");
+const moment = require('moment');
 
 // Desc    GET USERS
 // Route   GET api/v1/users/:agentId/calls
@@ -84,10 +85,14 @@ exports.getCall = asyncHandler(async (req, res, next) => {
 // Route   POST api/v1/agents/:agentId/calls
 exports.createCall = asyncHandler(async (req, res, next) => {
 
+  let betTime =moment(Date.now()).format('YYYY-MM-DD');
+
+  console.log(betTime)
+
   let tAmt = req.body.numbers
     .map((item) => Number(item.amount))
     .reduce((pre, next) => pre + next, 0);
-  console.log(tAmt);
+  // console.log(tAmt);
   let comUser;
   if (req.body.master) {
     comUser = await User.findById(req.body.master);
@@ -102,7 +107,9 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   req.body.totalAmount = tAmt;
   req.body.commission = tAmt * (comUser.commission / 100);
   req.body.win = Number(tAmt) - Number(tAmt * (comUser.commission / 100));
-  console.log(req.body);
+  req.body.betTime = betTime;
+
+  // console.log(req.body);
   // const lottery = await Lottery.findById(req.params.lotteryId);
 
   const call = await Call.create(req.body);
@@ -118,13 +125,13 @@ exports.createCall = asyncHandler(async (req, res, next) => {
     user: req.user._id,
   }).populate({ path: "user", select: "username name role commission" });
 
-  console.log(lager);
+  // console.log(lager);
   const demolager = lager.numbers;
 
   const callNumbers = call.numbers;
   // const demolager = [...In.numbers];
 
-  console.log(demolager, callNumbers);
+  // console.log(demolager, callNumbers);
 
   // // for lager call
   callNumbers.map((cn) => {

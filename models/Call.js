@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+// const moment = require('moment')
 
 const Call = new mongoose.Schema({
   lottery: {
@@ -46,7 +47,7 @@ const Call = new mongoose.Schema({
   },
   betTime: {
     type: Date,
-    default: Date.now,
+    // default: moment(Date.now),
   },
 });
 
@@ -55,8 +56,10 @@ const Call = new mongoose.Schema({
 // };
 
 // Call.pre("save", async function () {
-//   let total = this.numbers.map((item) => Number(item.amount));
-//   this.totalAmount = total.reduce((pre, next) => pre + next, 0);
+//   // let bet_time = moment(Date.now).format("YYYY-MM-DD");
+//   // console.log(bet_time)
+//   // let total = this.numbers.map((item) => Number(item.amount));
+//   // this.totalAmount = total.reduce((pre, next) => pre + next, 0);
 //   // (await this.totalAmount) - (this.commission + this.win_amount);
 // });
 
