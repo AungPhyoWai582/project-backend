@@ -47,10 +47,7 @@ const User = mongoose.Schema({
     type: Number,
     default: 0,
   },
-  userrelationship: {
-    user: String,
-    commission: Number,
-  },
+  userRelation:Object,
   createByUser: {
     type: mongoose.Schema.ObjectId,
     ref: "User",

@@ -76,6 +76,9 @@ exports.createLottery = asyncHandler(async (req, res, next) => {
 exports.updateLottery = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   console.log(id);
+  if(req.body.pout_tee!==null){
+    req.body.play = false;
+  }
 
   const lottery = await Lottery.findByIdAndUpdate(id, req.body, {
     new: true,
