@@ -21,7 +21,7 @@ const Lottery = new mongoose.Schema({
   },
   _date: {
     type: Date,
-    default: Date.now,
+    // default: Date.now,
   },
 });
 

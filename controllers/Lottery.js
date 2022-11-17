@@ -11,6 +11,7 @@ const { calculatePoutTee } = require("../utils/calculatePoutTee");
 const { calculateLager } = require("../utils/calculateLager");
 const OutCall = require("../models/OutCall");
 const { report } = require("../routes/Call");
+const moment = require("moment")
 
 exports.getLotteries = asyncHandler(async (req, res, next) => {
   const lotteries = await Lottery.find();
@@ -38,7 +39,11 @@ if(!lottery){
     .json({ success: true, lottery:lottery });
 });
 exports.createLottery = asyncHandler(async (req, res, next) => {
+  let _date =moment(Date.now()).format('YYYY-MM-DD');
+  req.body._date = _date;
+
   console.log(req.body);
+
   const lottery = await Lottery.create(req.body);
   // const users = (await User.find()).filter((usr) => usr.role !== "Admin");
   const users = await User.find();

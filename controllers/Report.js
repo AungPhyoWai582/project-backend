@@ -6,7 +6,7 @@ const Call = require("../models/Call");
 const User = require("../models/User");
 const Lottery = require("../models/Lottery");
 const OutCall = require("../models/OutCall");
-const moment = require('moment');
+const moment = require("moment");
 
 exports.membersCollections = asyncHandler(async (req, res, next) => {
   // const start = new Date();
@@ -19,7 +19,7 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
   // const start = "Fri Aug 19 2022 12:42:18 GMT+0630";
 
   // console.log(start.toISOString(), end.toISOString());
-  console.log(start,end);
+  console.log(start, end);
 
   // console.log(JSON.parse(queryStr));
 
@@ -45,7 +45,7 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
       user: req.user._id,
       master: members.map((m) => m._id),
       betTime: {
-        $gte:start,
+        $gte: start,
         $lte: end,
       },
     });
@@ -217,7 +217,7 @@ exports.outCollections = asyncHandler(async (req, res, next) => {
   const start = new Date(start_date);
   const end = new Date(end_date);
 
-  console.log(start,end)
+  console.log(start, end);
 
   const query = await OutCall.find({
     user: req.user._id,
@@ -300,7 +300,7 @@ exports.mainCollections = asyncHandler(async (req, res, next) => {
     main = query;
     console.log("all");
   } else {
-    main = query.filter(q=>q._time.toString()===time.toString())
+    main = query.filter((q) => q._time.toString() === time.toString());
   }
 
   console.log(main);
@@ -335,27 +335,70 @@ exports.mainCollections = asyncHandler(async (req, res, next) => {
 
 exports.daily = asyncHandler(async (req, res, next) => {
   let { start_date, end_date } = await req.query;
-  const start = new Date(start_date);
-  const end = new Date(end_date);
-  console.log(start, end);
-  const lagers = await Lager.find({
-    user: req.user._id,
+  const start = moment(new Date(start_date)).format("YYYY-MM-DD");
+  const end = moment(new Date(end_date)).format("YYYY-MM-DD");
+
+  // const members = await User.find({ createByUser: req.user._id });
+  const lotteries = await Lottery.find({
     _date: {
-      $gte: start.toISOString(),
-      $lte: end.toISOString(),
+      $gte: start,
+      $lte: end,
     },
   });
-  console.log(lagers);
-  res.status(200).json({ success: true, report: lagers });
+  console.log(lotteries)
+  const calls = await Call.find({
+    user: req.user._id,
+    betTime: {
+      $gte: start,
+      $lte: end,
+    },
+  });
+  const daily = [];
+  lotteries.map((l) => {
+    console.log(l.betTime)
+    const c = calls.filter(
+      (cal) => cal.lottery.toString() === l._id.toString()
+    );
+    const pout_tee_amount = c
+      .map((cal) => Number(cal.pout_tee_amount))
+      .reduce((pre, next) => pre + next, 0);
+    const totalAmount = c
+      .map((cal) => Number(cal.totalAmount))
+      .reduce((pre, next) => pre + next, 0);
+
+    const totalCommission = c
+      .map((cal) => Number(cal.commission))
+      .reduce((pre, next) => pre + next, 0);
+
+    const totalWin = c
+      .map((cal) => Number(cal.win))
+      .reduce((pre, next) => pre + next, 0);
+    if (c.length) {
+      daily.push({
+        date: moment(l.betTime).format("YYYY-MM-DD"),
+        totalAmount,
+        pout_tee_amount,
+        totalCommission,
+        totalWin,
+      });
+    }
+  });
+
+  console.log(start, end);
+
+  console.log(daily);
+  res.status(200).json({ success: true, report: daily });
 });
 
 exports.dailyMembers = asyncHandler(async (req, res, next) => {
-  const { lager } = req.query;
-  // const ldate = new Date(date);
-  // console.log(ldate.toISOString());
-  const lagers = await Lager.findById(lager);
+  const {date} = req.query;
+  console.log(date)
+  // const { lager } = req.query;
+  // // const ldate = new Date(date);
+  // // console.log(ldate.toISOString());
+  // const lagers = await Lager.findById(lager);
 
-  const calls = await Call.find({ _id: lagers.calls })
+  const calls = await Call.find({ betTime:date })
     .populate({
       path: "user",
       select: "username name role",
@@ -368,7 +411,7 @@ exports.dailyMembers = asyncHandler(async (req, res, next) => {
       path: "agent",
       select: "username name role",
     });
-  // console.log(calls);
+  console.log(calls);
   const result = [];
 
   let c;
@@ -422,12 +465,11 @@ exports.dailyMembers = asyncHandler(async (req, res, next) => {
     };
   });
 
-  // console.log(result);
+  console.log(result);
 
-  res.status(200).json({ success: true, report: result });
+  res.status(200).json({ success: true,report:result });
 });
 
-
-exports.memberDetails=asyncHandler(async(req,res,next)=>{
-  res.status(200).json({success:true,report:'this is member details'})
-})
+exports.memberDetails = asyncHandler(async (req, res, next) => {
+  res.status(200).json({ success: true, report: "this is member details" });
+});
