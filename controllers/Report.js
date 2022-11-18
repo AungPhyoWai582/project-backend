@@ -334,12 +334,14 @@ exports.mainCollections = asyncHandler(async (req, res, next) => {
 });
 
 exports.daily = asyncHandler(async (req, res, next) => {
-  let { start_date, end_date } = await req.query;
+  let { start_date, end_date,_time } = await req.query;
   const start = moment(new Date(start_date)).format("YYYY-MM-DD");
   const end = moment(new Date(end_date)).format("YYYY-MM-DD");
 
+  console.log(_time)
   // const members = await User.find({ createByUser: req.user._id });
   const lotteries = await Lottery.find({
+_time:_time,
     _date: {
       $gte: start,
       $lte: end,
@@ -355,7 +357,7 @@ exports.daily = asyncHandler(async (req, res, next) => {
   });
   const daily = [];
   lotteries.map((l) => {
-    console.log(l.betTime)
+    console.log(colors.bgGreen(l.betTime))
     const c = calls.filter(
       (cal) => cal.lottery.toString() === l._id.toString()
     );
@@ -375,7 +377,7 @@ exports.daily = asyncHandler(async (req, res, next) => {
       .reduce((pre, next) => pre + next, 0);
     if (c.length) {
       daily.push({
-        date: moment(l.betTime).format("YYYY-MM-DD"),
+        date: moment(l._date).format("YYYY-MM-DD"),
         totalAmount,
         pout_tee_amount,
         totalCommission,
