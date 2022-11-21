@@ -6,15 +6,15 @@ const {
   updateCustomer,
   deleteCustomer,
 } = require("../controllers/Customer");
-const { protect } = require("../middlewares/auth");
+const { protect, suspanded } = require("../middlewares/auth");
 
 const router = express.Router();
 
-router.route("/").get(protect, getCustomers).post(protect, createCustomer);
+router.route("/").get(protect,suspanded, getCustomers).post(protect, suspanded,createCustomer);
 router
   .route("/:customerId")
-  .get(protect, getCustomer)
-  .put(protect, updateCustomer)
-  .delete(protect, deleteCustomer);
+  .get(protect, suspanded,getCustomer)
+  .put(protect, suspanded,updateCustomer)
+  .delete(protect, suspanded,deleteCustomer);
 
 module.exports = router;

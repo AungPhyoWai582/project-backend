@@ -54,14 +54,14 @@ const importData = async () => {
 // Delete data
 const deleteData = async () => {
   try {
-    // await User.deleteMany();
+    await User.deleteMany();
     // await Report.deleteMany();
     // await BetDetail.deleteMany();
     await Call.deleteMany();
     await Lottery.deleteMany();
     await Lager.deleteMany();
     await OutCall.deleteMany();
-    // await Customer.deleteMany();
+    await Customer.deleteMany();
 
     console.log(color.bgRed("Data Destroyed ..."));
     process.exit();

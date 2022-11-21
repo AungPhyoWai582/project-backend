@@ -52,11 +52,10 @@ exports.authorize = (...roles) => {
   };
 };
 
-exports.suspanded = ()=>{
-  if(req.user.suspand === true){
-    return next(
-      new ErrorResponse(`This user account is suspanded`,400)
-    )
-  }
+exports.suspanded = asyncHandler(async (req, res, next)=>{
+  console.log(req.user)
+  if(req.user.suspand===true){
+    return next(new ErrorResponse('This user account is suspanded',401))
+  };
   next();
-}
+})

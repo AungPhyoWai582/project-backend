@@ -7,19 +7,19 @@ const {
   deleteAgent,
 } = require("../controllers/Agent");
 const callRouter = require("./Call");
-const { protect, authorize } = require("../middlewares/auth");
+const { protect, authorize, suspanded } = require("../middlewares/auth");
 const router = express.Router({ mergeParams: true });
 
 router.use("/:agentId/call", callRouter);
 
 router
   .route("/")
-  .get(protect, getAgents)
-  .post(protect, authorize("Master"), createAgent);
+  .get(protect,suspanded, getAgents)
+  .post(protect, suspanded,authorize("Master"), createAgent);
 router
   .route("/:id")
-  .get(protect, getAgent)
-  .put(protect, authorize("Master"), updateAgent)
-  .delete(protect, authorize("Master"), deleteAgent);
+  .get(protect,suspanded, getAgent)
+  .put(protect, suspanded,authorize("Master"), updateAgent)
+  .delete(protect,suspanded, authorize("Master"), deleteAgent);
 
 module.exports = router;

@@ -49,6 +49,11 @@ exports.loginUser = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse("Invilad Credentials", 401));
   }
 
+  // Check for suspand
+  if(user.suspand===true){
+    return next(new ErrorResponse("This user account is suspanded", 401));
+  }
+
   // Check for password
   const isMatch = await user.matchPassword(password);
   console.log(isMatch);
