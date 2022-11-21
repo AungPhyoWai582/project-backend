@@ -334,20 +334,20 @@ exports.mainCollections = asyncHandler(async (req, res, next) => {
 });
 
 exports.daily = asyncHandler(async (req, res, next) => {
-  let { start_date, end_date,_time } = await req.query;
+  let { start_date, end_date, _time } = await req.query;
   const start = moment(new Date(start_date)).format("YYYY-MM-DD");
   const end = moment(new Date(end_date)).format("YYYY-MM-DD");
 
-  console.log(_time)
+  console.log(_time);
   // const members = await User.find({ createByUser: req.user._id });
   const lotteries = await Lottery.find({
-_time:_time,
+    _time: _time,
     _date: {
       $gte: start,
       $lte: end,
     },
   });
-  console.log(lotteries)
+  console.log(lotteries);
   const calls = await Call.find({
     user: req.user._id,
     betTime: {
@@ -357,7 +357,7 @@ _time:_time,
   });
   const daily = [];
   lotteries.map((l) => {
-    console.log(colors.bgGreen(l.betTime))
+    console.log(colors.bgGreen(l.betTime));
     const c = calls.filter(
       (cal) => cal.lottery.toString() === l._id.toString()
     );
@@ -393,14 +393,14 @@ _time:_time,
 });
 
 exports.dailyMembers = asyncHandler(async (req, res, next) => {
-  const {date} = req.query;
-  console.log(date)
+  const { date } = req.query;
+  console.log(date);
   // const { lager } = req.query;
   // // const ldate = new Date(date);
   // // console.log(ldate.toISOString());
   // const lagers = await Lager.findById(lager);
 
-  const calls = await Call.find({ betTime:date })
+  const calls = await Call.find({ betTime: date })
     .populate({
       path: "user",
       select: "username name role",
@@ -469,7 +469,7 @@ exports.dailyMembers = asyncHandler(async (req, res, next) => {
 
   console.log(result);
 
-  res.status(200).json({ success: true,report:result });
+  res.status(200).json({ success: true, report: result });
 });
 
 exports.memberDetails = asyncHandler(async (req, res, next) => {

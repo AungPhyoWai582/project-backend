@@ -51,3 +51,12 @@ exports.authorize = (...roles) => {
     next();
   };
 };
+
+exports.suspanded = ()=>{
+  if(req.user.suspand === true){
+    return next(
+      new ErrorResponse(`This user account is suspanded`,400)
+    )
+  }
+  next();
+}
