@@ -9,18 +9,18 @@ const {
   callNumbersTotal,
 } = require("../controllers/OutCall");
 
-const { protect, authorize, suspanded } = require("../middlewares/auth");
+const { protect, authorize, suspended } = require("../middlewares/auth");
 
 const router = express.Router({ mergeParams: true });
 // router.route("/:lotteryId/lager").get(protect, calculateLager);
 // router
 //   .route("/:lotteryId/call-numbers-total/:customerId")
 //   .get(protect, callNumbersTotal);
-router.route("/:lotteryId").get(protect,suspanded, getCalls).post(protect,suspanded, createCall);
+router.route("/:lotteryId").get(protect,suspended, getCalls).post(protect,suspended, createCall);
 router
   .route("/:lotteryId/:callId")
   .get(getCall)
-  .put(protect,suspanded, updateCall)
-  .delete(protect,suspanded, deleteCall);
+  .put(protect,suspended, updateCall)
+  .delete(protect,suspended, deleteCall);
 
 module.exports = router;

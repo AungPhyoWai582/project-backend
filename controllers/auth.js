@@ -50,7 +50,7 @@ exports.loginUser = asyncHandler(async (req, res, next) => {
   }
 
   // Check for suspand
-  if(user.suspand===true){
+  if(user.suspend===true){
     return next(new ErrorResponse("This user account is suspanded", 401));
   }
 

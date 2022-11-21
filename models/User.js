@@ -66,7 +66,7 @@ const User = mongoose.Schema({
   },
   resetPasswordToken: String,
   resetPasswordExpire: Date,
-  suspand:{
+  suspend:{
     type:Boolean,
     default:false
   },
