@@ -70,6 +70,7 @@ const User = mongoose.Schema({
     type:Boolean,
     default:false
   },
+  suspendAt:Date,
   createAt: {
     type: Date,
     default: Date.now,

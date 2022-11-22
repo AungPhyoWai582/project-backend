@@ -50,7 +50,7 @@ exports.loginUser = asyncHandler(async (req, res, next) => {
   }
 
   // Check for suspand
-  if(user.suspend===true){
+  if (user.suspend === true) {
     return next(new ErrorResponse("This user account is suspanded", 401));
   }
 
@@ -102,11 +102,13 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
   }
 
   console.log(user);
-  console.log(req.body)
+  console.log(req.body);
 
   // const resetToken = user.getResetPasswordToken();
-  if(req.body.newPassword!==req.body.confirmPassword){
-    return next(new ErrorResponse('Please add same new and confirm password',401))
+  if (req.body.newPassword !== req.body.confirmPassword) {
+    return next(
+      new ErrorResponse("Please add same new and confirm password", 401)
+    );
   }
 
   // Set new password
@@ -126,39 +128,43 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
 
 // @route /api/auth/updatepassword
 exports.updatePassword = asyncHandler(async (req, res, next) => {
-	const user = await User.findById(req.user.id).select('+password');
+  const user = await User.findById(req.user.id).select("+password");
+  console.log(user);
+  console.log(req.body);
 
-  // match new and confirm
-  if(req.body.newPassword!==req.body.confirmPassword){
-    return next(new ErrorResponse('Please add same new and confirm password',401))
+  // check current password
+  if (!(await user.matchPassword(req.body.oldPassword))) {
+    return next(new ErrorResponse("Password is incorret", 401));
   }
 
-	// check current password
-	if (!(await user.matchPassword(req.body.oldPassword))) {
-		return next(new ErrorResponse('Password is incorret', 401));
-	}
+  // match new and confirm
+  if (req.body.newPassword !== req.body.confirmPassword) {
+    return next(
+      new ErrorResponse("Please add same new and confirm password", 401)
+    );
+  }
 
-	user.password = req.body.newPassword;
-	await user.save();
+  user.password = req.body.newPassword;
+  await user.save();
 
-	sendTokenResponse(user, 200, res);
+  sendTokenResponse(user, 200, res);
 });
 
 // Get token from model, create cookie and send response
 const sendTokenResponse = (user, statusCode, res) => {
-	// Create token
-	const token = user.getSignedJwtToken();
+  // Create token
+  const token = user.getSignedJwtToken();
 
-	const options = {
-		expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
-		httpOnly: true,
-	};
+  const options = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
 
-	res.status(statusCode).cookie('token', token, options).json({
-		success: true,
-    data:user,
-		token,
-	});
+  res.status(statusCode).cookie("token", token, options).json({
+    success: true,
+    data: user,
+    token,
+  });
 };
-
-
