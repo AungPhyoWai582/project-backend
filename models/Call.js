@@ -49,6 +49,15 @@ const Call = new mongoose.Schema({
     type: Date,
     // default: moment(Date.now),
   },
+  edit:Object
+  // {
+    // status:true,
+    // Time:Date,
+    // changeInfo:[
+    //   {change:'number',number:{before:55,after:54},amount:10000},
+    //   {change:'amount',number:67,amount:{before:10000,after:5000}}
+    // ]
+  // }
 });
 
 // Call.methods.computeCallInfo = async function (numbers,totalAmount,commission) {
