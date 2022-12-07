@@ -2,8 +2,6 @@ const ErrorResponse = require("../utils/ErrorResponse");
 const asyncHandler = require("../middlewares/async");
 const Call = require("../models/Call");
 // const Report = require("../models/Report");
-const BetDetail = require("../models/BetDetail");
-const Lottery = require("../models/Lottery");
 
 const colors = require("colors");
 const Report = require("../models/Report");
@@ -11,6 +9,7 @@ const Lager = require("../models/Lager");
 const { calculateReport } = require("../utils/calculateReport");
 const { calculateLager } = require("../utils/calculateLager");
 const User = require("../models/User");
+const Customer = require('../models/Customer')
 const { removeListener } = require("../models/Call");
 const moment = require('moment');
 
@@ -98,7 +97,11 @@ exports.createCall = asyncHandler(async (req, res, next) => {
     comUser = await User.findById(req.body.master);
   } else if (req.body.agent) {
     comUser = await User.findById(req.body.agent);
+  }else if(req.body.customer){
+    comUser = await Customer.findById(req.body.customer);
   }
+
+  console.log(comUser)
 
   // Add user to req.body
   req.body.user = req.user._id;
