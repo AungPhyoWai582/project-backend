@@ -15,10 +15,15 @@ const Lottery = new mongoose.Schema({
     required: true,
     default: false,
   },
+  Timer:{
+    type:Number,
+    default:0
+  },
   _time: {
     type: String,
     required: true,
   },
+
   _date: {
     type: Date,
     // default: Date.now,
