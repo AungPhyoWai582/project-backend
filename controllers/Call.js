@@ -1,6 +1,7 @@
 const ErrorResponse = require("../utils/ErrorResponse");
 const asyncHandler = require("../middlewares/async");
 const Call = require("../models/Call");
+const crypto = require("crypto");
 // const Report = require("../models/Report");
 
 const colors = require("colors");
@@ -104,6 +105,7 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   console.log(comUser)
 
   // Add user to req.body
+  req.body.callId = await generateCallId(comUser,req.params.lotteryId)
   req.body.user = req.user._id;
   req.body.user_role = req.user.role;
   req.body.lottery = req.params.lotteryId;
@@ -112,7 +114,7 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   req.body.win = Number(tAmt) - Number(tAmt * (comUser.commission / 100));
   req.body.betTime = betTime;
 
-  // console.log(req.body);
+  console.log(req.body);
   // const lottery = await Lottery.findById(req.params.lotteryId);
 
   const call = await Call.create(req.body);
@@ -432,3 +434,18 @@ exports.callNumbersTotal = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({ success: true, numsData, numsTotal });
 });
+
+const generateCallId = async(customer,lotteryId) => {
+
+  let callslength;
+  if (customer.role === 'Master') {
+    callslength = await Call.find({lottery:lotteryId,master:customer._id}).count();
+  } else if (customer.role === 'Agent') {
+    callslength = await Call.find({lottery:lotteryId,agent:customer._id}).count();
+  }else if(customer.role === 'Customer'){
+    callslength = await Call.find({lottery:lotteryId,customer:customer._id}).count();
+  }
+
+  const betID = `${customer.username}-${callslength+1}`
+  return betID;
+}

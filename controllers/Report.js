@@ -73,8 +73,8 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
       user: req.user._id,
       agent: members.map((m) => m._id),
       betTime: {
-        $gt: start,
-        $lt: end,
+        $gte: start,
+        $lte: end,
       },
     });
     // console.log(query);
@@ -85,8 +85,8 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
       const lots = await Lottery.find({
         _time: time,
         betTime: {
-          $gt: start,
-          $lt: end,
+          $gte: start,
+          $lte: end,
         },
       });
       // console.log(lots);
@@ -100,8 +100,8 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
       user: req.user._id,
       customer: members.map((m) => m._id),
       betTime: {
-        $gt: start,
-        $lt: end,
+        $gte: start,
+        $lte: end,
       },
     });
     if (time === "All") {
@@ -111,8 +111,8 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
       const lots = await Lottery.find({
         _time: time,
         betTime: {
-          $gt: start,
-          $lt: end,
+          $gte: start,
+          $lte: end,
         },
       });
       // console.log(lots);
@@ -212,18 +212,18 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
 });
 
 exports.outCollections = asyncHandler(async (req, res, next) => {
-  let { start_date, end_date, time } = await req.query;
-  console.log(time);
-  const start = new Date(start_date);
-  const end = new Date(end_date);
+  let { start_date, end_date,time } = await req.query;
+  // console.log(start_date.toISOString())
+  const start = moment(new Date(start_date)).format("YYYY-MM-DD");
+  const end = moment(new Date(end_date)).format("YYYY-MM-DD");
 
   console.log(start, end);
 
   const query = await OutCall.find({
     user: req.user._id,
     betTime: {
-      $gt: start.toISOString(),
-      $lt: end.toISOString(),
+      $gte: start,
+      $lte: end,
     },
   }).populate({
     path: "customer",
@@ -238,8 +238,8 @@ exports.outCollections = asyncHandler(async (req, res, next) => {
     const lots = await Lottery.find({
       _time: time,
       betTime: {
-        $gt: start.toISOString(),
-        $lt: end.toISOString(),
+        $gte: start,
+        $lte: end,
       },
     });
     console.log(lots);
@@ -280,15 +280,15 @@ exports.outCollections = asyncHandler(async (req, res, next) => {
 
 exports.mainCollections = asyncHandler(async (req, res, next) => {
   let { start_date, end_date, time } = await req.query;
-  console.log(time);
-  const start = new Date(start_date);
-  const end = new Date(end_date);
+  // console.log(start_date.toISOString())
+  const start = moment(new Date(start_date)).format("YYYY-MM-DD");
+  const end = moment(new Date(end_date)).format("YYYY-MM-DD");
 
   const query = await Lager.find({
     user: req.user._id,
     _date: {
-      $gte: start.toISOString(),
-      $lte: end.toISOString(),
+      $gte: start,
+      $lte: end
     },
   }).populate({
     path: "user",

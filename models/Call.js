@@ -7,6 +7,10 @@ const Call = new mongoose.Schema({
     ref: "Lottery",
     required: true,
   },
+  callId:{
+    type:String,
+    required:true
+  },
   user: {
     type: mongoose.Schema.ObjectId,
     ref: "User",
@@ -65,11 +69,12 @@ const Call = new mongoose.Schema({
 // };
 
 // Call.pre("save", async function () {
-//   // let bet_time = moment(Date.now).format("YYYY-MM-DD");
-//   // console.log(bet_time)
-//   // let total = this.numbers.map((item) => Number(item.amount));
-//   // this.totalAmount = total.reduce((pre, next) => pre + next, 0);
-//   // (await this.totalAmount) - (this.commission + this.win_amount);
+
+  // let bet_time = moment(Date.now).format("YYYY-MM-DD");
+  // console.log(bet_time)
+  // let total = this.numbers.map((item) => Number(item.amount));
+  // this.totalAmount = total.reduce((pre, next) => pre + next, 0);
+  // (await this.totalAmount) - (this.commission + this.win_amount);
 // });
 
 module.exports = mongoose.model("Call", Call);

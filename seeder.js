@@ -61,7 +61,7 @@ const deleteData = async () => {
     await Lottery.deleteMany();
     await Lager.deleteMany();
     await OutCall.deleteMany();
-    await Customer.deleteMany();
+    // await Customer.deleteMany();
 
     console.log(color.bgRed("Data Destroyed ..."));
     process.exit();
