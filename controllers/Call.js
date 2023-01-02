@@ -105,7 +105,7 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   console.log(comUser)
 
   // Add user to req.body
-  req.body.callId = await generateCallId(comUser,req.params.lotteryId)
+  req.body.callId = Date.now().toString();
   req.body.user = req.user._id;
   req.body.user_role = req.user.role;
   req.body.lottery = req.params.lotteryId;
@@ -436,16 +436,16 @@ exports.callNumbersTotal = asyncHandler(async (req, res, next) => {
 });
 
 const generateCallId = async(customer,lotteryId) => {
+const betID = Date.now();
+  // let callslength;
+  // if (customer.role === 'Master') {
+  //   callslength = await Call.find({lottery:lotteryId,master:customer._id}).count();
+  // } else if (customer.role === 'Agent') {
+  //   callslength = await Call.find({lottery:lotteryId,agent:customer._id}).count();
+  // }else if(customer.role === 'Customer'){
+  //   callslength = await Call.find({lottery:lotteryId,customer:customer._id}).count();
+  // }
 
-  let callslength;
-  if (customer.role === 'Master') {
-    callslength = await Call.find({lottery:lotteryId,master:customer._id}).count();
-  } else if (customer.role === 'Agent') {
-    callslength = await Call.find({lottery:lotteryId,agent:customer._id}).count();
-  }else if(customer.role === 'Customer'){
-    callslength = await Call.find({lottery:lotteryId,customer:customer._id}).count();
-  }
-
-  const betID = `${customer.username}-${callslength+1}`
+  // const betID = `${customer.username}-${callslength+1}`
   return betID;
 }

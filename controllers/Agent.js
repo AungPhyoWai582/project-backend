@@ -91,10 +91,7 @@ exports.getAgent = asyncHandler(async (req, res, next) => {
 // Route   POST api/v1/masters
 exports.createAgent = asyncHandler(async (req, res, next) => {
   console.log(req.body);
-
-  const me = await User.findById(req.user._id);
-  const acc_break = Number(me.acc_created_count ? me.acc_created_count : 0) + 1;
-  console.log(acc_break);
+  req.body.createByUser = req.user.id;
 
   if (req.user.role !== "Master") {
     return next(
@@ -104,38 +101,12 @@ exports.createAgent = asyncHandler(async (req, res, next) => {
       )
     );
   }
-
-  if (me.accLimit === true && me.acc_limit_created < acc_break) {
-    return next(
-      new ErrorResponse(`This user acc limit is read , cannot create new acc`)
-    );
-  }
-
   req.body.role = "Agent";
-  req.body.createByUser = req.user._id;
 
   const user = await User.create(req.body);
-  if (!user) {
-    return next(new ErrorResponse(`User created not successful`, 400));
-  }
-
-  // const obj = {};
-
-  const updateMe = await User.findByIdAndUpdate(
-    req.user._id,
-    {
-      acc_created_count: acc_break,
-    },
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
-
   res.status(201).json({
     success: true,
-    user,
-    updateMe,
+    data: user,
   });
 });
 

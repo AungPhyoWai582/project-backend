@@ -12,7 +12,7 @@ router
   .route("/")
   .post(createAdmin);
   
-  router.route('/member-view/:id').get(memberView)
+  router.route('/member-view/:id').get(protect,memberView)
 
 
 module.exports = router;

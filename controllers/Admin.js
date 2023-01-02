@@ -28,66 +28,88 @@ exports.createAdmin = asyncHandler(async (req, res, next) => {
 });
 
 exports.memberView = asyncHandler(async (req, res, next) => {
-  // const user = await User.findById(req.params.id);
-  const downLineUsers = await User.find({ createByUser: req.params.id });
+  // console.log(req.user)
+  const user = await User.findById(req.params.id);
   const customers = await Customer.find({ createByUser: req.params.id });
+let downLineUsers;
+  if(user.role === 'Agent'){
+  downLineUsers = await Customer.find({ createByUser: req.params.id });
+  }else{
+    downLineUsers = await User.find({ createByUser: req.params.id });
 
-  // if (!downLineUsers) {
-  //   return next(new ErrorResponse("There is no user", 404));
-  // }
+  }
 
-  const calls = await Call.find({ user: req.params.id });
+  if (!downLineUsers) {
+    return next(new ErrorResponse("There is no user", 404));
+  }
+
   const outcalls = await OutCall.find({ user: req.params.id });
+  const calls = await Call.find({user:downLineUsers.map(usr=>usr._id)})
 
-  console.log(calls);
+  console.log(downLineUsers)
 
   let transcation = {};
 
   // For In
   const inData = downLineUsers.map((usr) => {
-    console.log(usr.role);
+    console.log(usr,calls);
 
+   
     let obj;
-    if (usr.role === "Admin") {
-      const totalIn = calls
-        .filter((cal) => cal.admin.toString() === usr._id.toString())
-        .map((cal) => Number(cal.totalAmount))
-        .reduce((pre, next) => pre + next, 0);
-      console.log(totalIn);
-      obj = {
-        username: usr.username,
-        totalIn: totalIn,
-      };
-    }
-    if (usr.role === "Master") {
-      const totalIn = calls
-        .filter((cal) => cal.master.toString() === usr._id.toString())
-        .map((cal) => Number(cal.totalAmount))
-        .reduce((pre, next) => pre + next, 0);
-      console.log(totalIn);
-      obj = {
-        username: usr.username,
-        totalIn: totalIn,
-      };
-    }
-    if (usr.role === "Agent") {
-      const totalIn = calls
-        .filter((cal) => cal.agent.toString() === usr._id.toString())
-        .map((cal) => Number(cal.totalAmount))
-        .reduce((pre, next) => pre + next, 0);
-      console.log(totalIn);
-      obj = {
-        username: usr.username,
-        totalIn: totalIn,
-      };
-    }
+    // const calls = await Call.find({user:usr._id});
+
+    const totalIn = calls
+      .filter((cal) => cal.user.toString() === usr._id.toString())
+      .map((cal) => Number(cal.totalAmount))
+      .reduce((pre, next) => pre + next, 0);
+    // console.log(totalIn);
+    obj = {
+      username: usr.username,
+      totalIn: totalIn,
+    };
+
+  //   if (usr.role === "Admin") {
+  // const calls = await Call.find({user:usr._id});
+
+  //     const totalIn = calls
+  //       // .filter((cal) => cal.user.toString() === usr._id.toString())
+  //       .map((cal) => Number(cal.totalAmount))
+  //       .reduce((pre, next) => pre + next, 0);
+  //     console.log(totalIn);
+  //     obj = {
+  //       username: usr.username,
+  //       totalIn: totalIn,
+  //     };
+  //   }
+  //   if (usr.role === "Master") {
+  //     const totalIn = calls
+  //       .filter((cal) => cal.user.toString() === usr._id.toString())
+  //       .map((cal) => Number(cal.totalAmount))
+  //       .reduce((pre, next) => pre + next, 0);
+  //     console.log(totalIn);
+  //     obj = {
+  //       username: usr.username,
+  //       totalIn: totalIn,
+  //     };
+  //   }
+  //   if (usr.role === "Agent") {
+  //     const totalIn = calls
+  //       .filter((cal) => cal.user.toString() === usr._id.toString())
+  //       .map((cal) => Number(cal.totalAmount))
+  //       .reduce((pre, next) => pre + next, 0);
+  //     console.log(totalIn);
+  //     obj = {
+  //       username: usr.username,
+  //       totalIn: totalIn,
+  //     };
+  //   }
 
     return obj;
   });
 
   // For Out
   const outData = customers.map((cus) => {
-    console.log(cus.customer);
+    // console.log(cus.customer);
     const totalOut = outcalls
       .filter((cal) => cal.customer.toString() === cus.customer.toString())
       .map((cal) => Number(cal.totalAmount))
