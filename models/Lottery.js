@@ -9,15 +9,18 @@ const Lottery = new mongoose.Schema({
     type: Array,
     default: null,
   },
-
+  superhot_tee: {
+    type: Array,
+    default: null,
+  },
   play: {
     type: Boolean,
     required: true,
     default: false,
   },
-  Timer:{
-    type:Number,
-    default:0
+  Timer: {
+    type: Number,
+    default: 0,
   },
   _time: {
     type: String,
