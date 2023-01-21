@@ -10,9 +10,27 @@ const Lager = require("../models/Lager");
 const { calculateReport } = require("../utils/calculateReport");
 const { calculateLager } = require("../utils/calculateLager");
 const User = require("../models/User");
-const Customer = require('../models/Customer')
+const Customer = require("../models/Customer");
 const { removeListener } = require("../models/Call");
-const moment = require('moment');
+const moment = require("moment");
+const {
+  r,
+  startStar,
+  forwardPate,
+  backpate,
+  p,
+  k,
+  b,
+  Breaks,
+  aper,
+  masone,
+  sonema,
+  mm,
+  ss,
+  spu,
+  mpu,
+  padatha,
+} = require("../utils/BetSign");
 
 // Desc    GET USERS
 // Route   GET api/v1/users/:agentId/calls
@@ -53,13 +71,203 @@ exports.getCalls = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse("Here no have bet lists", 404));
   }
 
+  const newCalls = calls.map((c) => {
+    let obj = c;
+    if (obj.remark.length > 0) {
+      // let newCall;
+      let newCall;
+      obj.remark.map((remk) => {
+        console.log(remk);
+        let filterRemark;
+
+        // ** (starStar) func:
+        if (
+          remk.type.toLowerCase().toString() === "**" &&
+          remk.type.length == 2
+        ) {
+          filterRemark = startStar(remk);
+        }else
+
+        // k (natkat) func:
+        if (remk.type.length===1 && remk.type.toLowerCase().toString() === "k") {
+          filterRemark = k(remk);
+        }else
+
+        // p (power) func:
+        if (remk.type.length===1 && remk.type.toLowerCase().toString() === "p") {
+          filterRemark = p(remk);
+        }else
+
+        // b (brother) func:
+        if (remk.type.length===1 && remk.type.toLowerCase().toString() === "b") {
+          filterRemark = b(remk);
+        }else
+
+        // 0...9/ (breaks) func:
+        if (
+          remk.type.length === 2 &&
+          ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(remk.type[0]) && remk.type.endsWith('/')
+        ) {
+          filterRemark = Breaks(remk);
+        }else
+
+        // 0...9- (aper) func:
+        if (
+          remk.type.length === 2 &&
+          ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(remk.type[0]) && remk.type.endsWith('-')
+        ) {
+          filterRemark = aper(remk);
+        }else
+
+        // 0...9* (forwardPate) func:
+        if (
+          remk.type.length === 2 &&
+          ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(
+            remk.type[0]
+          ) &&
+          remk.type[remk.type.length - 1].toString() === "*"
+        ) {
+          filterRemark = forwardPate(remk);
+        }else
+
+        // *0...9 (backpate) func:
+        if (
+          remk.type.length === 2 &&
+          ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(
+            remk.type[1]
+          ) &&
+          remk.type[0].toString() === "*"
+        ) {
+          filterRemark = backpate(remk);
+        }else
+
+        // 91+ (r) func:
+        if (remk.number.length===3 && remk.type.toLowerCase().toString() === "+") {
+          filterRemark = r(remk);
+        }else
+
+        // ms (masone) func:
+        if (
+          remk.type.length === 2 &&
+          remk.type.toLowerCase().toString() === "ms"
+        ) {
+          filterRemark = masone(remk);
+        }else
+
+        // sm (sonema) func:
+        if (
+          remk.type.length === 2 &&
+          remk.type.toLowerCase().toString() === "sm"
+        ) {
+          filterRemark = sonema(remk);
+        }else
+
+        // mm (mama) func:
+        if (
+          remk.type.length === 2 &&
+          remk.type.toLowerCase().toString() === "mm"
+        ) {
+          filterRemark = mm(remk);
+        }else
+
+        // ss (sonesone) func:
+        if (
+          remk.type.length === 2 &&
+          remk.type.toLowerCase().toString() === "ss"
+        ) {
+          filterRemark = ss(remk);
+        }else
+
+        // s* (sonepu) func:
+        if (
+          remk.type.length === 2 &&
+          remk.type.toLowerCase().toString() === "s*"
+        ) {
+          filterRemark = spu(remk);
+        }else
+
+        // m* (mapu) func:
+        if (
+          remk.type.length === 2 &&
+          remk.type.toLowerCase().toString() === "m*"
+        ) {
+          filterRemark = mpu(remk);
+        }else
+
+        // 123/123* (padatha) func:
+        if (
+          remk.type.length >= 3 && remk.type.endsWith("*")
+            ? remk.type.length > 3 && remk.type.length <= 6
+            : remk.type.length >= 3 && remk.type.length <= 5
+        ) {
+          filterRemark = padatha(remk);
+        }
+
+        // if (remk.type.toString() === "+") {
+        //   filterRemark = r(remk);
+        // } else if (remk.type.toString() === "**" && remk.type.length === 2) {
+        //   filterRemark = startStar(remk);
+        // } else if (
+        //   remk.type.startsWith("*") &&
+        //   ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(
+        //     remk.type[remk.type.length - 1]
+        //   )
+        // ) {
+        //   filterRemark = forwardPate(remk);
+        // } else if (
+        //   remk.type.endsWith("*") &&
+        //   ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(
+        //     remk.type[0]
+        //   )
+        // ) {
+        //   filterRemark = backpate(remk);
+        // } else if (
+        //   remk.type.endsWith("/") &&
+        //   ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(
+        //     remk.type[0]
+        //   )
+        // ) {
+        //   filterRemark = Breaks(remk);
+        // } else if (
+        //   remk.type.endsWith("-") &&
+        //   ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(
+        //     remk.type[0]
+        //   )
+        // ) {
+        //   filterRemark = aper(remk);
+        // } else if (remk.type.toLowerCase().toString() === "p") {
+        //   filterRemark = p(remk);
+        // } else if (remk.type.toLowerCase().toString() === "k") {
+        //   filterRemark = k(remk);
+        // } else if (remk.type.toLowerCase().toString() === "b") {
+        //   filterRemark = b(remk);
+        // }
+
+        let remain = obj.numbers.filter(
+          (fn) =>
+            ![...filterRemark.map((fr) => fr.number.toString())].includes(
+              fn.number.toString()
+            )
+        );
+
+        remain.push({ number: remk.number, amount: remk.amount });
+        newCall = remain;
+      });
+      // console.log(newCall);
+      obj.numbers = newCall;
+    }
+    return obj;
+  });
+
+  // test
+
   // console.log(calls);
-  console.log(colors.bgBlue(calls));
+  // console.log(colors.bgBlue(calls));
 
   res.status(200).json({
     success: true,
-    count: calls.length,
-    data: calls,
+    count: newCalls.length,
+    data: newCalls,
     selfUrl: req.originalUrl,
   });
 });
@@ -84,10 +292,9 @@ exports.getCall = asyncHandler(async (req, res, next) => {
 // Desc    CREATE CALL
 // Route   POST api/v1/agents/:agentId/calls
 exports.createCall = asyncHandler(async (req, res, next) => {
+  let betTime = moment(Date.now()).format("YYYY-MM-DD");
 
-  let betTime =moment(Date.now()).format('YYYY-MM-DD');
-
-  console.log(betTime)
+  console.log(betTime);
 
   let tAmt = req.body.numbers
     .map((item) => Number(item.amount))
@@ -98,11 +305,11 @@ exports.createCall = asyncHandler(async (req, res, next) => {
     comUser = await User.findById(req.body.master);
   } else if (req.body.agent) {
     comUser = await User.findById(req.body.agent);
-  }else if(req.body.customer){
+  } else if (req.body.customer) {
     comUser = await Customer.findById(req.body.customer);
   }
 
-  console.log(comUser)
+  console.log(comUser);
 
   // Add user to req.body
   req.body.callId = Date.now().toString();
@@ -178,15 +385,19 @@ exports.createCall = asyncHandler(async (req, res, next) => {
 // Desc    UPDATE USERS
 // Route   PUT api/v1/user/:id
 exports.updateCall = asyncHandler(async (req, res, next) => {
-
   const democall = await Call.findById(req.params.callId);
 
   let removeNumbers;
   const updateCallNumbers = req.body.numbers.filter((obj) => {
-    console.log(obj)
-    if(obj.amount == "0"){
-      removeNumbers=democall.numbers[democall.numbers.findIndex(fn=>fn.number.toString()===obj.number.toString())]
-    }else{
+    console.log(obj);
+    if (obj.amount == "0") {
+      removeNumbers =
+        democall.numbers[
+          democall.numbers.findIndex(
+            (fn) => fn.number.toString() === obj.number.toString()
+          )
+        ];
+    } else {
       return obj;
     }
   });
@@ -258,17 +469,28 @@ exports.updateCall = asyncHandler(async (req, res, next) => {
     }
   });
 
-
-  if(removeNumbers !== undefined){
-      console.log('remove ma gui')
-      demolager[demolager.findIndex(obj=>obj.number.toString()===removeNumbers.number.toString())] = {
-        number:removeNumbers.number,
-        amount:(Number(demolager[demolager.findIndex(obj=>obj.number.toString()===removeNumbers.number.toString())].amount)-Number(removeNumbers.amount)).toString()
-      }
+  if (removeNumbers !== undefined) {
+    console.log("remove ma gui");
+    demolager[
+      demolager.findIndex(
+        (obj) => obj.number.toString() === removeNumbers.number.toString()
+      )
+    ] = {
+      number: removeNumbers.number,
+      amount: (
+        Number(
+          demolager[
+            demolager.findIndex(
+              (obj) => obj.number.toString() === removeNumbers.number.toString()
+            )
+          ].amount
+        ) - Number(removeNumbers.amount)
+      ).toString(),
+    };
   }
 
-  const updatedemoLager =demolager.filter(obj=>obj.amount!=0)
-  console.log(updatedemoLager)
+  const updatedemoLager = demolager.filter((obj) => obj.amount != 0);
+  console.log(updatedemoLager);
 
   // for lager bet
   const totalAmount = updatedemoLager
@@ -325,7 +547,6 @@ exports.deleteCall = asyncHandler(async (req, res, next) => {
   // // for lager call
   callNumbers.map((cn) => {
     if (demolager.map((l) => l.number).includes(cn.number)) {
-
       demolager[demolager.findIndex((obj) => obj.number === cn.number)] = {
         number: cn.number,
         amount: (
@@ -336,10 +557,9 @@ exports.deleteCall = asyncHandler(async (req, res, next) => {
         ).toString(),
       };
     }
-    
   });
 
-  const updatedemoLager =demolager.filter(obj=>obj.amount!=0)
+  const updatedemoLager = demolager.filter((obj) => obj.amount != 0);
   // for lager bet
   const totalAmount = updatedemoLager
     .map((dml) => Number(dml.amount))
@@ -355,7 +575,6 @@ exports.deleteCall = asyncHandler(async (req, res, next) => {
 
   const upL = await updateLager.save();
 
-  
   res.status(200).json({ success: true, data: {}, lager: upL });
 });
 
@@ -435,8 +654,8 @@ exports.callNumbersTotal = asyncHandler(async (req, res, next) => {
   res.status(200).json({ success: true, numsData, numsTotal });
 });
 
-const generateCallId = async(customer,lotteryId) => {
-const betID = Date.now();
+const generateCallId = async (customer, lotteryId) => {
+  const betID = Date.now();
   // let callslength;
   // if (customer.role === 'Master') {
   //   callslength = await Call.find({lottery:lotteryId,master:customer._id}).count();
@@ -448,4 +667,4 @@ const betID = Date.now();
 
   // const betID = `${customer.username}-${callslength+1}`
   return betID;
-}
+};
