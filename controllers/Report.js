@@ -7,6 +7,7 @@ const User = require("../models/User");
 const Lottery = require("../models/Lottery");
 const OutCall = require("../models/OutCall");
 const moment = require("moment");
+const { filterShortCut } = require("../utils/filterCallForShortcut");
 
 exports.membersCollections = asyncHandler(async (req, res, next) => {
   // const start = new Date();
@@ -400,7 +401,7 @@ exports.dailyMembers = asyncHandler(async (req, res, next) => {
   // // console.log(ldate.toISOString());
   // const lagers = await Lager.findById(lager);
 
-  const calls = await Call.find({ betTime: date })
+  const calls =filterShortCut(await Call.find({ betTime: date })
     .populate({
       path: "user",
       select: "username name role",
@@ -412,7 +413,7 @@ exports.dailyMembers = asyncHandler(async (req, res, next) => {
     .populate({
       path: "agent",
       select: "username name role",
-    });
+    }));
   console.log(calls);
   const result = [];
 

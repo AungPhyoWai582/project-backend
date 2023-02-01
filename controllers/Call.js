@@ -13,24 +13,8 @@ const User = require("../models/User");
 const Customer = require("../models/Customer");
 const { removeListener } = require("../models/Call");
 const moment = require("moment");
-const {
-  r,
-  startStar,
-  forwardPate,
-  backpate,
-  p,
-  k,
-  b,
-  Breaks,
-  aper,
-  masone,
-  sonema,
-  mm,
-  ss,
-  spu,
-  mpu,
-  padatha,
-} = require("../utils/BetSign");
+
+const { filterShortCut } = require("../utils/filterCallForShortcut");
 
 // Desc    GET USERS
 // Route   GET api/v1/users/:agentId/calls
@@ -71,193 +55,8 @@ exports.getCalls = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse("Here no have bet lists", 404));
   }
 
-  const newCalls = calls.map((c) => {
-    let obj = c;
-    if (obj.remark.length > 0) {
-      // let newCall;
-      let newCall;
-      obj.remark.map((remk) => {
-        console.log(remk);
-        let filterRemark;
-
-        // ** (starStar) func:
-        if (
-          remk.type.toLowerCase().toString() === "**" &&
-          remk.type.length == 2
-        ) {
-          filterRemark = startStar(remk);
-        }else
-
-        // k (natkat) func:
-        if (remk.type.length===1 && remk.type.toLowerCase().toString() === "k") {
-          filterRemark = k(remk);
-        }else
-
-        // p (power) func:
-        if (remk.type.length===1 && remk.type.toLowerCase().toString() === "p") {
-          filterRemark = p(remk);
-        }else
-
-        // b (brother) func:
-        if (remk.type.length===1 && remk.type.toLowerCase().toString() === "b") {
-          filterRemark = b(remk);
-        }else
-
-        // 0...9/ (breaks) func:
-        if (
-          remk.type.length === 2 &&
-          ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(remk.type[0]) && remk.type.endsWith('/')
-        ) {
-          filterRemark = Breaks(remk);
-        }else
-
-        // 0...9- (aper) func:
-        if (
-          remk.type.length === 2 &&
-          ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(remk.type[0]) && remk.type.endsWith('-')
-        ) {
-          filterRemark = aper(remk);
-        }else
-
-        // 0...9* (forwardPate) func:
-        if (
-          remk.type.length === 2 &&
-          ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(
-            remk.type[0]
-          ) &&
-          remk.type[remk.type.length - 1].toString() === "*"
-        ) {
-          filterRemark = forwardPate(remk);
-        }else
-
-        // *0...9 (backpate) func:
-        if (
-          remk.type.length === 2 &&
-          ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(
-            remk.type[1]
-          ) &&
-          remk.type[0].toString() === "*"
-        ) {
-          filterRemark = backpate(remk);
-        }else
-
-        // 91+ (r) func:
-        if (remk.number.length===3 && remk.type.toLowerCase().toString() === "+") {
-          filterRemark = r(remk);
-        }else
-
-        // ms (masone) func:
-        if (
-          remk.type.length === 2 &&
-          remk.type.toLowerCase().toString() === "ms"
-        ) {
-          filterRemark = masone(remk);
-        }else
-
-        // sm (sonema) func:
-        if (
-          remk.type.length === 2 &&
-          remk.type.toLowerCase().toString() === "sm"
-        ) {
-          filterRemark = sonema(remk);
-        }else
-
-        // mm (mama) func:
-        if (
-          remk.type.length === 2 &&
-          remk.type.toLowerCase().toString() === "mm"
-        ) {
-          filterRemark = mm(remk);
-        }else
-
-        // ss (sonesone) func:
-        if (
-          remk.type.length === 2 &&
-          remk.type.toLowerCase().toString() === "ss"
-        ) {
-          filterRemark = ss(remk);
-        }else
-
-        // s* (sonepu) func:
-        if (
-          remk.type.length === 2 &&
-          remk.type.toLowerCase().toString() === "s*"
-        ) {
-          filterRemark = spu(remk);
-        }else
-
-        // m* (mapu) func:
-        if (
-          remk.type.length === 2 &&
-          remk.type.toLowerCase().toString() === "m*"
-        ) {
-          filterRemark = mpu(remk);
-        }else
-
-        // 123/123* (padatha) func:
-        if (
-          remk.type.length >= 3 && remk.type.endsWith("*")
-            ? remk.type.length > 3 && remk.type.length <= 6
-            : remk.type.length >= 3 && remk.type.length <= 5
-        ) {
-          filterRemark = padatha(remk);
-        }
-
-        // if (remk.type.toString() === "+") {
-        //   filterRemark = r(remk);
-        // } else if (remk.type.toString() === "**" && remk.type.length === 2) {
-        //   filterRemark = startStar(remk);
-        // } else if (
-        //   remk.type.startsWith("*") &&
-        //   ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(
-        //     remk.type[remk.type.length - 1]
-        //   )
-        // ) {
-        //   filterRemark = forwardPate(remk);
-        // } else if (
-        //   remk.type.endsWith("*") &&
-        //   ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(
-        //     remk.type[0]
-        //   )
-        // ) {
-        //   filterRemark = backpate(remk);
-        // } else if (
-        //   remk.type.endsWith("/") &&
-        //   ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(
-        //     remk.type[0]
-        //   )
-        // ) {
-        //   filterRemark = Breaks(remk);
-        // } else if (
-        //   remk.type.endsWith("-") &&
-        //   ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(
-        //     remk.type[0]
-        //   )
-        // ) {
-        //   filterRemark = aper(remk);
-        // } else if (remk.type.toLowerCase().toString() === "p") {
-        //   filterRemark = p(remk);
-        // } else if (remk.type.toLowerCase().toString() === "k") {
-        //   filterRemark = k(remk);
-        // } else if (remk.type.toLowerCase().toString() === "b") {
-        //   filterRemark = b(remk);
-        // }
-
-        let remain = obj.numbers.filter(
-          (fn) =>
-            ![...filterRemark.map((fr) => fr.number.toString())].includes(
-              fn.number.toString()
-            )
-        );
-
-        remain.push({ number: remk.number, amount: remk.amount });
-        newCall = remain;
-      });
-      // console.log(newCall);
-      obj.numbers = newCall;
-    }
-    return obj;
-  });
+  const newCalls = filterShortCut(calls)
+  // const newCalls = calls
 
   // test
 
@@ -286,7 +85,9 @@ exports.getCall = asyncHandler(async (req, res, next) => {
     );
   }
 
-  res.status(200).json({ success: true, data: call });
+  const newCall = filterShortCut(call)
+
+  res.status(200).json({ success: true, data: newCall });
 });
 
 // Desc    CREATE CALL
