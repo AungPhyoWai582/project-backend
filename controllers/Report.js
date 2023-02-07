@@ -20,7 +20,7 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
   // const start = "Fri Aug 19 2022 12:42:18 GMT+0630";
 
   // console.log(start.toISOString(), end.toISOString());
-  console.log(start, end);
+  console.log(start, end,customer,time);
 
   // console.log(JSON.parse(queryStr));
 
@@ -213,12 +213,12 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
 });
 
 exports.outCollections = asyncHandler(async (req, res, next) => {
-  let { start_date, end_date,time } = await req.query;
+  let { start_date, end_date, time } = await req.query;
   // console.log(start_date.toISOString())
   const start = moment(new Date(start_date)).format("YYYY-MM-DD");
   const end = moment(new Date(end_date)).format("YYYY-MM-DD");
 
-  console.log(start, end);
+  console.log(start, end, req.user.id);
 
   const query = await OutCall.find({
     user: req.user._id,
@@ -230,7 +230,7 @@ exports.outCollections = asyncHandler(async (req, res, next) => {
     path: "customer",
     select: "username name commission",
   });
-  console.log(query);
+  console.log(colors.bgCyan(query));
   let calls;
   if (time == "All") {
     calls = query;
@@ -289,7 +289,7 @@ exports.mainCollections = asyncHandler(async (req, res, next) => {
     user: req.user._id,
     _date: {
       $gte: start,
-      $lte: end
+      $lte: end,
     },
   }).populate({
     path: "user",
@@ -401,19 +401,21 @@ exports.dailyMembers = asyncHandler(async (req, res, next) => {
   // // console.log(ldate.toISOString());
   // const lagers = await Lager.findById(lager);
 
-  const calls =filterShortCut(await Call.find({ betTime: date })
-    .populate({
-      path: "user",
-      select: "username name role",
-    })
-    .populate({
-      path: "master",
-      select: "username name role",
-    })
-    .populate({
-      path: "agent",
-      select: "username name role",
-    }));
+  const calls = filterShortCut(
+    await Call.find({ betTime: date })
+      .populate({
+        path: "user",
+        select: "username name role",
+      })
+      .populate({
+        path: "master",
+        select: "username name role",
+      })
+      .populate({
+        path: "agent",
+        select: "username name role",
+      })
+  );
   console.log(calls);
   const result = [];
 
@@ -427,20 +429,26 @@ exports.dailyMembers = asyncHandler(async (req, res, next) => {
   if (req.user.role === "Agent") {
     c = [...new Set(calls.map((cal) => cal.customer))];
   }
-  c.map((cl) => result.push({ member: cl }));
+  // c.map((cl) => result.push({ member: cl }));
+  c.forEach((cal) => {
+    if (cal !== undefined) result.push(cal);
+  });
+  console.log(colors.bgBlue(result));
+
   // const demo = [...result];
   result.map((rs, key) => {
-    console.log(rs.member._id);
+    console.log(calls, rs._id);
     let memCalls;
     if (req.user.role === "Admin") {
-      memCalls = calls.filter((cal) => cal.master._id === rs.member._id);
+      memCalls = calls.filter((cal) => cal.master && cal.master._id === rs._id);
     }
     if (req.user.role === "Master") {
-      memCalls = calls.filter((cal) => cal.agent._id === rs.member._id);
-      console.log(memCalls);
+      memCalls = calls.filter((cal) => cal.agent && cal.agent._id === rs._id);
     }
     if (req.user.role === "Agent") {
-      memCalls = calls.filter((cal) => cal.customer._id === rs.member._id);
+      memCalls = calls.filter(
+        (cal) => cal.customer && cal.customer._id === rs._id
+      );
     }
 
     const pout_tee_amount = memCalls
@@ -459,7 +467,7 @@ exports.dailyMembers = asyncHandler(async (req, res, next) => {
       .reduce((pre, next) => pre + next, 0);
 
     result[key] = {
-      member: rs.member,
+      member: rs,
       totalAmount,
       pout_tee_amount,
       totalCommission,
@@ -468,7 +476,7 @@ exports.dailyMembers = asyncHandler(async (req, res, next) => {
     };
   });
 
-  console.log(result);
+  // console.log(result);
 
   res.status(200).json({ success: true, report: result });
 });

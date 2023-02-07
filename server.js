@@ -14,7 +14,7 @@ connectDB();
 const call = require("./routes/Call");
 const auth = require("./routes/auth");
 const admin = require('./routes/Admin')
-const master = require("./routes/Master");
+const user = require("./routes/User");
 const agent = require("./routes/Agent");
 const result = require("./routes/Result");
 const report = require("./routes/Report");
@@ -47,8 +47,8 @@ app.use(
   auth
 );
 app.use("/api/v1/admin",admin)
-app.use("/api/v1/masters", master);
-app.use("/api/v1/agents", agent);
+app.use("/api/v1/users", user);
+// app.use("/api/v1/agents", agent);
 app.use("/api/v1/call/", call);
 app.use("/api/v1/outcall/", outcall);
 app.use("/api/v1/reports", report);

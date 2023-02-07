@@ -12,6 +12,7 @@ const { calculateReport } = require("../utils/calculateReport");
 const { calculateLager } = require("../utils/calculateLager");
 const User = require("../models/User");
 const Customer = require("../models/Customer");
+const moment = require("moment");
 
 // Desc    GET USERS
 // Route   GET api/v1/users/:agentId/calls
@@ -80,7 +81,7 @@ exports.getCall = asyncHandler(async (req, res, next) => {
 // Desc    CREATE CALL
 // Route   POST api/v1/agents/:agentId/calls
 exports.createCall = asyncHandler(async (req, res, next) => {
-  const userRoles = ["customer", "agent", "master"];
+  let betTime = moment(Date.now()).format("YYYY-MM-DD");
 
   const comUser = await Customer.findById(req.body.customer);
   let tAmt = req.body.numbers
@@ -94,6 +95,7 @@ exports.createCall = asyncHandler(async (req, res, next) => {
   req.body.totalAmount = tAmt;
   req.body.commission = Number(tAmt * (comUser.commission / 100));
   req.body.win = Number(tAmt * (comUser.commission / 100)) - Number(tAmt);
+  req.body.betTime=betTime;
   // req.body.numbers.filter((num) => num.amount.toString() === "0");
   // const lottery = await Lottery.findById(req.params.lotteryId);
 

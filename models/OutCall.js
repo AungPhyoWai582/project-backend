@@ -40,7 +40,7 @@ const OutCall = new mongoose.Schema({
   },
   betTime: {
     type: Date,
-    default: Date.now,
+    // default: Date.now,
   },
 });
 

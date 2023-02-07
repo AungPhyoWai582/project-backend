@@ -106,12 +106,13 @@ let downLineUsers;
 
     return obj;
   });
+  console.log(customers)
 
   // For Out
   const outData = customers.map((cus) => {
     // console.log(cus.customer);
     const totalOut = outcalls
-      .filter((cal) => cal.customer.toString() === cus.customer.toString())
+      .filter((cal) =>cal.customer.toString() === cus._id.toString())
       .map((cal) => Number(cal.totalAmount))
       .reduce((pre, next) => pre + next, 0);
 
