@@ -10,17 +10,17 @@ const paginate = require("../utils/paginate");
 exports.getUsers = asyncHandler(async (req, res, next) => {
   let query;
 
-  // Copy req.query
-  const reqQuery = { ...query };
+  // // Copy req.query
+  // const reqQuery = { ...query };
 
-  // Fields to execute
-  const removeFields = ["select", "sort", "page", "limit","rowperpage"];
+  // // Fields to execute
+  // const removeFields = ["select", "sort", "page", "limit","search"];
 
-  // Loop over removeFields and delete them from reqQuery
-  removeFields.forEach((param) => delete reqQuery[param]);
+  // // Loop over removeFields and delete them from reqQuery
+  // removeFields.forEach((param) => delete reqQuery[param]);
 
-  let queryStr = JSON.stringify(reqQuery);
-  console.log(JSON.parse(queryStr));
+  // let queryStr = JSON.stringify(reqQuery);
+  // console.log(colors.bgCyan(JSON.parse(queryStr)));
 
   // pagination
   const pagination = {};
@@ -48,7 +48,19 @@ exports.getUsers = asyncHandler(async (req, res, next) => {
   // query = query.skip(startIndex).limit(limit);
 
   // pagination result
-  if (req.user._id) {
+  // if (req.user._id) {
+  if (req.query.search) {
+    console.log(req.query.search);
+
+    query = await User.find({
+      username: { $regex: req.query.search },
+    })
+      .limit(limit)
+      .skip(startIndex)
+      .populate({ path: "createByUser", select: "name role" });
+
+    // console.log(query);
+  } else {
     query = await User.find({ createByUser: req.user._id })
       .limit(limit)
       .skip(startIndex)
@@ -56,26 +68,25 @@ exports.getUsers = asyncHandler(async (req, res, next) => {
         path: "createByUser",
         select: "name role",
       });
-  } else {
-    query = await User.find(JSON.parse(queryStr))
-      .limit(limit)
-      .skip(startIndex)
-      .populate({
-        path: "createByUser",
-        select: "name role",
-      });
   }
+  // } else {
+  //   query = await User.find(JSON.parse(queryStr))
+  //     .limit(limit)
+  //     .skip(startIndex)
+  //     .populate({
+  //       path: "createByUser",
+  //       select: "name role",
+  //     });
+  // }
 
   const users = query;
+  // console.log(users)
 
   let counts;
   if (total % limit === 0) {
-    counts = parseInt(total/limit);
-    console.log(colors.bgBlue(parseInt(total/limit)))
+    counts = parseInt(total / limit);
   } else {
-    counts =parseInt(total/limit) +1;
-    // console.log(parseInt(total/req.query.rowperpage)+1)
-    console.log(colors.bgBlue(parseInt(total/limit)+Number(1)))
+    counts = parseInt(total / limit) + 1;
   }
   // console.log(counts,req.query.rowperpage);
   res.status(200).json({
