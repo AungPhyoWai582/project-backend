@@ -20,7 +20,7 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
   // const start = "Fri Aug 19 2022 12:42:18 GMT+0630";
 
   // console.log(start.toISOString(), end.toISOString());
-  console.log(start, end,customer,time);
+  console.log(start, end, customer, time);
 
   // console.log(JSON.parse(queryStr));
 
@@ -42,7 +42,7 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
 
   if (req.user.role === "Admin") {
     // console.log(Date(start), Date(end));
-    const query = await Call.find({
+    calls = await Call.find({
       user: req.user._id,
       master: members.map((m) => m._id),
       betTime: {
@@ -50,25 +50,24 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
         $lte: end,
       },
     });
-    console.log(query);
-    if (time === "All") {
-      calls = query;
-    } else if (time !== "All") {
-      console.log(time);
-      const lots = await Lottery.find({
-        _time: time,
-        betTime: {
-          $gte: start,
-          $lte: end,
-        },
-      });
-      // console.log(lots);
-      calls = query.filter((q) =>
-        lots.map((l) => l._id.toString()).includes(q.lottery.toString())
-      );
-    }
+    console.log(calls);
+    // if (time === "All") {
+    //   calls = query;
+    // } else if (time !== "All") {
+    //   console.log(time);
+    //   const lots = await Lottery.find({
+    //     _time: time,
+    //     betTime: {
+    //       $gte: start,
+    //       $lte: end,
+    //     },
+    //   });
+    //   // console.log(lots);
+    //   calls = query.filter((q) =>
+    //     lots.map((l) => l._id.toString()).includes(q.lottery.toString())
+    //   );
+    // }
   }
-
   if (req.user.role === "Master") {
     const query = await Call.find({
       user: req.user._id,
@@ -123,25 +122,49 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
     }
   }
 
-  // console.log(calls);
+  let lots;
+  if (time == "All") {
+    lots = await Lottery.find({
+      betTime: {
+        $gte: start,
+        $lte: end,
+      },
+    });
+  }
+  else {
+    let l = await Lottery.find({
+      _time: time,
+      betTime: {
+        $gte: start,
+        $lte: end,
+      },
+    });
+    lots = l.length?l:[]
+  }
+
+  const _calls = calls.filter(cal=>lots.map((l) => l._id.toString()).includes(cal.lottery.toString()))
+
+
+  console.log(colors.bgCyan(_calls));
 
   // .populate({ path: "user", select: "username name role" })
   // .populate({ path: "agent", select: "username name role" });
   if (!calls.length) {
     return next(new ErrorResponse(`Reports not found`, 404));
   }
+
   members.map((m) => {
     console.log(m._id);
     let obj = {};
     let c;
     if (req.user.role === "Admin") {
-      c = calls.filter((cal) => cal.master.toString() === m.id.toString());
+      c = _calls.filter((cal) => cal.master.toString() === m.id.toString());
     }
     if (req.user.role === "Master") {
-      c = calls.filter((cal) => cal.agent.toString() === m.id.toString());
+      c = _calls.filter((cal) => cal.agent.toString() === m.id.toString());
     }
     if (req.user.role === "Agent") {
-      c = calls.filter((cal) => cal.customer.toString() === m.id.toString());
+      c = _calls.filter((cal) => cal.customer.toString() === m.id.toString());
     }
     const pout_tee_amount = c
       .map((cal) => Number(cal.pout_tee_amount))
@@ -200,7 +223,7 @@ exports.membersCollections = asyncHandler(async (req, res, next) => {
     memberReport,
   };
 
-  // console.log(colors.bgGreen(report));
+  console.log(colors.bgRed(report));
 
   res.status(200).json({
     success: true,
@@ -230,27 +253,65 @@ exports.outCollections = asyncHandler(async (req, res, next) => {
     path: "customer",
     select: "username name commission",
   });
-  console.log(colors.bgCyan(query));
+  // console.log(colors.bgCyan(query));
   let calls;
+  let lots;
   if (time == "All") {
-    calls = query;
-    console.log("all");
-  } else {
-    const lots = await Lottery.find({
+    lots = await Lottery.find({
+      betTime: {
+        $gte: start,
+        $lte: end,
+      },
+    });
+  }
+  else {
+    let l = await Lottery.find({
       _time: time,
       betTime: {
         $gte: start,
         $lte: end,
       },
     });
-    console.log(lots);
-    calls = query.filter((q) =>
-      lots.map((l) => l._id.toString()).includes(q.lottery.toString())
-    );
+    lots = l.length?l:[]
+  }
+  console.log(lots)
+
+  if ( query.length) {
+    // console.log(lots);
+
+    calls = query.filter(q=>lots.map((l) => l._id.toString()).includes(q.lottery.toString())).map((q) => {
+      // let obj = Object.assign(q.toObject());
+      let obj = q.toObject();
+      console.log("Old OBJ", q);
+
+      console.log("New OBJ", {
+        _time:
+          lots[
+            [...lots].findIndex(
+              (l) => l._id.toString() == obj.lottery.toString()
+            )
+          ]._time,
+      });
+
+      const result = Object.assign(
+        {
+          _time:
+            lots[
+              [...lots].findIndex(
+                (l) => l._id.toString() == obj.lottery.toString()
+              )
+            ]._time,
+        },
+        obj
+      );
+      console.log(colors.bgRed(result));
+      return result;
+    });
   }
 
   console.log(calls);
 
+  // const customerName = [...new Set(calls.map(cal=>cal.customer.name))].toString()
   const pout_tee_amount = calls
     .map((cal) => Number(cal.pout_tee_amount))
     .reduce((pre, next) => pre + next, 0);
@@ -268,13 +329,14 @@ exports.outCollections = asyncHandler(async (req, res, next) => {
 
   // console.log(time);
   const totalOut = {
+    // customerName,
     pout_tee_amount,
     totalAmount,
     totalCommission,
     totalWin,
   };
   const report = { calls, totalOut };
-  console.log(report);
+  // console.log(report);
 
   res.status(200).json({ success: true, out: "this is out data", report });
 });
@@ -297,12 +359,68 @@ exports.mainCollections = asyncHandler(async (req, res, next) => {
   });
 
   let main;
+  let lots;
   if (time == "All") {
-    main = query;
-    console.log("all");
-  } else {
-    main = query.filter((q) => q._time.toString() === time.toString());
+    lots = await Lottery.find({
+      betTime: {
+        $gte: start,
+        $lte: end,
+      },
+    });
   }
+  else {
+    let l = await Lottery.find({
+      _time: time,
+      betTime: {
+        $gte: start,
+        $lte: end,
+      },
+    });
+    lots = l.length?l:[]
+  }
+  console.log(lots)
+
+  if ( query.length) {
+    // console.log(lots);
+
+    main = query.filter(q=>lots.map((l) => l._time.toString()).includes(q._time.toString())).map((q) => {
+      // let obj = Object.assign(q.toObject());
+      let obj = q.toObject();
+      console.log("Old OBJ", q);
+
+      console.log("New OBJ", {
+        _time:
+          lots[
+            [...lots].findIndex(
+              (l) => l._time.toString() == obj._time.toString()
+            )
+          ],
+      });
+
+      const result = Object.assign(
+        {
+          
+          _date:
+            lots[
+              [...lots].findIndex(
+                (l) => l._time.toString() == obj._time.toString()
+              )
+            ]._date,
+        },
+        obj
+      );
+      console.log(colors.bgRed(result));
+      return result;
+    });
+  }
+
+  // let main;
+  // if (time == "All") {
+  //   main = query;
+  //   console.log("all");
+  // } else {
+  //   main = query.filter((q) => q._time.toString() === time.toString());
+  // }
 
   console.log(main);
 
@@ -313,18 +431,19 @@ exports.mainCollections = asyncHandler(async (req, res, next) => {
     .map((cal) => Number(cal.totalAmount))
     .reduce((pre, next) => pre + next, 0);
 
-  // const totalCommission = main
-  //   .map((cal) => Number(cal.commission))
-  //   .reduce((pre, next) => pre + next, 0);
+  const totalOriginalBreak = main
+    .map((cal) => Number(cal.originalBreak))
+    .reduce((pre, next) => pre + next, 0);
 
   const totalWin = main
     .map((cal) => Number(cal.win))
     .reduce((pre, next) => pre + next, 0);
 
-  // console.log(time);
+  console.log(totalWin);
   const totalMain = {
     pout_tee_amount,
     totalAmount,
+    totalOriginalBreak,
     totalWin,
   };
 
