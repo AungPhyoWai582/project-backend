@@ -408,11 +408,11 @@ exports.daily = asyncHandler(async (req, res, next) => {
     );
     const pout_tee_amount = c.reduce((acc,cur)=>acc+Number(cur.pout_tee_amount || 0),0)
   
-    const totalAmount = c.reduce((acc,cur)=>acc+Number(cur.totalAmount));
+    const totalAmount = c.reduce((acc,cur)=>acc+Number(cur.totalAmount),0);
 
-    const totalCommission = c.reduce((acc,cur)=>acc+Number(cur.commission));
+    const totalCommission = c.reduce((acc,cur)=>acc+Number(cur.commission),0);
 
-    const totalWin = c.reduce((acc,cur)=>acc+Number(cur.win));
+    const totalWin = c.reduce((acc,cur)=>acc+Number(cur.win),0);
     
     if (c.length) {
       daily.push({
@@ -491,11 +491,12 @@ exports.dailyMembers = asyncHandler(async (req, res, next) => {
 
     const pout_tee_amount = memCalls.reduce((acc,cur)=>acc+Number(cur.pout_tee_amount || 0),0)
      
-    const totalAmount = memCalls.reduce((acc,cur)=>acc+Number(cur.totalAmount));
+    const totalAmount = memCalls.reduce((acc,cur)=>acc+Number(cur.totalAmount),0);
 
-    const totalCommission = memCalls.reduce((acc,cur)=>acc+Number(cur.commission));
 
-    const totalWin = memCalls.reduce((acc,cur)=>acc+Number(cur.win));
+    const totalCommission = memCalls.reduce((acc,cur)=>acc+Number(cur.commission),0);
+
+    const totalWin = memCalls.reduce((acc,cur)=>acc+Number(cur.win),0);
 
     result[key] = {
       member: rs,
