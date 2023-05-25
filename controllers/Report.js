@@ -258,7 +258,13 @@ exports.outCollections = asyncHandler(async (req, res, next) => {
       });
   }
 
-  // console.log(calls);
+  console.log(calls);
+
+  if(!calls){
+    return next(
+      new ErrorResponse(`Outcalls are not found`, 404)
+    );
+  }
 
   // const customerName = [...new Set(calls.map(cal=>cal.customer.name))].toString()
   const pout_tee_amount = calls.reduce(
